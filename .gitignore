@@ -5,6 +5,9 @@ data/*
 # Run artifacts may contain derived data from raw records; publish only reviewed aggregates.
 runs/
 
+# Sealed test instances and answer keys never enter version control or agent-visible paths.
+benchmarks/sealed/
+
 # Python / tooling
 __pycache__/
 *.py[cod]

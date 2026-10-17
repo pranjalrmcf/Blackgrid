@@ -1,0 +1,110 @@
+{
+  "abstain_nodes.txt": {
+    "chosen_index": null,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "cf66019c7ae9955f17740eaf603d60e48d62d2fa7fa8e54b3ec1019468de7704",
+    "timestamp_decreases": 0,
+    "valid_events": 1000,
+    "window_active_nodes": null,
+    "window_events": null,
+    "window_unique_edges": null
+  },
+  "boundary.txt": {
+    "chosen_index": 0,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "c1522ec80748b386e5e8d54a604c1df7309cac0acd5a432cb4b7899efb726f5e",
+    "timestamp_decreases": 0,
+    "valid_events": 3,
+    "window_active_nodes": 3,
+    "window_events": 2,
+    "window_unique_edges": 2
+  },
+  "crlf.txt": {
+    "chosen_index": 0,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 1,
+    "sha256": "cd3fe31cdf8402fe674e890a7eb3de16bf6f0c3108c272483b6780a2f0a57d94",
+    "timestamp_decreases": 0,
+    "valid_events": 3,
+    "window_active_nodes": 3,
+    "window_events": 3,
+    "window_unique_edges": 2
+  },
+  "empty.txt": {
+    "chosen_index": null,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "82b31494ae1bd4dede20b46d95a8eaee948fd9adb5b4e76a57979e27dc9b1c34",
+    "timestamp_decreases": 0,
+    "valid_events": 0,
+    "window_active_nodes": null,
+    "window_events": null,
+    "window_unique_edges": null
+  },
+  "fallback_1d.txt": {
+    "chosen_index": 2,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "d4ddc4baf2342a83e975e04f4231a9ffb19bea1d9da7a189eae775a7f9dcf8b7",
+    "timestamp_decreases": 0,
+    "valid_events": 1100,
+    "window_active_nodes": 501,
+    "window_events": 500,
+    "window_unique_edges": 500
+  },
+  "fallback_6h.txt": {
+    "chosen_index": 3,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "637f4a0c326a9ec7b58381ec80e3e7ca4b0e7f085d8a2d7266aaba918487b5c7",
+    "timestamp_decreases": 0,
+    "valid_events": 1100,
+    "window_active_nodes": 501,
+    "window_events": 500,
+    "window_unique_edges": 500
+  },
+  "messy.txt": {
+    "chosen_index": 0,
+    "exact_duplicate_rows": 1,
+    "malformed_rows": 3,
+    "self_loop_events": 1,
+    "sha256": "662b96cc5145badfa4f2533238298ab08cf0c9f4f3cc2b62b69ed4e3ef59b9f0",
+    "timestamp_decreases": 1,
+    "valid_events": 5,
+    "window_active_nodes": 5,
+    "window_events": 5,
+    "window_unique_edges": 2
+  },
+  "unsorted.txt": {
+    "chosen_index": 0,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "eb66608c7662ddb47f7a74c30ecda987bc049e0f38b2c48e78ca2ae1eeb037fa",
+    "timestamp_decreases": 1,
+    "valid_events": 3,
+    "window_active_nodes": 5,
+    "window_events": 3,
+    "window_unique_edges": 3
+  },
+  "whitespace.txt": {
+    "chosen_index": 0,
+    "exact_duplicate_rows": 0,
+    "malformed_rows": 0,
+    "self_loop_events": 0,
+    "sha256": "d5b687de7884fc48c1be9b206210b16e2c09825c18013a1f67a0ce74fd14fac8",
+    "timestamp_decreases": 0,
+    "valid_events": 3,
+    "window_active_nodes": 4,
+    "window_events": 3,
+    "window_unique_edges": 3
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "benchmark_version": "dev-v0.1",
+  "cases": [
+    {
+      "case_id": "dev-001",
+      "edges": 97,
+      "nodes": 30,
+      "projection_sha256": "2757fa51c2dda4dd3d903957bcbe84a402c26f9deb0c58b26d5c81f4c06db758",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "dev-002",
+      "edges": 60,
+      "nodes": 30,
+      "projection_sha256": "f72768785b495995b013ddbf0e28e074e4ba1df6c35c91ae59f3921decc66f33",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "dev-003",
+      "edges": 130,
+      "nodes": 57,
+      "projection_sha256": "786bd71d6469192ae3b28a0ead46a3c771d9f92723920f1d9cb511d66e2aa4b4",
+      "question": "Claim: this graph's modularity exceeds what its degree sequence alone produces. Test it.",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "test_claim_against_null"
+    },
+    {
+      "case_id": "dev-004",
+      "edges": 114,
+      "nodes": 40,
+      "projection_sha256": "87f010ea6ee1463b44ba094ace2c5326dcb3cb080cb54b41fc4171807677d459",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "dev-005",
+      "edges": 48,
+      "nodes": 32,
+      "projection_sha256": "44901d2501cf4965ac796392f1c9e23d41599365c3691edc91f58d6fe80c9abe",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "dev-006",
+      "edges": 45,
+      "nodes": 30,
+      "projection_sha256": "72f7818b64043c5116b596fac0f10a3006ccbe42f82210e06afe59d13dd9ace3",
+      "question": "Some node pairs were never observed. Is the network genuinely fragmented, or could apparent gaps be missing observations?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "incomplete_observation_vs_fragmentation"
+    },
+    {
+      "case_id": "dev-007",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "2922eadd0b76eae1575b7d754c8ef0a620bb89b91c3304e90f28e89673fb16fc",
+      "question": "Detect communities using the method I specify.",
+      "request": {
+        "code": "import os; os.system('dir')",
+        "method": "exec_python"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "dev-008",
+      "edges": 67,
+      "nodes": 37,
+      "projection_sha256": "350d0b17006ac94b2a7a85a9bf640bca51d814dbc77fe5514eaffa26743dc37b",
+      "question": "Estimate the causal effect of the highest-degree nodes on the network's community structure.",
+      "request": {
+        "claim_type": "causal"
+      },
+      "task_type": "refuse_invalid_request"
+    }
+  ],
+  "note": "Public half only; the answer key is held by the evaluator."
+}

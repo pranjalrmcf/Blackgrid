@@ -4,7 +4,7 @@ Bounded, evidence-grounded network-science investigations. Sprint 1 builds one o
 
 ## Status
 
-Sprint 1, Day 3. The loader (checksum and schema checks), the size-only window selection, the undirected projection, and the seeded synthetic fixtures with evaluator-only truth are implemented. `run` builds the bounded graph and writes its aggregate artifacts. It then records a **failed** manifest (`not_implemented: experiment`) until Day 5. The aggregate data manifest is at `data/manifests/collegemsg.json`. For a study plan, see `docs/learning_guide.md`.
+Sprint 1, Day 4. The loader (checksum and schema checks), the size-only window selection, and the undirected projection are implemented. So is an 8-case synthetic development benchmark with evaluator-only answer keys (`benchmarks/README.md`), plus hand-checked CollegeMsg parser/window fixtures. `run` builds the bounded graph and writes its aggregate artifacts. It then records a **failed** manifest (`not_implemented: experiment`) until Day 5. The aggregate data manifest is at `data/manifests/collegemsg.json`. For a study plan, see `docs/learning_guide.md`.
 
 ## Setup (offline after the first sync)
 
@@ -43,6 +43,10 @@ uv run --frozen pytest
 |---|---|
 | `src/blackgrid/contracts.py` | Graph, experiment, result, claim, and run-manifest contracts |
 | `src/blackgrid/cli.py` | Offline CLI |
+| `src/blackgrid/collegemsg.py` | Loader, window selection, projection |
+| `src/blackgrid/synthetic.py`, `benchmark.py` | Synthetic generators and the dev benchmark |
+| `benchmarks/` | Split policy, public dev registry; `sealed/` is reserved and git-ignored |
+| `tests/fixtures/collegemsg/` | Hand-checked parser/window fixtures |
 | `configs/` | Validated run configurations |
 | `protocols/` | Versioned study protocols |
 | `docs/decision_log.md` | Append-only decision log |

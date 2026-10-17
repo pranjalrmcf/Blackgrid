@@ -1,85 +1,159 @@
-# BLACKGRID — sprint 01
+# BLACKGRID — Sprint 1
 
-Duration: 14 days from an agreed implementation start; no fixed start date. Planning capacity: 16–20 focused hours total, usually 60–90 minutes per workday with a longer integration session. Scope may be reduced to fit actual availability. This document does not start implementation or authorize spending.
+## Time and goal
 
-## Sprint outcome
+This sprint covers 14 days from the agreed start date. Plan for 16–20 focused hours in total, usually 60–90 minutes per session with a longer session to put everything together. Adjust the amount of work to fit the time available.
 
-Deliver one local, reproducible investigation of a bounded CollegeMsg messaging graph, with synthetic known-truth checks: a constrained agent selects a valid community-structure experiment, deterministic tools execute it, a critic checks the evidence, and a report either supports a narrowly stated conclusion or abstains. Provide a deterministic mock mode requiring no paid API. A live LLM run is optional after authorization and is not required for sprint completion.
+Build one small workflow that runs on your computer and studies part of the CollegeMsg messaging network. It should choose an allowed experiment, run the calculations, check the evidence, and write a report. When the evidence is too weak, it must say “not enough evidence.”
 
-Research anchor: “Is the observed community structure stronger than expected under an appropriate null, and how sensitive is the conclusion to missing edges?” This is an exploratory pilot for RQ1/RQ2, not a claim that the architecture improves science.
+Also check the calculations using small artificial networks where we know the answers. These are called **synthetic graphs**.
 
-Do not implement graph ML, full Bayesian inference, causal estimation, custom serving, multi-agent services, a UI, or deployment. Preserve their later phase gates in `PROJECT_CONTEXT.md`.
+The main question is: **Does the messaging network show stronger group structure than a suitable randomized network? Does the answer change when some connections are removed?**
 
-## Selected data and graph contract
+This is an early trial for research questions RQ1 and RQ2 in `PROJECT_CONTEXT.md`. It does not prove that BLACKGRID improves scientific research.
 
-Use `data/CollegeMsg.txt/CollegeMsg.txt` in this repository (currently `C:\Blackgrid\data\CollegeMsg.txt\CollegeMsg.txt`). The [SNAP source documentation](https://snap.stanford.edu/data/CollegeMsg.html) defines directed message events with source, target, and Unix timestamp. Record a local SHA-256, source/citation, schema checks, and usage/redistribution review. Raw files remain unchanged; do not send identifiers or event records to an external LLM or tracing service.
+Start with **mock mode**: fixed example agent responses that need no paid AI service. A real LLM run is optional, needs separate permission, and is not required to finish the sprint. This plan alone does not authorize coding or spending; follow the user's instructions about which day to work on.
 
-Follow the deterministic window rule in `PROJECT_CONTEXT.md`: earliest 7 days, falling back to 3 days, 1 day, then 6 hours solely to meet 1,000-active-node/10,000-unique-edge limits. Freeze the selected bounds and graph construction before inspecting experimental outcomes. If none fits or inference is unsuitable, record an abstention rather than cherry-picking a window.
+Leave graph machine learning, full Bayesian models, causal-effect estimates, custom model hosting, separate agent services, a user interface, and deployment for later. Their requirements remain in `PROJECT_CONTEXT.md`.
 
-Preserve directed repeated events in the selected event table; derive a simple undirected unweighted graph for the single community experiment. Aggregate reciprocal and repeated pairs; omit and count self-loops. Record all validation decisions and exclusions. The inference concerns this projected observed window only. Synthetic fixtures retain known truth; CollegeMsg supplies no verified communities or causal ground truth. If usage rights remain unresolved, mark the CollegeMsg acceptance criterion blocked and complete synthetic checks without claiming the real-data demonstration is done.
+## Dataset and preparation rules
 
-## Minimal experiment specification
+Use `data/CollegeMsg.txt/CollegeMsg.txt` in the repository. Its current full path is `C:\Blackgrid\data\CollegeMsg.txt\CollegeMsg.txt`.
 
-Use the bounded CollegeMsg projection for the real-data demonstration and small planted-community/null graphs with degree-heterogeneous controls for correctness checks. Preselect a community method and statistic; distinguish its objective from latent generator labels. Compare against a documented degree-preserving null where feasible, with explicit handling of disconnected graphs, small graphs, swaps that fail, and Monte Carlo resolution. Do not interpret a small p-value as effect size or proof that communities exist in a substantive social sense.
+The [SNAP dataset page](https://snap.stanford.edu/data/CollegeMsg.html) describes each row as a sender ID, receiver ID, and message time. The time is a Unix timestamp: seconds since the start of 1970 in UTC.
 
-Apply the same community detection and statistic-computation procedure to the observed graph and every null graph, with documented seeds and comparable optimization effort; do not compare an optimized observed partition against unoptimized null partitions.
+Record the source, citation, row-format checks, and decision about permitted use and redistribution. Calculate a **SHA-256 checksum**, a fingerprint that helps confirm that the input file has not changed. Follow any existing usage decision in `docs/decision_log.md`. If permitted use is still unresolved, mark the CollegeMsg run as blocked and continue with synthetic checks. Do not call the real-data work complete in that case.
 
-Use a fixed null-replicate count selected on development cases within the tool-time cap; record it and report the attainable p-value resolution, for example `(1 + exceedances)/(1 + replicates)`. Do not reduce replicates opportunistically after seeing significance. Report the observed statistic, null distribution summary, effect contrast, uncertainty/limitations, and sensitivity to a prespecified edge-removal condition. Formal Bayesian intervals are deferred; label missingness sweeps as sensitivity analysis.
+Keep the raw file unchanged. Never send user IDs or message records to an external LLM or logging service.
 
-The report must say when evidence is inconclusive. An invalid or underpowered experiment should fail or abstain, not yield a forced conclusion. Treat planted labels as evaluator-only metadata.
+### Choose a small time window
 
-## Day-by-day plan
+Follow the fixed rule in `PROJECT_CONTEXT.md`:
 
-| Day | Approx. hours | Work and tangible acceptance evidence |
+1. Start at the earliest valid message time and try the first 7 days.
+2. If that includes more than 1,000 active users or 10,000 distinct connections, try the first 3 days, then 1 day, then 6 hours.
+3. Use the first window that fits both limits. Include the start time and exclude messages exactly at the end time.
+4. Choose using size counts only, before looking at experiment results. Keep the selected times and graph-building rules fixed afterward.
+5. If none fits, or the selected network cannot support a valid experiment, stop with an explanation. Do not search for a window that gives an attractive result.
+
+An active user sends or receives at least one message in the window.
+
+### Turn messages into a network
+
+Keep the selected message table, including direction, timestamps, and repeated messages. For the one group-finding experiment, make a simpler network:
+
+- Each user becomes a node.
+- Two users have one connection if either sent the other at least one message.
+- Repeated messages and messages in both directions become one connection.
+- All connections count equally. This experiment deliberately leaves out message direction and frequency.
+- Leave out messages users send to themselves, but count and report them.
+- Flag exact duplicate rows; do not silently delete them because they might be genuine events.
+
+Record all checks, decisions, excluded records, counts before and after conversion, and the new graph's checksum. Conclusions apply only to this simplified network and time window.
+
+CollegeMsg has no verified social-group labels or known causal effects. Keep its exploratory findings separate from synthetic test scores. Do not describe discovered groups as proven friendships or claim that a network feature causes an outcome.
+
+## The experiment
+
+Use the CollegeMsg network for the real-data demonstration. Use small synthetic networks with built-in groups, randomized connections, and uneven numbers of connections per node to check correctness.
+
+Before running the experiment, choose one group-finding method and one score. Distinguish the groups built into synthetic data from the groups the method finds; they need not match exactly.
+
+Compare the observed network with a **null model**: randomized networks representing a specific alternative explanation. Where practical, preserve each node's number of connections while shuffling which nodes connect. Document how to handle small or disconnected networks and failed shuffling attempts.
+
+Use the same group-finding method, score calculation, random-seed rules, and amount of optimization on the observed network and every randomized network. A **random seed** is a recorded starting value that helps repeat a randomized calculation. Do not carefully optimize the observed grouping while giving the randomized networks less effort.
+
+Choose and record a fixed number of randomized comparisons using synthetic development cases, within the tool's time limit. Do not change that number after seeing whether a result looks statistically significant.
+
+Calculate the Monte Carlo p-value as:
+
+`p = (1 + exceedances) / (1 + replicates)`
+
+Here, `replicates` is the number of randomized comparisons, and `exceedances` counts comparisons whose score is at least as large as the observed score. Report the smallest possible p-value for that number of comparisons: `1 / (1 + replicates)`.
+
+A small p-value does not measure the size of the difference or prove that real social groups exist. Report the observed score, a summary of randomized scores, the size of their difference, uncertainty, and limitations.
+
+Also remove connections using a rule chosen in advance and check whether the conclusion changes. Call this a **sensitivity check**, not a Bayesian uncertainty estimate. Full Bayesian calculations come later.
+
+If an experiment is invalid or has too little evidence, report a failure or “not enough evidence.” Keep synthetic answer keys available only to the evaluator, not to the agent, critic, or report writer.
+
+## Daily plan
+
+| Day | Hours | Work and how to check it |
 |---|---:|---|
-| 1 | 1 | Confirm the CollegeMsg task, source/citation and usage terms, graph/window contract, machine limits, and sprint scope. Write a short protocol and decision log. No private data or paid service needed. |
-| 2 | 1 | Create the minimal repository and locked environment after authorization. Define graph, experiment, result, claim, and run-manifest contracts; document one offline entry point. |
-| 3 | 1.5 | Implement the CollegeMsg loader, checksum/schema checks, and bounded window/projection. Add tiny seeded synthetic fixtures with evaluator-only truth and stable hashes. |
-| 4 | 1 | Build 8 compact synthetic development fixtures covering three graph families and four task types, including null, disconnected, missing-edge, and invalid-request cases; add CollegeMsg parser/window fixtures. Separate future sealed-test location and IDs. |
-| 5 | 1.5 | Implement deterministic graph profiling and the one statistical experiment. Check results against hand-computable cases or an independent numerical oracle. |
-| 6 | 1 | Add fixed missing-edge sensitivity cases and graph provenance. Demonstrate that missing links are labeled unknown and proxy links stay distinguishable. |
-| 7 | 1 | Implement validated experiment specifications and allowlisted execution with resource limits. Reject arbitrary code, invalid methods, oversized inputs, and malformed arguments. |
-| 8 | 1.5 | Add one bounded planner/controller with mock responses and an optional provider adapter. Enforce call, token, retry, revision, cost, and deadline limits before execution. |
-| 9 | 1 | Add a deterministic validator and critic rubric: method prerequisites, statistical support, limitations, and claim/evidence links. Include unsupported causal-claim rejection. |
-| 10 | 1 | Generate a CollegeMsg Markdown report plus structured run artifacts, with observed-window limitations and separate synthetic correctness results. Test that no unsupported number enters the report and that failures/abstentions remain visible. |
-| 11 | 1.5 | Run matched tool-only versus validator/critic pilot fixtures in mock mode. Score schema, workflow, support rubric, useful coverage, and failures; do not infer LLM efficacy from mocks. |
-| 12 | 1 | Exercise prompt-injection-like text, answer-key access, denied network, timeout, and budget-stop scenarios. Verify actual enforcement or explicitly disable unsupported execution paths. |
-| 13 | 2 | Reproduce an offline end-to-end run in a clean environment using documented steps. Inspect report evidence, manifests, and failed-run artifacts. Repair only demonstrated blockers. |
-| 14 | 1.5 | Review all acceptance criteria; publish a local sprint report with limitations, actual hours/costs, and next-phase go/no-go decision. Keep exploratory findings separate from research claims. |
+| 1 | 1 | Confirm the question, CollegeMsg source and usage terms, time-window rules, computer limits, and sprint scope. Write the experiment plan and start the decision log. No private data or paid service is needed. |
+| 2 | 1 | Set up the small code repository and an environment with recorded dependency versions, after permission to implement. Define required fields and checks for graphs, experiments, results, claims, and run records. Document one command that works offline. |
+| 3 | 1.5 | Build the CollegeMsg file reader. Check its checksum and row format, select the fixed time window, and build the simplified graph. Add tiny synthetic test networks with recorded seeds and checksums. Keep their answers away from the agent. |
+| 4 | 1 | Create 8 small synthetic test cases across three network families and four task types. Include randomized networks, disconnected networks, missing connections, and invalid requests. Add file-reader and time-window tests. Reserve separate locations and IDs for future tests that must stay unseen during development. |
+| 5 | 1.5 | Build the network summary and the single statistical experiment. Check the calculations using examples that can be worked out by hand or checked independently. |
+| 6 | 1 | Add the planned missing-connection checks. Record where each graph came from and how it was built. Treat missing connections as unknown; keep guessed connections separate from observed ones. |
+| 7 | 1 | Check experiment requests and allow only registered tools. Enforce resource limits. Reject arbitrary code, unsuitable methods, oversized inputs, and incorrectly formatted arguments. |
+| 8 | 1.5 | Add one simple planner and controller using fixed mock responses. Optionally add a connection to an LLM provider. Check call, token, retry, revision, spending, and time limits before each action. |
+| 9 | 1 | Add rule-based checks and a critic checklist. Check method requirements, statistical support, limitations, and links between claims and evidence. Reject unsupported claims about cause and effect. |
+| 10 | 1 | Produce a readable CollegeMsg Markdown report and machine-readable run records. Explain the time-window limits and show synthetic results separately. Check that every reported number has evidence and that failures remain visible. |
+| 11 | 1.5 | Compare tools alone with tools plus the validator and critic, using the same mock test cases. Check formats, workflow completion, supported claims, useful answers, and failures. Mock responses cannot show how well a real LLM works. |
+| 12 | 1 | Test misleading instructions inside input text, attempts to read answer keys, blocked network access, timeouts, and spending limits. Confirm that restrictions actually work. Disable any execution path that cannot enforce them. |
+| 13 | 2 | Repeat the complete offline workflow in a clean environment using the written instructions. Check the report, evidence, run records, and failure records. Fix problems that prevent completion. |
+| 14 | 1.5 | Check every completion requirement. Write a local sprint report with limitations, actual time and cost, and a decision about the next step. Label early findings clearly; do not present them as confirmed research results. |
 
-Total planned effort: 17.5 hours, leaving roughly 2.5 hours of contingency within the 20-hour ceiling. If integration slips, drop the optional provider adapter/live run first, then reduce fixture breadth while documenting missing coverage. Do not trade away evidence links, split isolation, resource stops, or reproducibility. Mark unfinished criteria explicitly rather than claiming completion.
+The plan totals **17.5 hours**, leaving about **2.5 hours** within the 20-hour limit for unexpected problems.
 
-## Required outputs when implemented
+If time runs short, drop the optional live-LLM connection first. Then reduce the range of test cases if needed, recording what is no longer covered. Keep evidence links, separation of development and unseen tests, resource limits, and repeatable runs. Mark unfinished requirements honestly.
 
-- A minimal offline CLI workflow and documented reproduction command.
-- Versioned CollegeMsg loader/window/projection contract and rights/provenance manifest, plus synthetic generator configuration and development fixtures.
-- One experiment protocol, deterministic implementation, baseline, and critic rubric.
-- Planner mock, validated tool registry, bounded controller, and failure/abstention paths.
-- A CollegeMsg example report and structured manifest with input/projection hashes, time bounds, validation/exclusion counts, and sanitized traces; separate synthetic results.
-- Focused tests, a short pilot evaluation table, and an honest sprint report.
+## What the sprint should produce
 
-These are future deliverables. This handoff contains no code and asserts no tests or experiments have run.
+- One small command-line workflow that works offline, with a command and instructions for repeating it.
+- Versioned CollegeMsg file-reading, time-window, and graph-building rules, plus source and usage records.
+- Synthetic test-data settings and test cases.
+- One experiment plan, repeatable calculation, comparison baseline, and critic checklist.
+- A mock planner, a checked list of allowed tools, a controller with limits, and clear failure outcomes.
+- A CollegeMsg example report and run record containing file and graph checksums, time bounds, validation counts, excluded-record counts, and logs without sensitive data. Synthetic results stay separate.
+- Focused tests, a small comparison table, and an honest sprint report.
 
-## Definition of done
+This is a plan, not proof that these items are complete. Check the actual files, test evidence, and decision log for current progress.
 
-1. A clean offline CollegeMsg run completes from the existing local file using documented instructions without secrets, downloads, or network calls, after usage terms are verified. If terms remain unresolved, mark this criterion blocked; a synthetic-only run is partial completion.
-2. Small known-answer and null fixtures validate numerical tools and invalid-input behavior. A positive fixture does not require every stochastic run to be significant.
-3. Every factual report claim links to recorded evidence; an insufficient-evidence case abstains and an unsupported causal statement is rejected.
-4. Generator truth and held-out metadata are excluded from all planner/critic/report inputs, with a test that attempts access.
-5. Run artifacts record configuration, versions, seeds, hashes, tool calls, failures, timings, and zero/mock versus actual monetary cost accurately.
-6. Budget exhaustion, excessive retries, timeout, oversized graph, malformed tool call, and unauthorized execution terminate predictably with sanitized artifacts.
-7. The pilot reports both unsupported claims and useful coverage, with denominators. Mock outputs validate plumbing only; any real-model results are labeled small exploratory observations.
-8. Missing-edge sensitivity and CollegeMsg observation/projection limitations appear in the report; synthetic scores remain separate. No proprietary ValueMatrix data, added identity information, or raw user/event records appear in external prompts, telemetry, or published reports.
-9. Loader checks cover malformed rows, repeated events, exact-duplicate flagging, self-loops, and timestamps. Tests verify deterministic window selection and pair aggregation; the manifest records raw and projected counts. No result-dependent window selection occurs.
+## When Sprint 1 is complete
 
-## Budget and stop rules
+1. The CollegeMsg workflow runs from the existing local file in a clean environment using the written instructions. It needs no secrets, downloads, or network calls, and the usage decision is recorded. If that decision is unresolved, this requirement stays blocked; synthetic-only work is partial completion.
+2. Small known-answer and randomized test networks check the calculations and handling of invalid inputs. A network designed to contain groups does not have to produce statistical significance on every randomized run.
+3. Every factual claim in the report links to saved evidence. Weak evidence leads to “not enough evidence,” and unsupported causal statements are rejected.
+4. The agent, critic, and report writer cannot read synthetic answer keys or reserved test information. Include a test that tries to access them.
+5. Run records correctly include settings, software versions, seeds, checksums, tool calls, failures, timings, and costs. Distinguish zero-cost mock runs from actual paid usage.
+6. The workflow stops predictably when it runs out of budget, retries too often, exceeds time or size limits, receives a bad tool request, or attempts an unauthorized action. Save a failure record without sensitive data.
+7. The comparison table shows unsupported claims and useful answers, including the total number assessed for each score. Mock results check the workflow only. Any real-LLM results are labeled as small early trials.
+8. The report includes missing-connection checks and CollegeMsg's observation and graph-conversion limits. Synthetic scores remain separate. No proprietary ValueMatrix data, added identity details, or raw user/message records enter external prompts, logs, or published reports.
+9. File-reader tests cover bad rows, repeated events, exact duplicates, self-messages, and timestamps. Tests confirm the fixed time-window rule and connection aggregation. Run records show counts before and after conversion. Results never influence window selection.
 
-Use the defaults in `PROJECT_CONTEXT.md`: CPU-first; experimental graphs at most 1,000 active nodes/10,000 unique edges using the CollegeMsg window rule, one worker, 2 GB worker memory, and 60 seconds per tool. Begin smaller if null replicates exceed limits. No cloud GPU, infrastructure accounts, or unattended paid loops.
+## Resource limits and stopping rules
 
-Paid usage requires separate authorization. If authorized, enforce USD 10 sprint total, USD 0.50 per investigation, 8 LLM calls, 20,000 total tokens, one retry per failed call, and two revision rounds, all inclusive. Halt before exceeding any cap; do not interpret retries or subcalls as free. Record the current provider price and reservation calculation; disable paid paths when pricing is unavailable. These are planning ceilings, not price quotations.
+Follow `PROJECT_CONTEXT.md`:
 
-## Sprint review and next step
+- Use the CPU first. Experimental graphs must have at most 1,000 active users and 10,000 distinct connections, selected using the CollegeMsg window rule.
+- Run one worker, with at most 2 GB of memory and 60 seconds per tool call.
+- Start smaller if randomized comparisons cannot finish within the limits, following the fixed window rule rather than choosing by results.
+- Do not rent a cloud GPU, create infrastructure accounts, or run unattended paid loops.
 
-Go forward only if deterministic results, evidence linkage, containment, and offline reproduction work. Repair the harness before expanding if they fail. A lack of measurable critic improvement is a valid result and may motivate a simpler rule-based system.
+Paid use needs separate permission. If approved, all these limits apply:
 
-Next smallest research step: freeze a live-model pilot protocol and evaluator rubric, obtain any required API authorization, estimate variance and costs, then choose confirmatory sample size and useful-effect thresholds before opening a fresh test set. Review CollegeMsg window suitability and any remaining usage/redistribution restrictions before broader public-data validation; keep the other datasets deferred. Graph ML, Bayesian modeling, causal inference, and serving optimization remain later experiments, each requiring its own justification and acceptance gate.
+| Limit | Maximum |
+|---|---:|
+| Total sprint spending | USD 10 |
+| Spending per investigation | USD 0.50 |
+| LLM calls per investigation | 8 |
+| Total input and output tokens per investigation | 20,000 |
+| Retries per failed call | 1 |
+| Revision rounds per investigation | 2 |
+
+Tokens are the units an LLM uses to count input and output text. Retries and calls made inside other calls count toward the limits too.
+
+Stop before the next action would exceed any limit. Record current provider prices and the estimated charge before each paid call. Disable paid calls if pricing is unknown. These amounts are spending ceilings, not estimates of provider prices.
+
+## Review and next step
+
+Move forward only when the calculations, evidence links, execution restrictions, and repeatable offline run work. Fix that foundation before adding more features.
+
+If the critic does not improve results, record that finding. A simpler rule-based approach may be enough.
+
+Next, write and freeze a small real-LLM trial plan and scoring checklist. Obtain any needed API permission, estimate result variability and cost, then choose the size of the larger study and the smallest useful improvement before looking at fresh test results.
+
+Review whether the CollegeMsg window remains suitable and whether usage or redistribution questions remain before broader real-data work. Leave the other datasets for later. Graph ML, Bayesian models, causal inference, and faster model serving each need their own reason for inclusion and completion requirements.

@@ -1,0 +1,2 @@
+# Fixture bytes are hashed; keep them exactly as written (CRLF fixture included).
+tests/fixtures/** -text
