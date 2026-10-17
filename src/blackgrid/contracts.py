@@ -152,12 +152,16 @@ class GeneratorSpec(Contract):
 
 
 class GraphRecord(Contract):
-    """Provenance of one analyzable graph. Never carries generator truth (evaluator-only)."""
+    """Provenance of one analyzable graph. Never carries generator truth (evaluator-only).
+
+    For synthetic graphs only an opaque hash of the GeneratorSpec appears here: the family and
+    parameters (e.g. p_in > p_out) would reveal the answer to a community-structure task.
+    """
 
     graph_id: NonEmpty
     origin: DataOrigin
     source: DatasetSource | None = None
-    generator: GeneratorSpec | None = None
+    generator_sha256: Sha256 | None = None
     window_start_ts: int | None = None
     window_end_ts: int | None = None  # exclusive
     window_candidate_index: int | None = Field(default=None, ge=0)
@@ -173,7 +177,7 @@ class GraphRecord(Contract):
     @model_validator(mode="after")
     def _consistent(self) -> GraphRecord:
         if self.origin is DataOrigin.REAL_PUBLIC:
-            if self.source is None or self.generator is not None:
+            if self.source is None or self.generator_sha256 is not None:
                 raise ValueError("real graphs need a dataset source and no generator")
             if self.source.rights_status is not RightsStatus.ACCEPTED_LOCAL_NONCOMMERCIAL:
                 raise ValueError("real-data analysis is blocked until usage rights are accepted")
@@ -181,8 +185,8 @@ class GraphRecord(Contract):
                 raise ValueError("real graphs must record window bounds and the chosen candidate")
             if self.window_end_ts <= self.window_start_ts:
                 raise ValueError("window end must follow window start")
-        elif self.generator is None or self.source is not None:
-            raise ValueError("synthetic graphs need a generator spec and no dataset source")
+        elif self.generator_sha256 is None or self.source is not None:
+            raise ValueError("synthetic graphs need a generator hash and no dataset source")
         if self.window_events > self.raw_events:
             raise ValueError("window cannot contain more events than the raw table")
         if self.active_nodes > MAX_ACTIVE_NODES or self.unique_edges > MAX_UNIQUE_EDGES:

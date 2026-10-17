@@ -1,0 +1,76 @@
+{
+  "dependency_lock_sha256": "808215444e5f6e94904dd6541c31b7c8f0f2d0d7a8b996c63b684d07abf4b4cc",
+  "generated_from_run": "20261017T090845Z-4ea73188",
+  "manifest_version": "collegemsg-manifest-v1",
+  "note": "Aggregate counts only; no identifiers or event records. Raw data is not redistributed (D-003).",
+  "projection": {
+    "active_nodes": 104,
+    "edge_status_counts": {
+      "observed": 137
+    },
+    "exact_duplicate_rows_flagged": 0,
+    "generator_sha256": null,
+    "graph_id": "collegemsg-window",
+    "origin": "real_public",
+    "projection_sha256": "ae2aec6c97322d04430764b5d6a690d72e482259b15ef5cd4aa30c522ec17fd4",
+    "raw_events": 59835,
+    "self_loop_events_excluded": 0,
+    "unique_edges": 137,
+    "window_candidate_index": 0,
+    "window_end_ts": 1082645761,
+    "window_events": 196,
+    "window_start_ts": 1082040961
+  },
+  "protocol_version": "sprint01-v0.1",
+  "raw_profile": {
+    "active_nodes": 1899,
+    "blank_or_comment_lines": 0,
+    "distinct_directed_pairs": 20296,
+    "events": 59835,
+    "exact_duplicate_rows": 37,
+    "malformed_by_reason": {},
+    "malformed_line_numbers_sample": [],
+    "malformed_rows": 0,
+    "max_timestamp": 1098777142,
+    "min_timestamp": 1082040961,
+    "repeated_directed_pair_events": 39539,
+    "self_loop_events": 0,
+    "self_loop_only_nodes": 0,
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "timestamp_decreases_in_file_order": 0,
+    "total_lines": 59835,
+    "unique_undirected_pairs": 13838,
+    "valid_events": 59835
+  },
+  "source": {
+    "citations": [
+      "Panzarasa, P., Opsahl, T., Carley, K. M. (2009). Patterns and dynamics of users' behavior and interaction: Network analysis of an online community. JASIST 60(5), 911-932.",
+      "Opsahl, T., Panzarasa, P. (2009). Clustering in weighted networks. Social Networks 31(2), 155-163."
+    ],
+    "dataset_id": "snap-collegemsg",
+    "path": "data/CollegeMsg.txt/CollegeMsg.txt",
+    "redistribution_allowed": false,
+    "rights_decision": "D-003",
+    "rights_status": "accepted_local_noncommercial",
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "source_url": "https://snap.stanford.edu/data/CollegeMsg.html"
+  },
+  "source_commit": "e498b33cc92e3ada4f72450d473ec8d07f91ae5c",
+  "source_dirty": true,
+  "window_selection": {
+    "abstention_reason": null,
+    "candidates": [
+      {
+        "active_nodes": 104,
+        "duration_s": 604800,
+        "end_ts": 1082645761,
+        "index": 0,
+        "start_ts": 1082040961,
+        "unique_edges": 137,
+        "within_caps": true
+      }
+    ],
+    "chosen_index": 0,
+    "rule": "earliest half-open [t0, t0+d), first d within both caps"
+  }
+}

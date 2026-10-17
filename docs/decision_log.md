@@ -70,3 +70,39 @@ Append-only. Each entry: ID, date (UTC), decision, rationale, status. Never edit
 ### D-011 — Offline entry point (2026-10-17)
 - **Decision:** `blackgrid validate CONFIG` and `blackgrid run CONFIG` (also `python -m blackgrid`). Until the pipeline exists, `run` writes a FAILED manifest with `not_implemented` and exits 2 rather than producing any result.
 - **Status:** active.
+
+### D-012 — Day 3 authorized; Day 4 waits for approval (2026-10-17)
+- **Decision:** The user asked for Day 3 only, plus a learning guide (`docs/learning_guide.md`).
+- **Status:** active.
+
+### D-013 — Loader row policy (2026-10-17)
+- **Decision:** The checksum must match before parsing, or the load fails (`DataIntegrityError`).
+  - Blank and `#` lines are skipped and counted.
+  - Malformed rows are excluded and counted by reason: wrong field count, non-integer, or a negative value.
+  - Valid events are kept in file order. Repeated events are preserved, and exact duplicate rows are flagged but kept.
+  - Timestamp decreases in file order are counted. Window selection does not rely on sorting.
+- **Status:** active.
+
+### D-014 — Projection keeps self-loop-only nodes as isolates (2026-10-17)
+- **Decision:** Projection node set = all active nodes in the window. Self-loop edges are excluded and counted. A node whose only events are self-loops stays as an isolated node and is counted as `self_loop_only_nodes`.
+- **Rationale:** This keeps the active-node count used by the size cap equal to the projected node count. The selected window has 0 self-loops, so this choice does not affect Sprint 1 numbers.
+- **Status:** active.
+
+### D-015 — Synthetic truth isolation tightened (2026-10-17; amends D-010)
+- **Decision:** `GraphRecord` no longer contains `GeneratorSpec`; it carries only `generator_sha256`. The spec lives in evaluator-only `EvaluatorTruth`. Fixture IDs are neutral (`dev-001`, `dev-002`). Generator node, edge, and graph attributes are stripped.
+- **Rationale:** Day 3 tests found three leaks, each of which would have revealed the answer to a planner:
+  - the family `planted_sbm` and `p_in`/`p_out` sat in the record;
+  - an ID named `tiny-sbm`;
+  - the NetworkX SBM `block` node attribute.
+- **Status:** active.
+
+### D-016 — CollegeMsg window selected by the frozen rule (2026-10-17)
+- **Result (descriptive, size-only):**
+  - The first candidate, 7 days `[1082040961, 1082645761)`, satisfied both caps and was chosen.
+  - 196 events (0.33% of 59,835), 104 active nodes, 137 unique undirected edges, 0 self-loops, 0 exact duplicates in the window.
+  - Projection SHA-256 `ae2aec6c…ec17fd4`.
+  - Full file: 37 exact-duplicate rows (flagged), 0 self-loops, 0 malformed rows. 20,296 distinct directed pairs, matching SNAP's published static-edge count. 13,838 unique undirected pairs.
+  - Recorded in `data/manifests/collegemsg.json`, from run `20261017T090845Z-4ea73188`.
+- **Known limitation:** The window is small and sparse (mean degree ≈ 2.6). Sparse graphs can show high modularity by chance, so the null comparison is essential, and the graph may prove unsuitable.
+- **Rule going forward:** A suitability criterion (e.g., minimum edges, component structure) must be preregistered on Day 5, before any community statistic is computed on this graph. If the window fails it, the run abstains. The window is not changed (D-004).
+- **Status:** frozen.

@@ -46,7 +46,9 @@ def synthetic_graph(**overrides) -> GraphRecord:
     fields = dict(
         graph_id="g1",
         origin=DataOrigin.SYNTHETIC,
-        generator=GeneratorSpec(family="planted_sbm", params={"n": 60, "k": 3}, seed=7, version="0"),
+        generator_sha256=canonical_sha256(
+            GeneratorSpec(family="planted_sbm", params={"n": 60, "k": 3}, seed=7, version="0")
+        ),
         raw_events=100,
         window_events=100,
         self_loop_events_excluded=0,
@@ -165,7 +167,7 @@ def test_real_graph_blocked_without_accepted_rights():
     blocked = source.model_copy(update={"rights_status": RightsStatus.UNVERIFIED})
     real = dict(
         origin=DataOrigin.REAL_PUBLIC,
-        generator=None,
+        generator_sha256=None,
         window_start_ts=0,
         window_end_ts=604_800,
         window_candidate_index=0,

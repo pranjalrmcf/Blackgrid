@@ -3,8 +3,9 @@
     blackgrid validate CONFIG      validate a run configuration and print its hash
     blackgrid run CONFIG           execute an investigation (offline; mock mode by default)
 
-Sprint 1 Day 2: the pipeline stages are not implemented yet, so `run` validates the
-configuration, records a FAILED run manifest stating why, and exits with code 2.
+Sprint 1 Day 3: `run` executes the load/window/projection stage, records its aggregate
+artifacts, then stops with a FAILED manifest because the experiment stage (Day 5) does not exist
+yet. A window abstention is recorded as ABSTAINED. Any non-completed run exits with code 2.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import json
 import platform
 import subprocess
 import sys
+import time
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,7 +24,17 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from blackgrid import __version__
-from blackgrid.contracts import CostRecord, Environment, RunConfig, RunManifest, RunStatus, canonical_sha256
+from blackgrid.collegemsg import BoundedGraph, DataIntegrityError, build_bounded_graph
+from blackgrid.contracts import (
+    CostRecord,
+    Environment,
+    Outcome,
+    RunConfig,
+    RunManifest,
+    RunStatus,
+    ToolCallRecord,
+    canonical_sha256,
+)
 
 EXIT_OK = 0
 EXIT_INVALID = 1
@@ -49,6 +61,12 @@ def _git(*args: str) -> str | None:
     except (OSError, subprocess.SubprocessError):
         return None
     return out.stdout.strip()
+
+
+def _write_json(path: Path, payload: object) -> str:
+    data = json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
+    path.write_bytes(data)  # bytes, so the hash matches the file on every platform
+    return hashlib.sha256(data).hexdigest()
 
 
 def capture_environment() -> Environment:
@@ -83,22 +101,52 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     started = datetime.now(UTC)
     run_id = f"{started:%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:8]}"
+    run_dir = args.runs_dir / run_id
+    run_dir.mkdir(parents=True, exist_ok=False)
+    artifacts: dict[str, str] = {"config.json": _write_json(run_dir / "config.json", config.model_dump(mode="json"))}
+
+    clock = time.perf_counter()
+    error: str | None = None
+    built = None
+    try:
+        built = build_bounded_graph(args.data_root, config.dataset, config.window)
+    except (DataIntegrityError, ValidationError) as exc:
+        error = f"{type(exc).__name__}: {exc}"
+    elapsed = time.perf_counter() - clock
+
+    if isinstance(built, BoundedGraph):
+        artifacts["input_profile.json"] = _write_json(run_dir / "input_profile.json", built.table.summary())
+        artifacts["window_selection.json"] = _write_json(run_dir / "window_selection.json", built.selection.summary())
+        artifacts["graph_record.json"] = _write_json(run_dir / "graph_record.json", built.record.model_dump(mode="json"))
+        status, reason, stage = RunStatus.FAILED, "not_implemented: experiment stage arrives on Day 5", Outcome.COMPLETED
+    elif built is not None:  # the window rule abstained
+        artifacts["window_selection.json"] = _write_json(run_dir / "window_selection.json", built.summary())
+        status, reason, stage = RunStatus.ABSTAINED, f"window_abstention: {built.abstention_reason}", Outcome.ABSTAINED
+    else:
+        status, reason, stage = RunStatus.FAILED, f"load_failed: {error}", Outcome.FAILED
+
     manifest = RunManifest(
         run_id=run_id,
         created_utc=started,
         finished_utc=datetime.now(UTC),
-        status=RunStatus.FAILED,
-        failure_reason="not_implemented: loader, window/projection, and experiment stages arrive on Days 3-5",
+        status=status,
+        failure_reason=reason,
         config_sha256=canonical_sha256(config),
         environment=capture_environment(),
         input_hashes={config.dataset.dataset_id: config.dataset.sha256},
+        tool_calls=(
+            ToolCallRecord(
+                tool="collegemsg.build_bounded_graph",
+                args_sha256=canonical_sha256(config.window),
+                outcome=stage,
+                elapsed_s=round(elapsed, 6),
+                error=error,
+            ),
+        ),
         cost=CostRecord(mode=config.mode),
+        artifacts=artifacts,
     )
-
-    run_dir = args.runs_dir / run_id
-    run_dir.mkdir(parents=True, exist_ok=False)
-    (run_dir / "manifest.json").write_text(manifest.model_dump_json(indent=2), encoding="utf-8")
-    (run_dir / "config.json").write_text(config.model_dump_json(indent=2), encoding="utf-8")
+    (run_dir / "manifest.json").write_bytes(manifest.model_dump_json(indent=2).encode("utf-8"))
     print(f"run {run_id}: {manifest.status} ({manifest.failure_reason})", file=sys.stderr)
     print(run_dir)
     return EXIT_RUN_FAILED
@@ -115,6 +163,7 @@ def build_parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="run an investigation offline")
     run.add_argument("config", type=Path)
     run.add_argument("--runs-dir", type=Path, default=REPO_ROOT / "runs")
+    run.add_argument("--data-root", type=Path, default=REPO_ROOT, help="base for the config's relative dataset path")
     run.set_defaults(func=_cmd_run)
     return parser
 
