@@ -1,0 +1,20 @@
+{
+  "protocol_version": "sprint01-v0.1",
+  "mode": "mock",
+  "paid_execution_authorized": false,
+  "network_allowed": false,
+  "dataset": {
+    "dataset_id": "snap-collegemsg",
+    "path": "data/CollegeMsg.txt/CollegeMsg.txt",
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "source_url": "https://snap.stanford.edu/data/CollegeMsg.html",
+    "citations": [
+      "Panzarasa, P., Opsahl, T., Carley, K. M. (2009). Patterns and dynamics of users' behavior and interaction: Network analysis of an online community. JASIST 60(5), 911-932.",
+      "Opsahl, T., Panzarasa, P. (2009). Clustering in weighted networks. Social Networks 31(2), 155-163."
+    ],
+    "rights_status": "accepted_local_noncommercial",
+    "rights_decision": "D-003",
+    "redistribution_allowed": false
+  },
+  "experiment": null
+}

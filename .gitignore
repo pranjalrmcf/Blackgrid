@@ -1,0 +1,15 @@
+# Raw datasets: no redistribution rights (decision D-003). Only manifests are tracked.
+data/*
+!data/manifests/
+
+# Run artifacts may contain derived data from raw records; publish only reviewed aggregates.
+runs/
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+build/
+dist/

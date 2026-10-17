@@ -1,0 +1,31 @@
+[project]
+name = "blackgrid"
+version = "0.1.0"
+description = "Bounded, evidence-grounded network-science investigations (Sprint 1 vertical slice)."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "networkx>=3.3",
+    "pydantic>=2.7",
+]
+
+[project.scripts]
+blackgrid = "blackgrid.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/blackgrid"]
+
+[tool.uv]
+# Resolve only releases at least two weeks old as of Sprint 1 Day 2 (2026-10-17).
+exclude-newer = "2026-10-03T00:00:00Z"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
