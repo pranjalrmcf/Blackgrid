@@ -138,3 +138,81 @@ Append-only. Each entry: ID, date (UTC), decision, rationale, status. Never edit
   - node-cap abstention, and an empty file.
 - Expected values are hand-derived in `make_fixtures.py` rather than computed by the loader. `.gitattributes` keeps fixture bytes exact.
 - **Status:** active.
+
+### D-022 — Day 5 authorized (2026-10-17)
+- **Decision:** The user asked to begin Day 5. Day 6 waits for a separate request.
+- **Status:** active.
+
+### D-023 — Experiment specification exp-v1 preregistered (2026-10-17)
+- **Decision:** `protocols/sprint01_experiment.md` was written before any community statistic was computed on any graph. It fixes:
+  - the statistic and optimizer: Louvain modularity, best of 5 restarts, resolution 1.0;
+  - the null model: an in-house degree-preserving double-edge swap with 10 accepted swaps per edge and a 100× attempt cap; failed replicates are recorded and excluded;
+  - the p-value: (1+E)/(1+R_ok), ties counted as exceedances;
+  - the effect contrast: ΔQ and z;
+  - alpha 0.05;
+  - suitability rules S1–S4: ≥20 edges, ≥10 non-isolated nodes, ≤5% failed nulls, ≥95% of nulls distinct from the observed graph;
+  - a secondary largest-component analysis for disconnected graphs;
+  - a deterministic four-way verdict rule;
+  - seed derivation, with CollegeMsg master seed 20261017;
+  - the Day 6 sensitivity condition: uniform 10% edge removal, 20 replicates.
+- **Pre-execution amendments, made before any result existed:**
+  - §8 now names the analysis scope as the first seed label.
+  - §7 doubles the measured time to budget for the secondary analysis.
+- **Known in advance:** the window's size and 8 components (D-016, D-017). The thresholds are generic, and the window clears S1/S2 by a wide margin regardless.
+- **Contract change:** `ExperimentSpec` gains `swap_attempt_factor`, `optimizer_restarts`, `resolution`, `alpha`, `secondary_largest_component`, and `suitability` (`SuitabilityRule`).
+- **Status:** frozen.
+
+### D-024 — Replicate count R = 499 by the runtime rule (2026-10-17)
+- **Measurement** (`scripts/select_replicates.py`, dev-003, 130 edges, single analysis): R=99 took 1.6 s, R=199 took 3.6 s, R=499 took 8.7 s, R=999 took 17.6 s.
+- **Choice:** R=999 doubled is 35.3 s, over the 30 s budget, so R = **499** (doubled 17.5 s). p-value resolution is 0.002.
+- **Basis:** chosen on runtime alone, before any CollegeMsg statistic existed.
+- **Status:** frozen.
+
+### D-025 — Numerical verification (2026-10-17)
+- **Oracles in `tests/test_experiment.py`:**
+  - Hand-computed modularity: barbell of two triangles Q = 5/14; two disjoint triangles Q = 1/2; a single community Q = 0.
+  - The in-house modularity matches NetworkX on 80 random partitions to 1e-12.
+  - Louvain recovers the known barbell optimum.
+  - Swaps preserve degrees and simplicity exactly; a star admits no valid swap (it abstains via S3).
+  - Quantiles match `statistics.quantiles`.
+  - The verdict rule is checked against all branches.
+  - Full runs are reproducible; the deadline aborts; oversized graphs are rejected.
+- **Status:** 90 tests pass.
+
+### D-026 — Development check of exp-v1, R=499 (2026-10-17; evaluator-side, dev only)
+- **Results** (`scripts/dev_check.py`; local output `runs/dev_check/day5.json`):
+
+  | Case | Verdict | Q_obs / null mean | Notes | Key |
+  |---|---|---|---|---|
+  | dev-001 | supported | 0.542 / 0.274 | z 17.1, p 0.002 | ✔ |
+  | dev-002 | not_supported | 0.368 / 0.366 | p 0.44 | ✔ |
+  | dev-003 | not_supported | 0.369 / 0.364 | p 0.30; degree confound absorbed | ✔ |
+  | dev-004 | not_supported | — | p 0.72 | ✔ (any verdict acceptable) |
+  | dev-005 | inconclusive | — | flagged disconnected; LCC unsuitable (S1) | ✔ |
+  | dev-006 | supported | — | p 0.002, LCC p 0.014 | **✘** |
+  | dev-007, dev-008 | — | — | not scored: refusal is decided before any experiment (Days 7–9) | — |
+
+- **dev-006 failure:** The key expects `inconclusive`/`abstain` with an `incomplete_observation` flag. The experiment ignores the 130 UNKNOWN pairs recorded in the graph record. **The key is not changed after seeing this result.** Handling UNKNOWN pairs (at minimum flagging incomplete observation and qualifying the verdict) is Day 6 work.
+- **Missing flag:** dev-003's required `degree_confound` flag is not produced by the experiment. Naming the confound is assigned to the critic/report (Days 9–10).
+- **Status:** recorded. These are engineering observations, not efficacy evidence.
+
+### D-027 — CollegeMsg experiment frozen in config, not yet executed (2026-10-17)
+- **Decision:** `configs/collegemsg_sprint01.json` now contains the exp-v1 `ExperimentSpec` (config SHA-256 `264459a3…ac44c0`). `blackgrid run` executes it after the window stage and writes `experiment_report.json`. The run still ends `not_implemented` until sensitivity, critic, and report exist.
+- **Not done:** the experiment has **not** been run on the CollegeMsg window. The first real-data execution waits for the user's go-ahead.
+- **Status:** superseded by D-028 (executed at the user's request).
+
+### D-028 — First CollegeMsg execution of exp-v1 (2026-10-17)
+- **Run:** `20261017T123437Z-0c158fa0`, run at the user's request with the frozen spec unchanged (spec SHA-256 `9fac496b…be0000`). Elapsed 18.6 s; 0 failed null replicates; 0 nulls identical to the observed graph; swap acceptance 0.77.
+- **Graph:** 104 nodes, 137 edges, 8 components. Largest component: 87 nodes, 127 edges. Mean degree 2.63, max 20, transitivity 0.038.
+- **Primary (whole graph):**
+  - Q_obs = 0.587; null mean 0.593 (sd 0.012; 5–95%: 0.574–0.614).
+  - ΔQ = −0.007, z = −0.57.
+  - E = 358 of 499, **p = 0.718**.
+- **Secondary (largest component):**
+  - Q_obs = 0.543; null mean 0.535.
+  - ΔQ = +0.008, z = +0.64.
+  - E = 125 of 499, p = 0.252.
+- **Verdict (exp-v1 §6):** `not_supported`, flagged `disconnected`.
+- **Evidence label:** descriptive. The observed window's modularity is typical of degree-preserving randomizations of itself. This is *no evidence beyond the null*; it does not show that communities are absent. It applies only to the projected first-week window.
+- **Pending:** the Day 6 missing-edge sensitivity analysis and the Days 9–10 critic/report have not run. No report claim exists yet.
+- **Status:** recorded. The result is not to be revisited by changing the window, method, or thresholds.

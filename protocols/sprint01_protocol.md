@@ -71,6 +71,8 @@ The window will be computed by the Day 3 loader under test; it is intentionally 
 
 ## 6. Experiment (outline; full spec frozen on Day 5 before execution)
 
+**Frozen specification:** `protocols/sprint01_experiment.md` (exp-v1, 2026-10-17). Where it differs from this outline, it governs.
+
 - One preselected community method and statistic, applied identically (same algorithm, seeds policy, optimization effort) to observed and null graphs.
 - Degree-preserving null (double-edge swaps) where feasible; documented handling of disconnected/small graphs and failed swaps.
 - Fixed null-replicate count chosen on synthetic development cases within the 60 s tool cap; p-value reported as `(1 + exceedances)/(1 + replicates)` with stated resolution. No replicate changes after seeing significance.

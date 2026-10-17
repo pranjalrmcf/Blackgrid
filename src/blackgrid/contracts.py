@@ -215,6 +215,15 @@ class EdgeRemovalSensitivity(Contract):
     replicates: int = Field(ge=1, le=1_000)
 
 
+class SuitabilityRule(Contract):
+    """Abstention thresholds from protocols/sprint01_experiment.md §5 (exp-v1)."""
+
+    min_edges: int = Field(default=20, ge=1)
+    min_nonisolated_nodes: int = Field(default=10, ge=2)
+    max_failed_null_fraction: float = Field(default=0.05, ge=0, le=1)
+    min_distinct_null_fraction: float = Field(default=0.95, ge=0, le=1)
+
+
 class ExperimentSpec(Contract):
     experiment_id: NonEmpty
     graph_id: NonEmpty
@@ -227,8 +236,14 @@ class ExperimentSpec(Contract):
     null_model: Literal["degree_preserving_double_edge_swap", "erdos_renyi_gnm"]
     null_replicates: int = Field(ge=19, le=10_000)
     swaps_per_edge: float = Field(default=10.0, gt=0, le=100)
+    swap_attempt_factor: int = Field(default=100, ge=1, le=1_000)
+    optimizer_restarts: int = Field(default=5, ge=1, le=20)
+    resolution: Literal[1.0] = 1.0
+    alpha: float = Field(default=0.05, gt=0, le=0.1)
     seed: int = Field(ge=0)
     same_procedure_on_nulls: Literal[True] = True
+    secondary_largest_component: Literal[True] = True
+    suitability: SuitabilityRule = SuitabilityRule()
     sensitivity: EdgeRemovalSensitivity
     limits: ResourceLimits = ResourceLimits()
 

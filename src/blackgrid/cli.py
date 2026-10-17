@@ -3,9 +3,10 @@
     blackgrid validate CONFIG      validate a run configuration and print its hash
     blackgrid run CONFIG           execute an investigation (offline; mock mode by default)
 
-Sprint 1 Day 3: `run` executes the load/window/projection stage, records its aggregate
-artifacts, then stops with a FAILED manifest because the experiment stage (Day 5) does not exist
-yet. A window abstention is recorded as ABSTAINED. Any non-completed run exits with code 2.
+Sprint 1 Day 5: `run` loads and projects the window, then runs the frozen community-vs-null
+experiment and records its report. The investigation still ends FAILED (`not_implemented`)
+because sensitivity, critic, and report stages do not exist yet. Window or experiment
+abstentions are recorded as ABSTAINED. Any non-completed run exits with code 2.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from pydantic import ValidationError
 
 from blackgrid import __version__
 from blackgrid.collegemsg import BoundedGraph, DataIntegrityError, build_bounded_graph
+from blackgrid.experiment import DeadlineExceeded, run_community_test
 from blackgrid.contracts import (
     CostRecord,
     Environment,
@@ -92,6 +94,32 @@ def _cmd_validate(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _run_experiment(config: RunConfig, built: BoundedGraph, run_dir: Path, artifacts: dict[str, str],
+                    calls: list[ToolCallRecord]) -> tuple[RunStatus, str]:
+    spec = config.experiment
+    if spec is None:
+        return RunStatus.FAILED, "not_configured: no frozen experiment specification in the config"
+    if spec.graph_id != built.record.graph_id:
+        return RunStatus.FAILED, f"spec_mismatch: spec targets {spec.graph_id!r}, graph is {built.record.graph_id!r}"
+    clock = time.perf_counter()
+    try:
+        report = run_community_test(built.graph, spec, spec_sha256=canonical_sha256(spec))
+    except (DeadlineExceeded, ValueError) as exc:
+        calls.append(ToolCallRecord(tool="experiment.run_community_test", args_sha256=canonical_sha256(spec),
+                                    outcome=Outcome.FAILED, elapsed_s=round(time.perf_counter() - clock, 6),
+                                    error=f"{type(exc).__name__}: {exc}"))
+        return RunStatus.FAILED, f"experiment_failed: {type(exc).__name__}"
+    abstained = report.verdict == "abstain"
+    calls.append(ToolCallRecord(tool="experiment.run_community_test", args_sha256=canonical_sha256(spec),
+                                outcome=Outcome.ABSTAINED if abstained else Outcome.COMPLETED,
+                                elapsed_s=round(time.perf_counter() - clock, 6)))
+    artifacts["experiment_report.json"] = _write_json(run_dir / "experiment_report.json", report.model_dump(mode="json"))
+    if abstained:
+        return RunStatus.ABSTAINED, "experiment_abstained: " + "; ".join(report.primary.unsuitable_reasons)
+    return RunStatus.FAILED, (f"not_implemented: experiment verdict '{report.verdict}' recorded; missing-edge "
+                              "sensitivity (Day 6), critic and report (Days 9-10) are not built yet")
+
+
 def _cmd_run(args: argparse.Namespace) -> int:
     try:
         config = load_config(args.config)
@@ -105,6 +133,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     run_dir.mkdir(parents=True, exist_ok=False)
     artifacts: dict[str, str] = {"config.json": _write_json(run_dir / "config.json", config.model_dump(mode="json"))}
 
+    calls: list[ToolCallRecord] = []
     clock = time.perf_counter()
     error: str | None = None
     built = None
@@ -112,18 +141,21 @@ def _cmd_run(args: argparse.Namespace) -> int:
         built = build_bounded_graph(args.data_root, config.dataset, config.window)
     except (DataIntegrityError, ValidationError) as exc:
         error = f"{type(exc).__name__}: {exc}"
-    elapsed = time.perf_counter() - clock
+    load_outcome = (Outcome.COMPLETED if isinstance(built, BoundedGraph)
+                    else Outcome.ABSTAINED if built is not None else Outcome.FAILED)
+    calls.append(ToolCallRecord(tool="collegemsg.build_bounded_graph", args_sha256=canonical_sha256(config.window),
+                                outcome=load_outcome, elapsed_s=round(time.perf_counter() - clock, 6), error=error))
 
     if isinstance(built, BoundedGraph):
         artifacts["input_profile.json"] = _write_json(run_dir / "input_profile.json", built.table.summary())
         artifacts["window_selection.json"] = _write_json(run_dir / "window_selection.json", built.selection.summary())
         artifacts["graph_record.json"] = _write_json(run_dir / "graph_record.json", built.record.model_dump(mode="json"))
-        status, reason, stage = RunStatus.FAILED, "not_implemented: experiment stage arrives on Day 5", Outcome.COMPLETED
+        status, reason = _run_experiment(config, built, run_dir, artifacts, calls)
     elif built is not None:  # the window rule abstained
         artifacts["window_selection.json"] = _write_json(run_dir / "window_selection.json", built.summary())
-        status, reason, stage = RunStatus.ABSTAINED, f"window_abstention: {built.abstention_reason}", Outcome.ABSTAINED
+        status, reason = RunStatus.ABSTAINED, f"window_abstention: {built.abstention_reason}"
     else:
-        status, reason, stage = RunStatus.FAILED, f"load_failed: {error}", Outcome.FAILED
+        status, reason = RunStatus.FAILED, f"load_failed: {error}"
 
     manifest = RunManifest(
         run_id=run_id,
@@ -134,15 +166,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
         config_sha256=canonical_sha256(config),
         environment=capture_environment(),
         input_hashes={config.dataset.dataset_id: config.dataset.sha256},
-        tool_calls=(
-            ToolCallRecord(
-                tool="collegemsg.build_bounded_graph",
-                args_sha256=canonical_sha256(config.window),
-                outcome=stage,
-                elapsed_s=round(elapsed, 6),
-                error=error,
-            ),
-        ),
+        seeds={"experiment_master": config.experiment.seed} if config.experiment else {},
+        tool_calls=tuple(calls),
         cost=CostRecord(mode=config.mode),
         artifacts=artifacts,
     )

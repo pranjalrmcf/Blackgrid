@@ -4,7 +4,14 @@ Bounded, evidence-grounded network-science investigations. Sprint 1 builds one o
 
 ## Status
 
-Sprint 1, Day 4. The loader (checksum and schema checks), the size-only window selection, and the undirected projection are implemented. So is an 8-case synthetic development benchmark with evaluator-only answer keys (`benchmarks/README.md`), plus hand-checked CollegeMsg parser/window fixtures. `run` builds the bounded graph and writes its aggregate artifacts. It then records a **failed** manifest (`not_implemented: experiment`) until Day 5. The aggregate data manifest is at `data/manifests/collegemsg.json`. For a study plan, see `docs/learning_guide.md`.
+Sprint 1, Day 5. Implemented so far:
+
+- the loader (checksum and schema checks), the size-only window selection, and the undirected projection;
+- an 8-case synthetic development benchmark with evaluator-only answer keys (`benchmarks/README.md`);
+- hand-checked CollegeMsg parser/window fixtures;
+- the preregistered community-vs-null experiment (`protocols/sprint01_experiment.md`: Louvain modularity against degree-preserving nulls, R = 499).
+
+`run` builds the bounded graph, runs the frozen experiment, and writes `experiment_report.json`. It still records a **failed** manifest (`not_implemented`), because sensitivity, critic, and report stages arrive on Days 6–10. The experiment has not yet been run on the real CollegeMsg window. The aggregate data manifest is at `data/manifests/collegemsg.json`. For a study plan, see `docs/learning_guide.md`.
 
 ## Setup (offline after the first sync)
 
