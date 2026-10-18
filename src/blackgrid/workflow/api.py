@@ -131,6 +131,27 @@ def _mark_interrupted(services: Services, rt: Runtime) -> None:
         pass  # the store row above is authoritative
 
 
+def _mark_internal_error(services: Services, rt: Runtime, exc: BaseException) -> None:
+    """An unexpected error stopped the worker: record a resumable pause with the reason (D-075).
+
+    The run is not 'running' any more, so the console stops polling it. Once the cause is fixed,
+    `blackgrid resume` continues from the last checkpoint; paid-call states are unchanged, so
+    reconciliation rules still apply.
+    """
+    if not services.store.owns(rt.run_id, rt.owner):
+        return
+    reason = f"internal_error: {type(exc).__name__}: {str(exc).splitlines()[0][:240] if str(exc) else ''}".rstrip(": ")
+    pause = {"kind": "internal_error", "reason": reason + "; fix the cause, then run `blackgrid resume`"}
+    services.store.set_status(rt.run_id, "paused", reason, pause=pause)
+    path = rt.run_dir / "workflow_status.json"
+    try:
+        current = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"run_id": rt.run_id}
+        write_json(path, current | {"status": "paused", "reason": reason, "pause": pause,
+                                    "updated_utc": datetime.now(UTC).isoformat()})
+    except (OSError, ValueError):
+        pass  # the store row above is authoritative
+
+
 def _drive(services: Services, rt: Runtime, payload: object) -> Outcome:
     graph = build(rt).compile(checkpointer=services.saver)
     cfg = {"configurable": {"thread_id": rt.run_id}}
@@ -142,7 +163,10 @@ def _drive(services: Services, rt: Runtime, payload: object) -> Outcome:
         _mark_interrupted(services, rt)
         services.store.release(rt.run_id, rt.owner)
         raise
-    except BaseException:
+    except RunLocked:
+        raise  # displaced: the current owner decides the status
+    except BaseException as exc:
+        _mark_internal_error(services, rt, exc)
         services.store.release(rt.run_id, rt.owner)
         raise
     services.store.release(rt.run_id, rt.owner)

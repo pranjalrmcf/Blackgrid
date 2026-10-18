@@ -915,3 +915,19 @@ All four findings were reproduced as failing tests before fixing.
   - The real writer copying templates shows compliance, not insight.
   - Structural tabs (People & positions, Network) still appear on forecast run pages.
 - **Status:** active.
+
+### D-075 — Fixes: crash status, console refresh, forecast tabs, upstream routing (2026-10-18)
+- **Request (user):** "fix the above 3".
+- **1. Crash status.**
+  - An unexpected exception inside the workflow, other than an interrupt, a simulated crash or a lost lock, now records a resumable pause of kind `internal_error` with the reason, and releases the lock.
+  - Previously the run stayed "running", so the console polled forever. Paid-call operation states are unchanged, so reconciliation still applies.
+  - Tested: a finalize bug becomes a pause, and resume completes after the fix.
+- **1b. Home page refresh.** The typed question, the scope and the AI-mode selections survive the index auto-refresh (`draft` state). They used to reset every 3 s while any run was running.
+- **2. Forecast tabs.** Forecast runs show only Answer, Evidence, Activity, Full report and Cost. Graph statistics, network, rankings and edge-sensitivity tabs are hidden.
+- **3. Reasoning overrun.**
+  - OpenRouter requests now send `provider.require_parameters = true`, so only upstream providers that support every parameter sent (including `max_tokens` and `reasoning`) can serve them. The serving upstream is recorded in each receipt (`openrouter:<upstream>`).
+  - **Live check:** 2 runs, USD 0.0069. All 5 calls finished `stop`, with at most 8,397 completion tokens and no truncation or overrun. Upstreams: Wafer, Parasail, Cohere.
+  - **Caveat:** 2 runs cannot prove the overrun is gone. The 3× reservation (D-063) stays as the backstop.
+- **3b. Found during the live check:** a true validation-AP claim was falsely rejected (P3), because the validation compare output did not name the metric in its paths. The output now uses `methods/<m>/mean_average_precision`, and this is tested.
+- **Spend:** live work in D-073–D-075 totals USD 0.0344, within the existing allowance (about USD 0.441 left) and the user's USD 0.75 ceiling.
+- **Status:** active.

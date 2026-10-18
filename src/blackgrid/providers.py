@@ -256,6 +256,9 @@ class OpenRouterProvider:
                         "temperature": 0, "usage": {"include": True}}
         if self.reasoning_max_tokens is not None:  # bound hidden reasoning separately (D-063)
             request_body["reasoning"] = {"max_tokens": min(self.reasoning_max_tokens, max_tokens - 1)}
+        # D-075: one upstream ignored max_tokens/reasoning limits (40,576 tokens). Only route to upstream providers
+        # that support every parameter sent; if none does, OpenRouter refuses instead of silently overrunning.
+        request_body["provider"] = {"require_parameters": True}
         body = json.dumps(request_body).encode("utf-8")
         request = urllib.request.Request(
             f"{OPENROUTER_BASE}/chat/completions", data=body, method="POST",
@@ -282,7 +285,8 @@ class OpenRouterProvider:
             return Completion(text=text, prompt_tokens=int(usage.get("prompt_tokens", 0)),
                               completion_tokens=int(usage.get("completion_tokens", 0)),
                               reported_usd=float(usage["cost"]) if usage.get("cost") is not None else None,
-                              model=str(data.get("model", self.model)), provider=self.name,
+                              model=str(data.get("model", self.model)),
+                              provider=f"{self.name}:{data['provider']}" if data.get("provider") else self.name,
                               finish_reason=str(choice.get("finish_reason") or "stop"))
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise ProviderError("OpenRouter returned a malformed response", "uncertain") from exc

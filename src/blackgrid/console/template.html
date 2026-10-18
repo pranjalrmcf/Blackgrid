@@ -198,6 +198,7 @@ async function route(){
 }
 
 let filterText = "", filterStatus = new Set(), liveSettings = {enabled:false};
+const draft = {question: null, scope: null, mode: null};  // survives the index auto-refresh (D-075)
 function renderIndex(data){
   document.getElementById("title").replaceChildren(h("span", {cls:"quiet"}, "Investigations"));
   liveSettings = data.live || {enabled:false};
@@ -236,21 +237,24 @@ function renderIndex(data){
 
 function actionsPanel(){
   const question = h("textarea", {id:"research-question", cls:"query", rows: "2", maxlength: "500", placeholder: "Ask about communities, centrality, connections between groups, or who will message next"});
-  question.value = "Which nodes connect different groups, and are the rankings stable?";
+  question.value = draft.question ?? "Which nodes connect different groups, and are the rankings stable?";
+  question.addEventListener("input", () => { draft.question = question.value; });
   const examples = h("div", {cls: "row", style: "margin-bottom:12px"}, [
     "Is community structure stronger than the degree-preserving null, and sensitive to missing edges?",
     "Which nodes have many contacts and high betweenness?",
     "Which nodes connect different groups, and are the rankings stable?",
     "Which pairs who have never messaged are most likely to message in the next few weeks?",
     "Which pairs who already talked will message again soon?"
-  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages"][i])));
+  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; draft.question = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages"][i])));
   const scope = h("select", {"aria-label":"Data scope"}, h("option", {value: "first_window"}, "CollegeMsg · first week"), h("option", {value: "full_dataset"}, "CollegeMsg · full dataset"));
   const cond = h("select", {"aria-label":"Evidence checks"}, h("option", {value: "validated"}, "Evidence checks on"), h("option", {value: "tool_only"}, "Unchecked comparison"));
   const mode = h("select", {id:"ai-mode", "aria-label":"AI mode"},
     h("option", {value:"live", disabled:!liveSettings.enabled}, liveSettings.enabled ? "Real AI · DeepSeek Flash" : "Real AI · enable at startup"),
     h("option", {value:"mock"}, "Free demo · scripted"));
-  mode.value = liveSettings.enabled ? "live" : "mock";
-  if(liveSettings.enabled) mode.value="live";
+  mode.value = draft.mode ?? (liveSettings.enabled ? "live" : "mock");
+  if (draft.scope) scope.value = draft.scope;
+  mode.addEventListener("change", () => { draft.mode = mode.value; });
+  scope.addEventListener("change", () => { draft.scope = scope.value; });
   const adaptive = h('input',{type:'checkbox'});
   const start = h("button", {cls: "btn primary", on: {click: () => act({action: "start", mode:mode.value, adaptive:adaptive.checked, scope: scope.value, condition: cond.value, question: question.value})}}, "Start investigation");
   const pilot = h("button", {cls: "btn", on: {click: () => act({action: "pilot"})}}, "Run mock pilot");
@@ -303,9 +307,13 @@ function renderRun(d){
   const head = h("div", {cls: "row", style: "margin-top:14px"}, badge(status),
     h("span", {cls: "quiet"}, (inv.cost || {}).mode === "live" ? "Real AI · $"+Number(inv.cost.actual_usd || 0).toFixed(4) : (inv.cost || {}).mode === "replay" ? "Recorded AI · no charge" : "Free demo · scripted AI"),
     h("a", {href: href("index"), cls: "small", style: "margin-left:auto"}, "← all runs"));
-  const tabs = [["overview", "Answer"], ["rankings", "People & positions"], ["network", "Network"],
+  const allTabs = [["overview", "Answer"], ["rankings", "People & positions"], ["network", "Network"],
                 ["claims", "Evidence"], ["agent", "Activity"], ["report", "Full report"], ["budget", "Cost"],
                 ["experiment", "Statistics"], ["sensitivity", "Edge sensitivity"]];
+  // Forecast runs have no graph statistics, node rankings or edge-removal checks: show only what applies.
+  const forecastTabs = new Set(["overview", "claims", "agent", "report", "budget"]);
+  const tabs = sum.family === "forecast" ? allTabs.filter(([k]) => forecastTabs.has(k)) : allTabs;
+  if (!tabs.some(([k]) => k === tab)) tab = "overview";
   const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); window.scrollTo(0,0); }}}, label)));
   const views = {overview: viewAnswer, rankings: viewRankings, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
                  agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget};

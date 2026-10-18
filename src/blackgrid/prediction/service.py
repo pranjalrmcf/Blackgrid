@@ -125,8 +125,10 @@ class PredictionTools:
     def prediction_compare(self, args: PredictionCompareArgs) -> dict:
         val = json.loads((self.evaluation / "validation.json").read_text(encoding="utf-8"))[args.task]["table"]
         if args.split == "validation":
+            # Paths name the metric (".../methods/<m>/mean_average_precision") so a cited AP is checkable (D-075).
             return {"task": args.task, "split": "validation",
-                    "mean_ap": {k: v["mean_ap"] for k, v in val.items()}, "selection": self.selection[args.task]}
+                    "methods": {k: {"mean_average_precision": v["mean_ap"]} for k, v in val.items()},
+                    "selection": self.selection[args.task]}
         if not (self.evaluation / "predictions_manifest.json").is_file() or \
                 not (self.evaluation / "test_evaluation.json").is_file():
             raise PredictionToolRejected("test aggregates exist only after a frozen, completed evaluation")
