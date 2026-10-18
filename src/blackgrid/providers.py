@@ -175,6 +175,8 @@ class MockProvider:
     def _analyse(payload: dict, revise: bool) -> dict:
         if "allowed_claims" in payload:
             return {"verdict": "supported", "flags": [], "claims": payload["allowed_claims"]}
+        if "suggested_claims" in payload:  # Sprint 6 forecast family: the scripted writer uses the templates
+            return {"verdict": "supported", "flags": [], "claims": payload["suggested_claims"]}
         q = _ev(payload, "primary/result/observed_statistic")
         mean = _ev(payload, "primary/result/null/mean")
         p = _ev(payload, "primary/result/p_value")

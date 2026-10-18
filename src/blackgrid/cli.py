@@ -545,7 +545,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("config", type=Path)
     run.add_argument("--data-root", type=Path, default=REPO_ROOT, help="base for the config's relative dataset path")
     run.add_argument("--mode", choices=["mock", "live", "replay"])
-    run.add_argument("--family", choices=["community", "centrality", "bridge", "auto"], help="question-specific investigation")
+    run.add_argument("--family", choices=["community", "centrality", "bridge", "forecast", "auto"], help="question-specific investigation")
     run.add_argument("--question", help="structural research question (treat as untrusted data)")
     run.add_argument("--planning-mode", choices=["adaptive", "single"], help="permit one follow-up or use one plan")
     run.add_argument("--condition", choices=["validated", "tool_only"])

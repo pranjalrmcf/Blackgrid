@@ -160,7 +160,8 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
 
 
 KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json", "full_scope.json",
-                   "structural_contract.json",
+                   "structural_contract.json", "forecast_contract.json", "temporal_profile.json", "link_prediction.json",
+                   "prediction_compare.json", "local_ranking.json",
                    "node_centrality.json", "community_partition.json", "community_bridge.json", "ranking_sensitivity.json",
                    "graph_profile.json", "experiment_report.json", "sensitivity.json", "investigation.json",
                    "budget.json", "llm_trace.jsonl", "report.json", "report.md")
@@ -170,7 +171,18 @@ def finalizer(config: RunConfig, reproduce: str):
     def on_finalize(rt, state, result: InvestigationResult, ctx) -> tuple[str, str] | None:
         inp = rt.inputs(state)
         run_dir = rt.run_dir
-        if result.family != "community":
+        if result.family == "forecast":
+            from blackgrid.prediction import PREDICTION_VERSION
+            from blackgrid.prediction.claims import PRED_CRITIC_VERSION
+            from blackgrid.workflow.engine import FORECAST_EVALUATION
+
+            freeze = run_dir.parent / FORECAST_EVALUATION / "freeze.json"
+            protocol = json.loads(freeze.read_text(encoding="utf-8")).get("protocol_sha256") if freeze.is_file() else None
+            write_json(run_dir / "forecast_contract.json", {
+                "version": PREDICTION_VERSION, "claim_checker": PRED_CRITIC_VERSION, "evaluation": FORECAST_EVALUATION,
+                "evaluation_protocol_sha256": protocol, "cutoff": "last observed event (fixed by the system)",
+                "pair_rankings": "local_ranking.json, local only; never sent to a model or exported"})
+        elif result.family != "community":
             from blackgrid.structural import StructuralSpec
             write_json(run_dir / "structural_contract.json", StructuralSpec(family=result.family,
                        graph_sha256=inp.record.projection_sha256, seed=inp.spec.seed).model_dump(mode="json"))

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from blackgrid.tools import ARTIFACT_NAMES, AnswerKeyAccess, ToolRejected, parse_request
+from blackgrid.tools import ARTIFACT_NAMES, FORECAST_TOOLS, AnswerKeyAccess, ToolRejected, parse_request
 
 STRUCTURAL_TOOLS = {"profile_graph", "node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"}
 
@@ -13,8 +13,12 @@ def family(question: str, request: dict) -> str:
     if selected != "auto":
         return selected
     q = question.lower()
-    if re.search(r"\b(influen\w*|caus\w*|predict\w*|future|persuad\w*)\b", q):
+    if re.search(r"\b(influen\w*|caus\w*|persuad\w*|why)\b", q):
         return "clarify"
+    if re.search(r"\b(forecast\w*|predict\w*|future|next (?:week|month|weeks|days|window|period)|will (?:\w+ )?"
+                 r"(?:message|talk|contact|connect|interact|chat)|likely to (?:message|talk|connect|interact)|"
+                 r"(?:new|future) connections?)\b", q):
+        return "forecast"
     if re.search(r"\b(bridg\w*|cross.community|connect\w* (?:different |the )?(?:groups|communities))\b", q):
         return "bridge"
     # A degree-preserving null describes the community baseline, not a request
@@ -27,8 +31,17 @@ def family(question: str, request: dict) -> str:
     return "clarify"
 
 
+def forecast_task(question: str) -> str:
+    """Repeat interactions when the question is about pairs that already talked; otherwise new pairs."""
+    return "repeat_pair" if re.search(r"\b(again|repeat\w*|already|previous\w*|continue|keep (?:talking|messaging)|"
+                                      r"existing)\b", question, re.I) else "new_pair"
+
+
 def requirements(question: str, request: dict) -> dict[str, dict]:
     kind = family(question, request)
+    if kind == "forecast":
+        task = forecast_task(question)
+        return {"link_prediction": {"task": task}, "prediction_compare": {"task": task, "split": "test"}}
     if kind == "centrality":
         required = {"node_centrality": {}}
     elif kind == "bridge":
@@ -42,7 +55,10 @@ def requirements(question: str, request: dict) -> dict[str, dict]:
 
 def validate_structural(question: str, request: dict, plan: dict) -> tuple[bool, list[dict], str]:
     if family(question, request) == "clarify":
-        return False, [], "Please specify community evidence, structural centrality or cross-community connections; influence and prediction are not supported."
+        return False, [], ("Please ask about community evidence, structural centrality, cross-community connections or "
+                           "forecasting known pairs; causes, influence and persuasion are not supported.")
+    if family(question, request) == "forecast":
+        return validate_forecast(question, request, plan)
     if re.search(r"\b(caus\w*|influen\w*|persuad\w*|predict\w*)\b", question, re.I):
         return False, [], "Clarify the structural question; these tools do not identify causal influence or predict future edges."
     if plan.get("decision") == "refuse":
@@ -79,6 +95,33 @@ def validate_structural(question: str, request: dict, plan: dict) -> tuple[bool,
              "community_bridge": 3, "ranking_sensitivity": 4}
     checked.sort(key=lambda c: order[c["tool"]])
     return True, checked, "Validated descriptive structural plan; numerical settings are fixed."
+
+
+def validate_forecast(question: str, request: dict, plan: dict) -> tuple[bool, list[dict], str]:
+    """Forecast plans: registered forecast tools only; one link_prediction; compare uses the same task."""
+    if plan.get("decision") == "refuse":
+        return False, [], "Planner refused this forecasting question."
+    calls = plan.get("tool_calls")
+    if not isinstance(calls, list) or not 1 <= len(calls) <= 3:
+        return False, [], "A forecast plan needs one to three registered forecast calls."
+    checked: dict[str, dict] = {}
+    for call in calls:
+        try:
+            name, args = parse_request(call)
+        except AnswerKeyAccess:
+            raise
+        except ToolRejected as exc:
+            return False, [], str(exc)
+        if name not in FORECAST_TOOLS or name in checked:
+            return False, [], "Forecast plan contains a non-forecast or duplicate tool."
+        checked[name] = args.model_dump(mode="json")
+    required = requirements(question, request)
+    task = checked.get("link_prediction", required["link_prediction"])["task"]
+    checked.setdefault("link_prediction", {"task": task})
+    checked["prediction_compare"] = {"task": task, "split": checked.get("prediction_compare", {}).get("split", "test")}
+    order = {"temporal_profile": 0, "link_prediction": 1, "prediction_compare": 2}
+    plan_calls = [{"tool": name, "args": checked[name]} for name in sorted(checked, key=order.get)]
+    return True, plan_calls, "Validated forecast plan; cutoff, horizon and candidates are fixed by the system."
 
 
 def safe_outputs(outputs: dict[str, dict]) -> dict[str, dict]:

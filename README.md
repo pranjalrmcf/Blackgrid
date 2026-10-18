@@ -16,6 +16,8 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
 [simple guide](docs/sprint06_guide.md)).
 - `blackgrid predict-eval` runs the frozen, sealed-test evaluation; `blackgrid forecast` produces a known-node
   forecast, viewable in the console as **Forecast connections**.
+- Forecasting is integrated into the agent: ask a "who will message next" question in the console. The AI planner
+  picks the forecast tools, and a forecast checker verifies every statement (D-074).
 - Recent-activity methods beat static ones in both tasks. New connections remain hard to predict (AP about 0.002 at a
   base rate of 5.5e-5). Repeat interactions reach AP 0.14–0.40.
 - USD 0; reproduced exactly in a clean environment.

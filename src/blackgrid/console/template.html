@@ -209,7 +209,7 @@ function renderIndex(data){
       (!filterText || JSON.stringify([r.question, r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
       const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
         h("td", {}, h("div", {cls:"run-question"}, r.question || (r.kind === "pilot" ? "Offline system check" : r.case || "Investigation")), h("div", {cls:"run-meta"}, r.id)),
-        h("td", {}, r.kind === "pilot" ? "System check" : r.kind === "forecast" ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
+        h("td", {}, r.kind === "pilot" ? "System check" : (r.kind === "forecast" || r.family === "forecast") ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
         h("td", {}, r.verdict==='rejected' ? h('span',{cls:'badge warn'},'Needs clarification') : badge(r.status)), h("td", {}, r.verdict==='rejected' ? 'Not answered' : r.status==='abstained' ? 'Withheld' : r.family && r.family !== "community" ? "Descriptive" : r.verdict ? badge(r.verdict) : "—"),
         h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
           ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
@@ -235,13 +235,15 @@ function renderIndex(data){
 }
 
 function actionsPanel(){
-  const question = h("textarea", {id:"research-question", cls:"query", rows: "2", maxlength: "500", placeholder: "Ask about communities, centrality or connections between groups"});
+  const question = h("textarea", {id:"research-question", cls:"query", rows: "2", maxlength: "500", placeholder: "Ask about communities, centrality, connections between groups, or who will message next"});
   question.value = "Which nodes connect different groups, and are the rankings stable?";
   const examples = h("div", {cls: "row", style: "margin-bottom:12px"}, [
     "Is community structure stronger than the degree-preserving null, and sensitive to missing edges?",
     "Which nodes have many contacts and high betweenness?",
-    "Which nodes connect different groups, and are the rankings stable?"
-  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups"][i])));
+    "Which nodes connect different groups, and are the rankings stable?",
+    "Which pairs who have never messaged are most likely to message in the next few weeks?",
+    "Which pairs who already talked will message again soon?"
+  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages"][i])));
   const scope = h("select", {"aria-label":"Data scope"}, h("option", {value: "first_window"}, "CollegeMsg · first week"), h("option", {value: "full_dataset"}, "CollegeMsg · full dataset"));
   const cond = h("select", {"aria-label":"Evidence checks"}, h("option", {value: "validated"}, "Evidence checks on"), h("option", {value: "tool_only"}, "Unchecked comparison"));
   const mode = h("select", {id:"ai-mode", "aria-label":"AI mode"},
@@ -257,7 +259,7 @@ function actionsPanel(){
     : "Real AI is off. Start the console with --allow-paid to use the retained $0.50 allowance. The free demo uses scripted roles with real calculations.";
   const engineDescription = h("span", {cls:"quiet", id:"engine-description"});
   const updateEngine = () => { engineDescription.textContent = mode.value === "live"
-    ? "A real LLM chooses from seven analysis tools and writes evidence-linked claims. Numerical tools and a rule-based critic check the results."
+    ? "A real LLM chooses from ten analysis and forecasting tools and writes evidence-linked claims. Numerical tools and rule-based critics check the results."
     : "Scripted AI decisions with real graph calculations. No model calls or AI charges."; };
   mode.addEventListener("change", updateEngine); updateEngine();
   return panel("Understand your network.", "hero", h("p", {cls:"eyebrow"}, "BLACKGRID / RESEARCH CONSOLE"), h("p", {cls:"intro"}, "Ask a question. Explore the structure. Follow the evidence."),
@@ -366,7 +368,12 @@ function viewAnswer(d){
     title='The agent withheld a final answer.';
     explanation=inv.follow_up?.reason || inv.failure_reason || 'The available evidence did not support the requested answer. Any completed calculations remain available in the other tabs.';
   } else if(status==='completed'){
-    if(d.bridges){
+    if(d.link_prediction){
+      const p=d.link_prediction, c=d.prediction_compare || {}, m=p.method, cut=c.cutoffs || {};
+      const ap=k=>{ const v=((cut[k]||{})[m]||{}).average_precision; return typeof v==='number' ? (v<0.01 ? v.toExponential(2) : v.toFixed(3)) : '—'; };
+      title=p.task==='repeat_pair'?'Here are the past pairs most likely to message again.':'Here are the unconnected pairs most likely to message next.';
+      explanation=p.candidates+' known-node pairs were ranked with '+m+' for the next '+p.horizon_days+' days after the last observed message. In the sealed test this method reached average precision '+ap('b8')+' and '+ap('b9')+'. Scores are rankings, not probabilities, and people first seen later are not covered.';
+    } else if(d.bridges){
       const rows=d.bridges.rows || [], top=rows.find(r=>r.bridge_rank===1);
       title='Here are the nodes connecting different groups.';
       explanation=top ? `Node ${top.node} is among the highest-ranked nodes, with ${top.cross_degree} contacts outside its detected group. This describes its network position; it does not establish influence over others.` : 'The calculation completed. Inspect the local ranking table for individual positions.';
@@ -381,6 +388,11 @@ function viewAnswer(d){
   const output=[panel('Your question','',h('p',{cls:'answer-copy',style:'margin:0'},String(question).replace(/^> /,''))),
     panel('Answer','',h('p',{cls:'answer-lead'},title),h('p',{cls:'answer-copy'},explanation),runActions(d))];
   if((inv.cost || {}).mode==='mock') output.push(panel('About this demo','',h('p',{cls:'quiet',style:'margin:0'},'Graph calculations are real. The planner and writer are scripted stand-ins, so this run does not test a real language model.')));
+  if(status==='completed' && d.link_prediction && (d.local_ranking || []).length){
+    output.push(panel('Top forecast pairs (local only)','',h('p',{cls:'quiet'},'These local identifiers stay on this computer; the AI only saw aggregate numbers.'),
+      h('div',{cls:'tablewrap'},h('table',{},h('thead',{},h('tr',{},['Rank','Pair','Score'].map(t=>h('th',{},t)))),
+        h('tbody',{},(d.local_ranking||[]).slice(0,25).map(r=>h('tr',{},h('td',{cls:'mono'},r.rank),h('td',{cls:'mono'},(r.pair||[]).join(' – ')),h('td',{cls:'mono'},f3(r.score)))))))));
+  }
   const sen=d.ranking_sensitivity?.summary;
   if(sen) output.push(panel('What changed when connections were removed?','',
     h('div',{cls:'stats'},h('div',{cls:'stat'},h('span',{},'Top-set overlap'),h('b',{},`${Math.round(sen.mean_top_jaccard*100)}%`)),

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import networkx as nx
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
 from blackgrid.contracts import (
     Contract,
@@ -77,6 +77,20 @@ class SensitivityArgs(Contract):
     pass
 
 
+class _ForecastProfileArgs(Contract):
+    pass
+
+
+class _LinkPredictionArgs(Contract):
+    task: Literal["new_pair", "repeat_pair"]
+    method: str = Field(default="selected", max_length=64, pattern=r"^[a-z_0-9.A-Z]+$")
+
+
+class _PredictionCompareArgs(Contract):
+    task: Literal["new_pair", "repeat_pair"]
+    split: Literal["validation", "test"] = "validation"
+
+
 TOOLS: dict[str, type[Contract]] = {
     "profile_graph": ProfileArgs,
     "community_test": CommunityTestArgs,
@@ -85,6 +99,9 @@ TOOLS: dict[str, type[Contract]] = {
     "community_partition": ProfileArgs,
     "community_bridge": ProfileArgs,
     "ranking_sensitivity": ProfileArgs,
+    "temporal_profile": _ForecastProfileArgs,
+    "link_prediction": _LinkPredictionArgs,
+    "prediction_compare": _PredictionCompareArgs,
 }
 
 def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R_SENS) -> dict[str, str]:
@@ -99,6 +116,14 @@ def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R
         "community_test": f"Frozen modularity test ({spec.experiment_id}): Louvain modularity vs a degree-preserving "
                           f"double-edge-swap null, {spec.null_replicates} null replicates. "
                           "Args: {\"method\": \"louvain\"}. Other parameters are frozen and cannot be changed.",
+        "temporal_profile": "Forecast history summary at the fixed cutoff (last observed event): event, node, pair and "
+                            "candidate counts. Args: {}.",
+        "link_prediction": "Rank known-node pairs for the next fixed horizon. Args: {\"task\": \"new_pair\" (never "
+                           "messaged before) or \"repeat_pair\" (messaged before), \"method\": \"selected\" (frozen "
+                           "validation choice) or a registered heuristic}. Returns aggregates only; scores are "
+                           "uncalibrated rankings. Cutoff and horizon cannot be changed.",
+        "prediction_compare": "Frozen prediction-v1 evaluation aggregates. Args: {\"task\": same task, \"split\": "
+                              "\"validation\" or \"test\"}. Test labels are never available.",
         "edge_removal_sensitivity": f"Prespecified {sens.removal_fraction:.0%} {sens.mechanism} edge-removal "
                                     f"sensitivity, {sens.replicates} replicates with {sensitivity_null_replicates} "
                                     "nulls each. Requires community_test first. Args: {}.",
@@ -134,6 +159,8 @@ class ToolContext:
     record: GraphRecord
     spec: ExperimentSpec
     cache_dir: Path | None = None
+    forecast: Any = None  # zero-argument factory -> prediction.service.PredictionTools (forecast family only)
+    local_dir: Path | None = None  # where a local-only pair ranking may be written
     sensitivity_null_replicates: int = R_SENS  # exp-v2-full may lower it (runtime)
     outputs: dict[str, dict] = field(default_factory=dict)  # artifact name -> JSON payload
     calls: list[ToolCallRecord] = field(default_factory=list)
@@ -158,7 +185,11 @@ ARTIFACT_NAMES = {
     "community_partition": "community_partition.json",
     "community_bridge": "community_bridge.json",
     "ranking_sensitivity": "ranking_sensitivity.json",
+    "temporal_profile": "temporal_profile.json",
+    "link_prediction": "link_prediction.json",
+    "prediction_compare": "prediction_compare.json",
 }
+FORECAST_TOOLS = ("temporal_profile", "link_prediction", "prediction_compare")
 
 
 def _sha(payload: object) -> str:
@@ -196,14 +227,19 @@ def execute(raw: object, ctx: ToolContext) -> ToolResult:
     try:
         name, args = parse_request(raw)
         _check_prerequisites(name, args, ctx)
-        key = _cache_key(name, args, ctx)
-        cached, rejected = _cache_get(ctx, name, key)
-        if cached is not None:
-            output = cached
-        else:
+        if name in FORECAST_TOOLS:  # Sprint 6: deterministic forecast tools; no cache, aggregates only
+            cached = rejected = None
             with network_denied():
-                output = _run(name, ctx)
-            _cache_put(ctx, name, key, output)
+                output = _run_forecast(name, args, ctx)
+        else:
+            key = _cache_key(name, args, ctx)
+            cached, rejected = _cache_get(ctx, name, key)
+            if cached is not None:
+                output = cached
+            else:
+                with network_denied():
+                    output = _run(name, ctx)
+                _cache_put(ctx, name, key, output)
         artifact = ARTIFACT_NAMES[name]
         ctx.outputs[artifact] = output
         outcome = Outcome.ABSTAINED if output.get("verdict") == "abstain" else Outcome.COMPLETED
@@ -237,6 +273,25 @@ def _check_prerequisites(name: str, args: Contract, ctx: ToolContext) -> None:
         raise ToolRejected("prerequisite missing: run community_partition before community_bridge")
     if name == "ranking_sensitivity" and not any(x in ctx.outputs for x in ("node_centrality.json", "community_bridge.json")):
         raise ToolRejected("prerequisite missing: ranking required")
+
+
+def _run_forecast(name: str, args: Contract, ctx: ToolContext) -> dict:
+    """Call the frozen prediction service. Pair rankings go only to a local file, never to the model."""
+    from blackgrid.prediction.service import PredictionToolRejected
+
+    if ctx.forecast is None:
+        raise ToolRejected("forecast tools are available only for forecast questions on approved event data")
+    tools = ctx.forecast()
+    try:
+        if name == "temporal_profile":
+            return tools.temporal_profile(args)
+        if name == "link_prediction":
+            local = ctx.local_dir / "local_ranking.json" if ctx.local_dir else None
+            return tools.link_prediction(args, local_out=local) | {
+                "history": "all validated events up to the last observed event; the data-scope selector does not apply"}
+        return tools.prediction_compare(args)
+    except PredictionToolRejected as exc:
+        raise ToolRejected(str(exc)) from exc
 
 
 def _run(name: str, ctx: ToolContext) -> dict:

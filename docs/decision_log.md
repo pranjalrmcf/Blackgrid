@@ -882,3 +882,36 @@ All four findings were reproduced as failing tests before fixing.
 - **Reproduction (Session 7):** a clean offline copy built from `uv.lock` passed 357 tests (1 skipped: `leidenalg`). The rerun's validation, selection and test JSON, and all prediction-array hashes, are identical. Peak memory 534 MB.
 - **Docs:** `docs/sprint06_report.md` and `docs/sprint06_guide.md`.
 - **Status:** active.
+
+### D-073 — Forecasting integrated as agent tools; live use authorized (2026-10-18)
+- **Request (user):** "go ahead and you can use real LLM calls, budget is under $0.75", and "you will use forecast as a tool right for the agent?"
+- **Authorization handling:**
+  - Live calls go through the existing persistent allowance (`runs/sprint5-live-allowance.json`, cap USD 0.50, not reset or enlarged), with its USD 0.15 per-run ceiling and every workflow cap.
+  - The user's USD 0.75 limit is a further ceiling on this work. Planned use is a few runs, about USD 0.05 or less.
+- **Status:** active (results in D-074).
+
+### D-074 — Forecast agent integration results and live check (2026-10-18)
+- **Integration:**
+  - `temporal_profile`, `link_prediction` and `prediction_compare` are registered agent tools. They are uncached, run under network denial, and return aggregates only.
+  - Questions route to a new `forecast` family. Prediction, forecast and "will message" wording goes there; cause, influence, persuasion and "why" wording goes to clarify.
+  - Forecast plans are validated: forecast tools only, one `link_prediction`, and `prediction_compare` forced to the same task. No cutoff, candidate, label or code arguments exist.
+  - The writer receives aggregates plus evidence-bound suggested claims. `pred-critic-v1` checks every claim, with the scope fixed by the system; the model may state only the split.
+  - Pair rankings go to `local_ranking.json`, local only. Forecast runs write `forecast_contract.json` and a forecast-specific report.
+  - Console: the question box handles forecasts, with "Forecast new connections" and "Forecast repeat messages" examples, a forecast answer and a local top-pairs table.
+  - Checked in the live console: question box → agent → completed run → answer page, with no browser errors.
+- **Live check:** DeepSeek v4 Flash, single plan, existing allowance. 3 runs, USD 0.0275 total (allowance remaining about USD 0.448).
+  - **New-pair question:** the planner chose `new_pair`/selected; 2/2 claims accepted; USD 0.0008.
+  - **Repeat question:** the planner chose `repeat_pair`/selected; 2/2 accepted; USD 0.0191.
+    - The first planner reply was truncated after **40,576 completion tokens despite `reasoning.max_tokens` 12,000**. That bound is not honoured by this model/route.
+    - The 3× reservation (D-063) covered the overrun: no breach and no halt.
+  - **Probability/recommendation question:** the planner refused ("link_prediction returns uncalibrated rankings, not probabilities"), which is correct.
+  - No pair identifier appeared in any model trace. The real writer used the suggested claim templates verbatim.
+- **Tests:** `tests/test_forecast_agent.py` (15 tests), covering routing, task choice, the full agent run, no pairs in the trace, cutoff and tool-escape rejection, probability and scope rejection, and the missing-evaluation case. Full suite: 373 passed.
+- **Housekeeping:**
+  - Two of my own debugging runs crashed in finalize during development (StructuralSpec family, unregistered artifacts) and stayed "running", which made the console home page re-render every 3 s. They were resumed and finalized after the fixes.
+  - An unexpected finalize exception still leaves a run "running"; recorded as a follow-up.
+- **Limitations:**
+  - A forecast ignores the first-week/full-data scope selector. It always uses all validated events, and the output says so.
+  - The real writer copying templates shows compliance, not insight.
+  - Structural tabs (People & positions, Network) still appear on forecast run pages.
+- **Status:** active.

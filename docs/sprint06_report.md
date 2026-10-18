@@ -92,3 +92,16 @@ This is fixed and tested; the clean reproduction measured 534 MB.
 Decide whether a versioned sampled-training protocol (prediction-v2) for new-pair logistic learning is worth it. The
 alternative is to accept the temporal heuristic and move to the optional real-AI explanation of forecasts under the
 existing allowance.
+
+## Addendum: forecasting as agent tools (D-073, D-074)
+
+Forecasting is now part of the main agent and console:
+- Ask "Which pairs who have never messaged will message in the next few weeks?" in the console question box.
+- The AI planner chooses the forecast tools and the task, and the validator fixes everything else.
+- Deterministic code ranks the pairs. The AI only sees aggregates.
+- The forecast checker verifies each statement, and the answer page shows the local top pairs.
+
+**Real-AI check:** 3 DeepSeek runs, USD 0.0275 in total.
+- Correct task choice for new and repeat questions, with every statement accepted.
+- Correctly **refused** a request for probabilities and recommendations.
+- One planner reply ignored the 12,000-token reasoning limit (40,576 tokens). The safety reservation absorbed it.

@@ -21,6 +21,8 @@ RUN_FILES = {
     "window": "window_selection.json",
     "centrality": "node_centrality.json", "partition": "community_partition.json",
     "bridges": "community_bridge.json", "ranking_sensitivity": "ranking_sensitivity.json",
+    "forecast_profile": "temporal_profile.json", "link_prediction": "link_prediction.json",
+    "prediction_compare": "prediction_compare.json", "local_ranking": "local_ranking.json",
 }
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)?$")
 
