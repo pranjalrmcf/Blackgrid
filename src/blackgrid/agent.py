@@ -43,7 +43,8 @@ VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
 # v2: claim-count/length limits and corrective retry notes (D-037).
 # v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
 # v4: neutral verdict wording; no 'preregistered' or strength words in claims (s4-v2, D-061).
-PROMPT_VERSION = "prompts-v4"
+# v5: flags appear in the evidence map (#/flags/N) and can be cited (D-065).
+PROMPT_VERSION = "prompts-v5"
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
@@ -117,7 +118,8 @@ class InvestigationResult(Contract):
 
 
 def flatten(outputs: dict[str, dict]) -> dict[str, object]:
-    """Artifact outputs -> {"artifact.json#/a/b": scalar}. Lists are skipped to keep prompts small."""
+    """Artifact outputs -> {"artifact.json#/a/b": scalar}. Numeric lists are skipped to keep prompts small;
+    lists of strings (flags, reasons) are indexed so they can be cited."""
     flat: dict[str, object] = {}
 
     def walk(prefix: str, value: object) -> None:
@@ -127,6 +129,9 @@ def flatten(outputs: dict[str, dict]) -> dict[str, object]:
                     walk(f"{prefix}/{key}", child)
         elif isinstance(value, (int, float, str, bool)) or value is None:
             flat[prefix] = value
+        elif isinstance(value, (list, tuple)) and value and all(isinstance(v, str) for v in value):
+            for i, item in enumerate(value):  # e.g. flags: citable as #/flags/0 (v5, D-065)
+                flat[f"{prefix}/{i}"] = item
 
     for name, payload in outputs.items():
         walk(f"{name}#", payload)

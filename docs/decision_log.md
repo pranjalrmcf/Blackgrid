@@ -771,3 +771,21 @@ All four findings were reproduced as failing tests before fixing.
   - The 92% figure comes from an AI reviewer on one run of 24 synthetic cases. It is not a human-validated support rate or an error-rate guarantee.
 - **Not done:** critic changes. Fixing these after inspection would be a new version (critic-v5), and its effect would need fresh cases.
 - **Status:** active.
+
+### D-065 — critic-v5: the five label and citation mistakes from the live review (2026-10-18)
+- **Request (user):** "Improve the checker (critic-v5) so it catches those 5 kinds of mistakes, testing it for free first."
+- **Rules added**, written after inspecting the D-064 claims:
+  - **R3 labels:** labels now also match `delta_q`, `null_mean`, `p_value`, `observed_statistic` and null q05/q50/median/q95. Claims about the secondary analysis only must bind labelled numbers to secondary fields.
+  - **R10 scope:** a secondary or largest-component "verdict" may not cite the overall verdict field unless the claim names the overall verdict. The secondary analysis has no verdict of its own.
+  - **R11 flags:** asserting a flag needs either a cited flag entry, or cited evidence that establishes it under the saved rule (components > 1 or isolated nodes; unknown pairs > 0; max degree ≥ `DEGREE_CONFOUND_RATIO` × max(median, 1)). Negated mentions are allowed.
+  - **R12 range:** "within / outside the null range" needs the cited null q05 and q95.
+  - **R13 pairing:** "delta Q … vs null mean …" in one clause is rejected, because it compares a difference with a score.
+- **prompts-v5:** short string lists (flags) are now indexed evidence paths (`#/flags/N`), so a flag can be cited at all. Numeric lists stay out of prompts.
+- **Free checks:**
+  - `tests/test_critic_v5.py`: 5 regressions and 11 controls showing that correct forms stay expressible.
+  - `scripts/replay_critic_live.py` replays critic-v5 on all 65 reviewed live claims with their real saved evidence: 60 accepted by both, 5 rejected by both, 0 disagreements.
+  - The first replay wrongly blocked 5 accepted flag claims that cited the establishing evidence. R11 was widened to accept that, as the reviewer's note allowed, and this is disclosed.
+  - Full suite: 279 passed.
+- **Caveat:** perfect agreement here is **development evidence**. The rules were fitted to these 65 claims, judged by one AI reviewer. Whether critic-v5 helps on new claims needs fresh cases and a new frozen protocol. A live check would need user authorization and a cap.
+- **Versions:** critic-v5 and prompts-v5. Runs paused under older versions cannot be resumed (identity check).
+- **Status:** active.

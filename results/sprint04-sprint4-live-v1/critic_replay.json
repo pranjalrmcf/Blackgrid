@@ -1,0 +1,478 @@
+{
+  "summary": {
+    "critic_version": "critic-v5",
+    "claims": 65,
+    "status": "development evidence: critic written after inspecting these claims; AI reviewer",
+    "both_accept": 60,
+    "both_reject": 5,
+    "critic_rejects_review_accepts": 0,
+    "critic_accepts_review_rejects": 0
+  },
+  "rows": [
+    {
+      "review_id": "live-001",
+      "claim": "Primary whole_graph analysis verdict was not_supported; observed statistic 0.3757 versus null median 0.3600, p=0.27, z=0.6389.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-002",
+      "claim": "Sensitivity analysis under uniform missingness: 3 of 3 replicates returned not_supported, agreement_fraction 1.0.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-003",
+      "claim": "Null distribution q05=0.27030046711273825, q50=0.29005176114127007, q95=0.31738416866557245, sd=0.01654156764120038, 99 replicates.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-004",
+      "claim": "Saved verdict is not_supported; sensitivity analysis had agreement_fraction 1.0 with 3 of 3 runs not_supported and delta_q_median -0.014933553140012212.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-005",
+      "claim": "Saved decision-rule verdict is not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-006",
+      "claim": "Largest-component test: observed statistic 0.5303, null mean 0.4795, null q95 0.5175, p=0.03, z=2.025, 2 exceedances.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-007",
+      "claim": "Flags: disconnected (3 components, 1 isolated node) and incomplete_observation (130 unknown pairs).",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-008",
+      "claim": "Secondary largest-component analysis outcome was 'abstained' with 12 edges and 8 non-isolated nodes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-009",
+      "claim": "Whole-graph test observed statistic 0.36875 vs null mean 0.3646338, p=0.36, z=0.206; raw verdict not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-010",
+      "claim": "Graph: 30 nodes, 96 edges, density 0.2207, transitivity 0.4278, 1 component, no isolated nodes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-011",
+      "claim": "Null distribution: mean 0.416, median 0.412, sd 0.014; observed 0.410 is within the null range.",
+      "review_accepts": false,
+      "critic_accepts": false,
+      "reasons": [
+        "R12: a position relative to the null range needs the cited null q05 and q95"
+      ]
+    },
+    {
+      "review_id": "live-012",
+      "claim": "Graph profile: 30 nodes, 87 edges, density 0.2, transitivity 0.457081545064, 1 component, 0 isolated nodes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-013",
+      "claim": "Observed statistic was 0.5527711147582376; null mean 0.2915705470307162, p=0.01, z=15.790557061650215.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-014",
+      "claim": "Primary whole-graph analysis: observed statistic 0.75, p=0.01, z=12.087761198907057, null mean 0.4820842978395062, 99 replicates, 0 exceedances.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-015",
+      "claim": "Primary delta Q 0.27 vs null mean 0.48 (q95 0.52); null replicates 99.",
+      "review_accepts": false,
+      "critic_accepts": false,
+      "reasons": [
+        "R13: delta Q is a difference (observed - null mean); comparing it with the null mean mixes quantities: compare observed Q with the null mean"
+      ]
+    },
+    {
+      "review_id": "live-016",
+      "claim": "Observed 0.354 lies between null q05 0.346 and q95 0.413.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-017",
+      "claim": "The experiment report verdict is 'inconclusive' and raw_verdict is 'inconclusive'.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-018",
+      "claim": "Observed modularity statistic was 0.4019891925757694; null mean was 0.4124327304685986 and p_value was 0.77.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-019",
+      "claim": "Saved raw and final verdicts are both inconclusive; sensitivity analysis (uniform missingness, removal fraction 0.1, 3 replicates) returned 3 inconclusive verdicts.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-020",
+      "claim": "Whole-graph test: observed modularity 0.409 vs null mean 0.432 (p=0.92, z=-1.337, delta_q=-0.022).",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-021",
+      "claim": "Largest-component analysis abstained: 12 edges and 8 non-isolated nodes; reason S1 and S2.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-022",
+      "claim": "Graph profile: 32 nodes, 48 edges, 4 components, largest component 8 nodes/12 edges; secondary analysis abstained (suitable=false, outcome=abstained); flagged disconnected.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-023",
+      "claim": "Sensitivity analysis: 3/3 runs supported (agreement_fraction 1.0); observed_q range 0.5095-0.5441.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-024",
+      "claim": "Graph profile (flag: disconnected): 32 nodes, 48 edges, 4 components, largest component 8 nodes and 12 edges, transitivity 0.381355932203.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-025",
+      "claim": "Graph: 30 nodes, 60 edges, 2 components, 1 isolated node; largest component has 29 nodes and 60 edges; flag disconnected.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-026",
+      "claim": "Whole-graph analysis: observed statistic 0.75, p=0.01, z=10.28; overall verdict is inconclusive.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-027",
+      "claim": "Graph has 30 nodes, 38 edges, 2 components, 1 isolated node; largest component has 29 nodes and 38 edges.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-028",
+      "claim": "Saved verdict supported; raw_verdict supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-029",
+      "claim": "Sensitivity analysis (uniform, removal fraction 0.1, 3 replicates; not an uncertainty interval) returned inconclusive in all 3 runs; agreement fraction 1.0.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-030",
+      "claim": "Null swap_failures 0, null_failed 0, null_identical_to_observed 0; z 15.227322187384411.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-031",
+      "claim": "Observed modularity (0.410) is below the null q95 (0.438), p=0.59; the saved verdict is not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-032",
+      "claim": "Graph profile: 40 nodes, 114 edges, density 0.146153846154, transitivity 0.154228855721, degree_mean 5.7, degree_median 6.0.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-033",
+      "claim": "Sensitivity analysis (uniform missingness) yielded 2 supported and 1 inconclusive; delta_q median 0.0817.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-034",
+      "claim": "Observed statistic 0.354; null mean 0.377; p=0.79; z=-1.005.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-035",
+      "claim": "Sensitivity analysis (uniform missingness) had not_supported count 3 and agreement_fraction 1.0.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-036",
+      "claim": "Primary analysis suitable true, outcome completed, null_failed 0, null_identical_to_observed 0, swap_failures 0; z 1.797492966096701; delta_q 0.027006755769451996.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-037",
+      "claim": "Largest-component test observed statistic 0.3654167 vs null mean 0.3644851, p=0.43, z=0.0388.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-038",
+      "claim": "Graph profile: 57 nodes, 109 edges, density 0.068, mean degree 3.825, transitivity 0.120.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-039",
+      "claim": "Observed delta_q was 0.5611705641432158; p_value 0.01; null mean 0.29420042678068836; null q95 0.32062359624785314.",
+      "review_accepts": false,
+      "critic_accepts": false,
+      "reasons": [
+        "R3: labelled numbers do not match a cited field of that meaning: ['delta Q = 0.5611705641432158']"
+      ]
+    },
+    {
+      "review_id": "live-040",
+      "claim": "Sensitivity analysis (uniform missingness, removal_fraction 0.1) had 3 replicates, agreement_fraction 1.0, all 3 verdicts supported, observed_q_median 0.5694444444444444.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-041",
+      "claim": "Secondary largest_component analysis verdict was not_supported; observed statistic 0.3757, p=0.22, z=0.7188.",
+      "review_accepts": false,
+      "critic_accepts": false,
+      "reasons": [
+        "R10: a secondary/largest-component verdict cites the overall verdict field; the secondary analysis has no verdict of its own: say 'the overall verdict' or cite secondary results"
+      ]
+    },
+    {
+      "review_id": "live-042",
+      "claim": "Sensitivity analysis (uniform missingness, removal_fraction 0.1, 3 replicates, 99 null replicates per run) gave agreement_fraction 1.0; all 3 verdicts not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-043",
+      "claim": "Sensitivity analysis (uniform missingness, removal_fraction=0.1, 3 replicates) had agreement_fraction=1.0, observed_q_median=0.5512500000000001, delta_q_median=0.23589015151515164.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-044",
+      "claim": "Experiment report verdict is 'supported'; raw_verdict is 'supported'; primary scope whole_graph and suitable true.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-045",
+      "claim": "Whole-graph delta_q 0.004116; secondary delta_q 0.000932; null swap_failures 0 in both scopes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-046",
+      "claim": "Sensitivity analysis (uniform 10% missingness): all 3 runs not_supported, agreement_fraction 1.0, delta_q median -0.0019.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-047",
+      "claim": "Observed statistic 0.5267 vs null mean 0.2763, p=0.01, z=16.67; verdict supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-048",
+      "claim": "Sensitivity analysis (uniform mechanism, removal_fraction 0.1, 3 replicates) had agreement_fraction 1.0 and all 3 verdicts 'inconclusive'.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-049",
+      "claim": "Graph profile: 32 nodes, 48 edges, 4 components, 0 isolated nodes; flag: disconnected.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-050",
+      "claim": "Whole-graph test: observed statistic 0.5799, null mean 0.5293, null q95 0.5732, p=0.04, z=2.086, 3 exceedances.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-051",
+      "claim": "Sensitivity uniform missingness removal_fraction 0.1: supported 2, not_supported 1, agreement_fraction 0.6666666666666666, observed_q_median 0.3792063342445094.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-052",
+      "claim": "Final verdict is inconclusive; raw verdict was supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-053",
+      "claim": "Observed statistic 0.3234 compared to null median 0.3205 (q05 0.3020, q95 0.3427) yielded p=0.41; verdict not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-054",
+      "claim": "Primary whole-graph test reported observed_statistic 0.75, p_value 0.01, z 13.48163045508122, null mean 0.48047751823793494, null q95 0.5152994791666666.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-055",
+      "claim": "Observed statistic 0.4019891925757694 fell within the null interval q05=0.3888088338945884 to q95=0.4359934215678597.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-056",
+      "claim": "Sensitivity analysis (uniform missingness, 10% removal, 3 replicates) yielded 2 supported and 1 not_supported verdicts; agreement fraction 0.6667.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-057",
+      "claim": "Sensitivity analysis (uniform missingness, 10% removal): 3/3 runs not_supported, agreement_fraction 1.0, observed_q_median 0.367.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-058",
+      "claim": "Disconnected flag applies: graph has 2 components, 1 isolated node, 30 nodes, 60 edges, density 0.1379, transitivity 0.1765.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-059",
+      "claim": "Sensitivity analysis under uniform 10% missingness returned not_supported in 3/3 replicates; agreement_fraction=1.0.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-060",
+      "claim": "Observed modularity statistic 0.333, p=0.29; null mean 0.322, q95 0.346; verdict not_supported.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-061",
+      "claim": "Graph has 40 nodes, 113 edges, density 0.145, transitivity 0.136, 1 component, no isolated nodes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-062",
+      "claim": "Graph profile: 40 nodes, 117 edges, density 0.15, transitivity 0.1512, 1 component, no isolated nodes.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-063",
+      "claim": "Flag degree_confound applies; saved and raw verdicts are not_supported.",
+      "review_accepts": false,
+      "critic_accepts": false,
+      "reasons": [
+        "R11: asserts the degree_confound flag without citing that flag or the evidence that establishes it"
+      ]
+    },
+    {
+      "review_id": "live-064",
+      "claim": "Sensitivity analysis under uniform missingness: all 3 replicates returned not_supported; agreement_fraction 1.0, delta_q_median 0.01514.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    },
+    {
+      "review_id": "live-065",
+      "claim": "Whole-graph analysis observed statistic 0.6077, p=0.01, z=3.7648; saved verdict is inconclusive.",
+      "review_accepts": true,
+      "critic_accepts": true,
+      "reasons": []
+    }
+  ]
+}

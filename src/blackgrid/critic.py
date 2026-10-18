@@ -18,6 +18,16 @@ Rubric (version `critic-v1`), applied to every drafted claim:
                    such words is preregistered  [v3]
   R9 registration  a claim may not call a result "preregistered": no cited artifact establishes
                    registration (negated statements such as "not preregistered" are allowed)  [v4]
+  R3 labels        v5: labels also match snake_case/hyphenated forms (delta_q, null_mean, p_value,
+                   observed_statistic) and null quantiles/median (q05, q50, q95); a claim about the
+                   secondary (largest-component) analysis must bind its labelled numbers to secondary fields
+  R10 scope        a secondary/largest-component verdict cannot cite the overall verdict field (the
+                   secondary analysis has no verdict of its own) unless the overall verdict is named  [v5]
+  R11 flags        asserting a flag (degree_confound, incomplete_observation, "... flag") needs a cited
+                   flag entry with that value  [v5]
+  R12 range        "within / outside the null range" needs the cited null q05 and q95  [v5]
+  R13 pairing      delta Q set against the null mean ("delta Q 0.27 vs null mean 0.48") compares a
+                   difference with a score; compare observed Q with the null mean instead  [v5]
 
 The critic is a rule set, not a model, and it is not independent scientific validation.
 """
@@ -28,13 +38,16 @@ import re
 from dataclasses import dataclass
 
 from blackgrid.contracts import Contract, EvidenceLevel, NonEmpty
+from blackgrid.experiment import DEGREE_CONFOUND_RATIO
 from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
 
 # v2: no bare x100 matches; labelled numbers must match their field (D-038).
 # v3: comparisons cite both sides; unoperationalized strength wording is rejected (Sprint 4 R4, D-057).
 #     Provisional until the blinded human review (docs/sprint04_review_rubric.md) is complete.
 # v4: R9 rejects unestablished "preregistered" wording (s4-v2, D-061).
-CRITIC_VERSION = "critic-v4"
+# v5: label variants, secondary scope, flags, null range and delta/null pairing, from the live-pilot review
+#     (D-064, D-065). Written after inspecting those claims: development evidence until fresh cases test it.
+CRITIC_VERSION = "critic-v5"
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -47,6 +60,15 @@ STRENGTH = re.compile(r"\b(strong(ly)?|weak(ly)?|substantial(ly)?|pronounced|mar
                       r"meaningful)\b(\W+\w+){0,3}?\W+(communit\w*|structure|groups?|clusters?|modular\w*|"
                       r"effects?|evidence|signal|differences?)\b", re.I)
 REGISTERED = re.compile(r"\bpre-?registered\b", re.I)
+SECONDARY = re.compile(r"\b(secondary|largest[\s_-]*component)\b", re.I)
+OVERALL = re.compile(r"\b(overall|primary|whole[\s_-]*graph|saved)\b", re.I)
+FLAG_NAMES = {"degree_confound": r"degree[\s_-]*confound", "incomplete_observation": r"incomplete[\s_-]*observation",
+              "disconnected": r"disconnected(?=[\s_-]*flag)|flag\W+disconnected"}
+NULL_RANGE = re.compile(r"\b(within|inside|outside|beyond)\s+(?:of\s+)?(?:the\s+)?null(?:'s)?[\s_-]*"
+                        r"(range|distribution|interval|band|envelope)\b", re.I)
+_CLAUSE = r"(?:(?!\.\s)[^;])"  # within one clause; decimal points are not sentence ends
+PAIRING = re.compile(r"\bdelta[\s_-]*q\b" + _CLAUSE + r"{0,30}?\b(vs\.?|versus|compared (?:with|to)|against|"
+                     r"relative to)" + _CLAUSE + r"{0,20}?\bnull[\s_-]*mean\b", re.I)
 OBSERVED_SIDE = ("observed_statistic", "observed_q_min", "observed_q_max", "observed_q_median")
 NULL_SIDE = ("null/mean", "delta_q", "delta_q_min", "delta_q_median", "delta_q_max")
 CONCLUSION = ("p_value", "#/verdict", "/raw_verdict")
@@ -78,28 +100,55 @@ def unsupported_numbers(text: str, values: list[object]) -> list[str]:
 # A labelled number must match a cited field with that meaning, not just any cited value.
 _NUM = r"\(?\s*(-?\d+(?:\.\d+)?)(?!\.?\d)(?![A-Za-z_%])"
 _LINK = r"\s*(?:=|:|of|is|was)?\s*"
+_SEP = r"[\s_-]*"  # v5: "delta Q", "delta_q", "delta-Q" are the same label
 LABELS: tuple[tuple[str, re.Pattern, tuple[str, ...]], ...] = (
-    ("delta Q", re.compile(r"\bdelta\s*Q" + _LINK + _NUM, re.I), ("delta_q",)),
-    ("null mean", re.compile(r"\bnull mean" + _LINK + _NUM, re.I), ("null/mean",)),
-    ("null sd", re.compile(r"\b(?:null )?sd" + _LINK + _NUM, re.I), ("null/sd",)),
-    ("Q (observed modularity)", re.compile(r"(?<!delta )(?<!delta)\b(?:[Mm]odularity(?:\s+Q)?|Q)" + _LINK + _NUM),
+    ("delta Q", re.compile(r"\bdelta" + _SEP + r"Q(?![\w])" + _LINK + _NUM, re.I), ("delta_q",)),
+    ("null mean", re.compile(r"\bnull" + _SEP + r"mean\b" + _LINK + _NUM, re.I), ("null/mean",)),
+    ("null sd", re.compile(r"\b(?:null" + _SEP + r")?sd\b" + _LINK + _NUM, re.I), ("null/sd",)),
+    ("null q05", re.compile(r"\b(?:null" + _SEP + r")?q05\b" + _LINK + _NUM, re.I), ("null/q05",)),
+    ("null q95", re.compile(r"\b(?:null" + _SEP + r")?q95\b" + _LINK + _NUM, re.I), ("null/q95",)),
+    ("median", re.compile(r"\b(?:null" + _SEP + r")?(?:q50|median)\b" + _LINK + _NUM, re.I),
+     ("null/q50", "observed_q_median", "delta_q_median", "degree_median")),
+    ("Q (observed modularity)",
+     re.compile(r"(?<!delta )(?<!delta_)(?<!delta)\b(?:[Mm]odularity(?:\s+Q)?|Q|observed" + _SEP +
+                r"(?:statistic|Q|modularity))(?![\w])" + _LINK + _NUM),
      ("observed_statistic", "observed_q_min", "observed_q_max", "observed_q_median")),
-    ("p-value", re.compile(r"\bp(?:-value|_value| value)?" + _LINK + _NUM, re.I), ("p_value",)),
-    ("z", re.compile(r"\bz" + _LINK + _NUM), ("/z",)),
+    ("p-value", re.compile(r"\bp(?:" + _SEP + r"value)?(?![\w])" + _LINK + _NUM, re.I), ("p_value",)),
+    ("z", re.compile(r"\bz(?![\w])" + _LINK + _NUM), ("/z",)),
 )
 
 
 def mislabelled_numbers(text: str, cited: dict[str, object]) -> list[str]:
-    """Numbers attached to a known label (Q, p, z, null mean, ...) that match no cited field of that meaning."""
+    """Numbers attached to a known label (Q, p, z, null mean, ...) that match no cited field of that meaning.
+
+    v5: when the claim is about the secondary analysis only, experiment fields must be secondary ones.
+    """
     cleaned = ISO_TIME.sub(" ", text.replace("−", "-"))
+    secondary_only = bool(SECONDARY.search(text)) and not OVERALL.search(text)
     problems = []
     for name, pattern, suffixes in LABELS:
         for m in pattern.finditer(cleaned):
             token = m.group(1)
-            fields = [v for path, v in cited.items() if path.endswith(suffixes)]
+            fields = [v for path, v in cited.items() if path.endswith(suffixes)
+                      and not (secondary_only and "/primary/" in path)]
             if not any(number_matches(token, False, v) for v in fields):
                 problems.append(f"{name} = {token}")
     return problems
+
+
+def _cited(cited: dict[str, object], suffix: str) -> list[float]:
+    return [v for p, v in cited.items() if p.endswith(suffix) and isinstance(v, (int, float)) and not isinstance(v, bool)]
+
+
+def _flag_established(flag: str, cited: dict[str, object]) -> bool:
+    """R11 alternative: the cited evidence itself establishes the flag under its saved rule."""
+    if flag == "disconnected":
+        return any(v > 1 for v in _cited(cited, "components")) or any(v > 0 for v in _cited(cited, "isolated_nodes"))
+    if flag == "incomplete_observation":
+        return any(v > 0 for v in _cited(cited, "unknown_pairs"))
+    if flag == "degree_confound":  # the saved rule: max degree >= DEGREE_CONFOUND_RATIO x max(median, 1)
+        return any(hi >= DEGREE_CONFOUND_RATIO * max(md, 1) for hi in _cited(cited, "degree_max") for md in _cited(cited, "degree_median"))
+    return False
 
 
 @dataclass(frozen=True)
@@ -170,6 +219,24 @@ def critique(claim: object, ctx: CriticContext) -> CriticDecision:
             reasons.append("R9: 'preregistered' is not established by any cited artifact; say 'the saved "
                            "decision-rule verdict' instead")
             break
+    if SECONDARY.search(text) and re.search(r"\bverdict\b", text, re.I) and not OVERALL.search(text) and \
+            any(path.endswith(("#/verdict", "#/raw_verdict")) for path in cited):
+        reasons.append("R10: a secondary/largest-component verdict cites the overall verdict field; the secondary "
+                       "analysis has no verdict of its own: say 'the overall verdict' or cite secondary results")
+    for flag, pattern in FLAG_NAMES.items():
+        for match in re.finditer(pattern, text, re.I):
+            if NEGATION.search(text[: match.start()]):
+                continue
+            if not (any("#/flags/" in path and value == flag for path, value in cited.items())
+                    or _flag_established(flag, cited)):
+                reasons.append(f"R11: asserts the {flag} flag without citing that flag or the evidence that "
+                               "establishes it")
+            break
+    if NULL_RANGE.search(text) and not all(any(path.endswith(q) for path in cited) for q in ("null/q05", "null/q95")):
+        reasons.append("R12: a position relative to the null range needs the cited null q05 and q95")
+    if PAIRING.search(text):
+        reasons.append("R13: delta Q is a difference (observed - null mean); comparing it with the null mean mixes "
+                       "quantities: compare observed Q with the null mean")
     strength = STRENGTH.search(text)
     if strength:
         reasons.append(f"R8: strength wording {strength.group(1)!r} has no preregistered threshold; report the "
