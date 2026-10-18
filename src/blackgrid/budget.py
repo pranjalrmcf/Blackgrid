@@ -1,8 +1,10 @@
 """Budget enforcement for LLM calls (Sprint 1 Day 8).
 
-Every call is *reserved* before it is made. The reservation assumes the worst case: a
-conservative prompt-token estimate plus the full `max_tokens` completion. If the reservation would
-exceed any cap, the call is never sent. Caps covered: calls, tokens, USD per investigation, USD
+Every call is *reserved* before it is made. The reservation assumes the worst case: a strict
+prompt-token bound plus COMPLETION_OVERSHOOT x the requested `max_tokens` completion, at 2x list
+price, because a live provider returned 2.54x its `max_tokens` (D-062, D-063). If the reservation
+would exceed any cap, the call is never sent. A charge above its reservation still halts all
+further paid calls; no client-side bound is a guarantee against a provider ignoring its limits. Caps covered: calls, tokens, USD per investigation, USD
 for the sprint (persisted across runs), retries per call, and revision rounds. Actual usage is
 reconciled after each call. Retries and failed billable calls count.
 """
@@ -37,6 +39,7 @@ FREE = Pricing(model="mock", prompt_usd_per_token=0.0, completion_usd_per_token=
 
 PRICE_SAFETY = 2.0  # reserve 2x list price: one live call was charged 1.39x price x tokens (D-039)
 MESSAGE_OVERHEAD_TOKENS = 64  # chat-template tokens per message
+COMPLETION_OVERSHOOT = 3.0  # reserve 3x max_tokens: one reply had 40,576 tokens against max_tokens 16,000 (D-062)
 
 
 def estimate_tokens(text: str) -> int:
@@ -53,8 +56,9 @@ def prompt_token_bound(text: str, messages: int = 2) -> int:
 class Reservation:
     prompt_tokens: int  # typical estimate (token cap)
     prompt_token_bound: int  # strict bound (money)
-    max_completion_tokens: int
+    max_completion_tokens: int  # completion tokens *reserved* (requested x COMPLETION_OVERSHOOT)
     usd: float
+    requested_completion_tokens: int = 0  # the max_tokens actually sent to the provider
 
 
 @dataclass
@@ -96,9 +100,12 @@ class BudgetLedger:
     def reserve(self, prompt: str, max_completion_tokens: int, messages: int = 2) -> Reservation:
         """Book the worst case before a call: strict prompt bound + full completion, at 2x list price.
 
-        The money caps are hard limits provided the provider honours max_tokens and charges at most
-        2x its list price; any charge above the reservation halts all further paid calls (commit).
+        The money caps hold provided the provider returns at most COMPLETION_OVERSHOOT x max_tokens
+        and charges at most 2x its list price; any charge above the reservation halts all further paid
+        calls (commit). D-062 showed a provider exceeding max_tokens, so this is a bound, not a guarantee.
         """
+        requested = max_completion_tokens
+        max_completion_tokens = math.ceil(requested * COMPLETION_OVERSHOOT)
         est = estimate_tokens(prompt)
         bound = prompt_token_bound(prompt, messages)
         usd = PRICE_SAFETY * (bound * self.pricing.prompt_usd_per_token
@@ -122,9 +129,10 @@ class BudgetLedger:
         self.calls += 1
         self.estimated_usd += usd
         self._event({"event": "reserve", "prompt_tokens_est": est, "prompt_token_bound": bound,
-                     "max_completion": max_completion_tokens, "usd": usd})
+                     "max_completion": requested, "reserved_completion": max_completion_tokens, "usd": usd})
         self.pending = Reservation(prompt_tokens=est, prompt_token_bound=bound,
-                                   max_completion_tokens=max_completion_tokens, usd=usd)
+                                   max_completion_tokens=max_completion_tokens, usd=usd,
+                                   requested_completion_tokens=requested)
         return self.pending
 
     def commit(self, prompt_tokens: int, completion_tokens: int, reported_usd: float | None = None) -> float:

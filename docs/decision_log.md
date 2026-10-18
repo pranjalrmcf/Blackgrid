@@ -704,3 +704,49 @@ All four findings were reproduced as failing tests before fixing.
   - The validated arm now ties the rule baseline while using 18 more calls. Nothing shows a scripted agent adds value over templates. Whether a real model does is untested.
 - **Compatibility:** the Sprint 3 evaluator's frozen whitelist does not know the new verdict wording, so rerunning Sprint 3 on current code would score it unassessed. Sprint 3's results are historical and stay unchanged.
 - **Status:** active.
+
+### D-062 — Sprint 4 live pilot s4-v3 executed (2026-10-18)
+- **Authorization (user):** "Run the live pilot with deepseek-v4-flash, max $0.50 total". It covered one execution of `protocols/sprint04_live_pilot.md`, which was frozen first.
+- **Run:** `runs/sprint4-live-v1`, cases `val-301`–`val-324`, 72/72 attempts, 0 suite errors, 0 overlaps, 2,192 s.
+- **Spend:**
+  - System list-price accounting: USD 0.1117, under the 0.50 cap.
+  - OpenRouter-reported cost: USD 0.0823.
+  - Project total is now about USD 0.129.
+  - Accounting stayed in the main store with the stricter `sprint2` label; nothing was reset.
+- **Results** (baseline / live tool_only / live validated):
+  - Evidence-consistent verdicts: 24 / 4 / 24. Required flags met: 24 / 18 / 24.
+  - Correct refusals: 6 / 0 / 6. Complete: 24 / 4 / 23.
+  - Claims: 36 / 0 / 65. In validated, every number in every claim matched a cited value (65/65), with 0 strength, causal or "preregistered" wording.
+  - All 65 live claims are free prose, so `s4-eval-v1` scores them **unassessed**. Under that scorer the validated arm has 6 useful answers (the refusals), as the protocol foresaw. Claim support is **pending review** of `runs/sprint4-live-v1/blinded_claims.csv`.
+- **Finding 1, under-planning without the validator.**
+  - In tool_only the real planner ran only `community_test` in 20/24 cases and skipped the required sensitivity analysis.
+  - The supervisor therefore finalized those runs as `partial` without analysis, which explains 0 claims. 2 of the 6 refusal tasks were attempted rather than refused.
+  - The plan validator, which adds required tools and refuses invalid requests, made the difference.
+- **Finding 2, max_tokens not honoured.**
+  - In `val-318`/validated, the analyst reply contained 40,576 completion tokens despite `max_tokens` 16,000 (finish `length`).
+  - It was charged USD 0.0183 against a USD 0.0147 reservation. The hard-cap guard (D-039) halted that run as `budget_exhausted`.
+  - The worst-case reservation guarantee therefore **does not hold for this provider/model**. The pilot cap held only because of headroom.
+  - 9 of 83 live calls ended with `length`.
+- **Follow-ups (not done):**
+  1. Bound reasoning tokens explicitly, using OpenRouter's reasoning limits or effort setting, and/or reserve against an observed overshoot factor. Do this before any larger live run.
+  2. Review the 65 blinded claims.
+  3. Extend the evaluator for free prose without reusing critic code.
+- **Status:** active.
+
+### D-063 — Bounding the token overrun found in D-062 (2026-10-18)
+- **Request (user):** "Fix the token-limit overrun first (bound reasoning tokens / safer reservations), test offline, then commit everything locally."
+- **Request side:**
+  - New `LLMConfig.reasoning_max_tokens`. When set, OpenRouter receives `reasoning: {max_tokens: N}`, capped below `max_tokens`. It must leave room for the answer, which the validator enforces.
+  - Both live configs use 12,000 of the 16,000 per call.
+  - **Unverified live:** whether DeepSeek via OpenRouter honours this was not tested, and no paid call was made.
+- **Reservation side:**
+  - Each call now reserves `COMPLETION_OVERSHOOT` = 3× the requested completion (the observed overrun was 2.54×), still at 2× list price, for both money and token caps.
+  - A charge above a reservation still halts all paid calls.
+  - Cost of the change: a 16,000-token call now reserves about USD 0.043 instead of 0.014 at deepseek-v4-flash prices, so fewer calls fit a small cap.
+  - The budget docstring now says this is a bound, not a guarantee.
+- **Tests (offline):**
+  - `tests/test_token_overrun.py`: the D-062 reply fits its reservation; a larger overrun still halts; a live workflow with a fake provider returning 2.54× `max_tokens` completes without a reservation breach; the request body includes the reasoning bound only when configured; the config validator works.
+  - Three older budget tests were updated to the new reservation rule.
+  - 263 passed.
+- **s4-v3 pilot code:** unchanged and closed. Its stop threshold (USD 0.03) is below one new reservation, so any future pilot needs a new protocol with a recomputed threshold.
+- **Status:** active.

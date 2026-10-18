@@ -28,6 +28,7 @@ class ValidationInput:
 
 S4_CASE_IDS = tuple(f"val-{i:03}" for i in range(101, 125))  # Sprint 4 fresh instances (s4-v1)
 S4V2_CASE_IDS = tuple(f"val-{i:03}" for i in range(201, 225))  # Sprint 4 fresh instances (s4-v2)
+S4LIVE_CASE_IDS = tuple(f"val-{i:03}" for i in range(301, 325))  # Sprint 4 live pilot (s4-v3)
 
 
 def case_index(case_id: str) -> int:
@@ -38,6 +39,8 @@ def case_index(case_id: str) -> int:
         return int(case_id[-3:]) - 100
     if case_id in S4V2_CASE_IDS:
         return int(case_id[-3:]) - 200
+    if case_id in S4LIVE_CASE_IDS:
+        return int(case_id[-3:]) - 300
     raise ValueError("unknown validation case (sealed tests are inaccessible)")
 
 
@@ -47,6 +50,8 @@ def generator_seed(case_id: str) -> int:
         return 3001 + 100 * (index - 1) if index <= 18 else 8100 + index - 18
     if case_id in S4V2_CASE_IDS:  # protocols/sprint04_evaluation_v2.md §1
         return 5001 + 100 * (index - 1) if index <= 18 else 8200 + index - 18
+    if case_id in S4LIVE_CASE_IDS:  # protocols/sprint04_live_pilot.md §2
+        return 7001 + 50 * (index - 1) if index <= 18 else 8300 + index - 18
     return 1001 + 100 * (index - 1) if index <= 18 else 8000 + index - 18
 
 
@@ -90,8 +95,8 @@ def validation_input(case_id: str) -> ValidationInput:
 
 def validation_spec(case_id: str) -> ExperimentSpec:
     index = case_index(case_id)
-    tag, base = ("s4v2", 50000) if case_id in S4V2_CASE_IDS else ("s4", 40000) if case_id in S4_CASE_IDS \
-        else ("s3", 30000)
+    tag, base = ("s4live", 60000) if case_id in S4LIVE_CASE_IDS else ("s4v2", 50000) \
+        if case_id in S4V2_CASE_IDS else ("s4", 40000) if case_id in S4_CASE_IDS else ("s3", 30000)
     return ExperimentSpec(
         experiment_id=f"{tag}-{case_id}", graph_id=case_id, status="exploratory",
         hypothesis="Louvain modularity exceeds degree-preserving randomizations.",

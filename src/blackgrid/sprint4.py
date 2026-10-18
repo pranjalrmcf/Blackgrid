@@ -34,8 +34,8 @@ from blackgrid.providers import MockProvider, _ev, _request
 from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation
 from blackgrid.sprint3 import append, save, sha
 from blackgrid.tools import network_denied
-from blackgrid.validation import (CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, case_index, public_registry,
-                                  validation_input, validation_spec)
+from blackgrid.validation import (CASE_IDS, S4_CASE_IDS, S4LIVE_CASE_IDS, S4V2_CASE_IDS, case_index,
+                                  public_registry, validation_input, validation_spec)
 
 # Each protocol version has its own fresh case IDs; an inspected case set is never reused as unseen evidence.
 PROTOCOLS = {"s4-v1": ("s4-suite-v1", "protocols/sprint04_evaluation.md", S4_CASE_IDS),
@@ -200,7 +200,7 @@ def run_suite(output: Path, protocol: str = "s4-v2") -> Path:
             registry = public_registry(case_ids)
             hashes = [c["projection_sha256"] for c in registry["cases"]]
             seen = {c.record.projection_sha256 for c in dev_cases().values()}
-            for earlier in (CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS):  # every other registered case set
+            for earlier in (CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, S4LIVE_CASE_IDS):  # other registered sets
                 if earlier != case_ids:
                     seen |= {c["projection_sha256"] for c in public_registry(earlier)["cases"]}
             overlap = sorted(set(hashes) & seen)

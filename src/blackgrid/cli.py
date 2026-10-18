@@ -393,6 +393,27 @@ def _cmd_sprint4(args: argparse.Namespace) -> int:
     return EXIT_OK if status == "completed" else EXIT_RUN_FAILED
 
 
+def _cmd_sprint4_live(args: argparse.Namespace) -> int:
+    from blackgrid.sprint4_live import export_summary, run_pilot
+
+    if not args.allow_paid:
+        print("the live pilot makes paid calls; add --allow-paid to authorize this one execution", file=sys.stderr)
+        return EXIT_INVALID
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("pilot output must be under runs/", file=sys.stderr)
+        return EXIT_INVALID
+    try:
+        folder = run_pilot(args.output, cap_usd=args.max_usd, allow_paid=True)
+        suite = json.loads((folder / "suite.json").read_text(encoding="utf-8"))
+        if (folder / "evaluation.json").is_file():
+            export_summary(folder, REPO_ROOT / "results" / f"sprint04-{folder.name}")
+    except (OSError, ValueError, PermissionError) as exc:
+        print(f"live pilot failed: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(f"live pilot {suite['status']}: USD {suite['pilot_usd']:.4f} of {suite['pilot_cap_usd']:.2f}; {folder}")
+    return EXIT_OK if suite["status"] == "completed" else EXIT_RUN_FAILED
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -408,6 +429,11 @@ def build_parser() -> argparse.ArgumentParser:
     sprint4.add_argument("--protocol", choices=("s4-v1", "s4-v2"), default="s4-v2",
                          help="frozen protocol; each has its own fresh case IDs")
     sprint4.set_defaults(func=_cmd_sprint4)
+    live4 = sub.add_parser("sprint4-live", help="run the frozen Sprint 4 live pilot (paid; needs --allow-paid)")
+    live4.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    live4.add_argument("--max-usd", type=float, default=0.50, help="total pilot cap in USD (at most 0.50)")
+    live4.add_argument("--allow-paid", action="store_true", help="authorize this one paid execution")
+    live4.set_defaults(func=_cmd_sprint4_live)
 
     ingest = sub.add_parser("ingest", help="validate and describe full CollegeMsg without running inference")
     ingest.add_argument("config", type=Path)

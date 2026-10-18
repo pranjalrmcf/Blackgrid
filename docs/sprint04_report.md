@@ -131,3 +131,33 @@ not fresh validation. After that, a separately authorized live pilot can measure
 - The fix was aimed at a known failure, so this is development evidence, not independent proof that the critic works.
 - The checked agent now **ties** a template baseline, at 18 extra calls.
 - Whether a real model adds anything is the next open question. It needs a separately authorized live pilot.
+
+## Addendum: live pilot s4-v3 with a real model (D-062)
+
+**Run:** `deepseek/deepseek-v4-flash-0731` via OpenRouter, on 24 fresh cases (`val-301`–`val-324`). The protocol was
+frozen before the run, which was authorized by the user with a USD 0.50 cap.
+
+**Cost:** USD 0.1117 by the system's list-price accounting; OpenRouter reported USD 0.0823. All 72 attempts ran,
+taking 37 minutes.
+
+| Per arm, 24 cases | baseline (no model) | real model alone | real model + checker |
+|---|---:|---:|---:|
+| Evidence-consistent verdicts | 24 | 4 | 24 |
+| Correct refusals (of 6) | 6 | 0 | 6 |
+| Complete answers | 24 | 4 | 23 |
+| Claims written | 36 | 0 | 65 |
+| Claims whose numbers all match cited values | 36/36 | n/a | 65/65 |
+| Claims with strength, causal or "preregistered" wording | 0 | 0 | 0 |
+| Claims the frozen grader could assess | 36 | 0 | **0** (all free prose, so unassessed) |
+| USD | 0 | 0.0055 | 0.1062 |
+
+**What it shows:**
+- **Without the plan checker, the real model under-plans.** In 20/24 cases it skipped the required missing-edge
+  analysis, so the system stopped before analysis. It also tried 2 of the 6 tasks it should have refused.
+- **With the checker,** every verdict matched the saved evidence, every refusal was correct, and every number the
+  model wrote matched a cited value. There was no exaggerated, causal or "preregistered" wording.
+- **Whether its sentences are fully supported is not yet known.** The frozen grader only recognizes template sentences.
+  The 65 claims are exported blinded for review.
+- **Safety finding:** the provider returned 40,576 output tokens on one call despite a 16,000 limit. The spending guard
+  caught the overrun and stopped that run, but the "worst case can't exceed the cap" guarantee does not hold for this
+  model. This must be fixed before any larger live run.

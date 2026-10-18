@@ -201,10 +201,12 @@ class OpenRouterProvider:
 
     name = "openrouter"
 
-    def __init__(self, model: str, api_key: str, timeout_s: float = 60.0) -> None:
+    def __init__(self, model: str, api_key: str, timeout_s: float = 60.0,
+                 reasoning_max_tokens: int | None = None) -> None:
         self.model = model
         self._key = api_key  # never logged
         self.timeout_s = timeout_s
+        self.reasoning_max_tokens = reasoning_max_tokens
         self._pricing: Pricing | None = None
 
     def __repr__(self) -> str:  # keep the key out of any accidental repr
@@ -234,8 +236,11 @@ class OpenRouterProvider:
         return self._pricing
 
     def complete(self, role: str, payload: dict, messages: list[dict], max_tokens: int) -> Completion:
-        body = json.dumps({"model": self.model, "messages": messages, "max_tokens": max_tokens,
-                           "temperature": 0, "usage": {"include": True}}).encode("utf-8")
+        request_body = {"model": self.model, "messages": messages, "max_tokens": max_tokens,
+                        "temperature": 0, "usage": {"include": True}}
+        if self.reasoning_max_tokens is not None:  # bound hidden reasoning separately (D-063)
+            request_body["reasoning"] = {"max_tokens": min(self.reasoning_max_tokens, max_tokens - 1)}
+        body = json.dumps(request_body).encode("utf-8")
         request = urllib.request.Request(
             f"{OPENROUTER_BASE}/chat/completions", data=body, method="POST",
             headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json",

@@ -85,12 +85,12 @@ def test_sprint_total_persists_across_runs(tmp_path):
     path = tmp_path / "spend.json"
     price = Pricing(model="m", prompt_usd_per_token=0.0, completion_usd_per_token=1e-3, source="t", fetched_utc="t")
     first = BudgetLedger(limits=BudgetLimits(), pricing=price, sprint_ledger=path)
-    first.reserve("x", 100)
+    first.reserve("x", 50)  # reserves 3x 50 completion tokens at 2x price = $0.30 (D-063)
     first.commit(10, 9_900)  # $9.90 spent
     first.persist_sprint_total()
     second = BudgetLedger(limits=BudgetLimits(), pricing=price, sprint_ledger=path)
     with pytest.raises(BudgetExceeded, match="project USD cap"):
-        second.reserve("x", 200)  # $0.20 more would pass $10
+        second.reserve("x", 40)  # $0.24 more (reserved) would pass $10
 
 
 PRICE = Pricing(model="m", prompt_usd_per_token=1e-7, completion_usd_per_token=3e-7, source="t", fetched_utc="t")
@@ -101,7 +101,8 @@ def test_reservation_is_a_strict_upper_bound():
     prompt = "x" * 1_000
     r = ledger.reserve(prompt, 2_000, messages=2)
     assert r.prompt_token_bound == 1_000 + 128  # bytes + chat overhead, not the ~3 chars/token estimate
-    assert r.usd == pytest.approx(2.0 * (1_128 * 1e-7 + 2_000 * 3e-7))
+    assert r.max_completion_tokens == 6_000  # 3x the requested 2,000: providers may ignore max_tokens (D-063)
+    assert r.usd == pytest.approx(2.0 * (1_128 * 1e-7 + 6_000 * 3e-7))
     worst_list_price = 1_128 * 1e-7 + 2_000 * 3e-7
     assert ledger.commit(1_128, 2_000, reported_usd=1.39 * worst_list_price) <= r.usd  # observed overcharge fits
     assert ledger.halted is None
@@ -120,7 +121,7 @@ def test_failed_call_books_the_whole_reservation():
     ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
     r = ledger.reserve("hello", 500)
     assert ledger.commit_unknown() == r.usd and ledger.actual_usd == r.usd
-    assert ledger.completion_tokens == 500  # unknown output usage counted at its maximum
+    assert ledger.completion_tokens == 1_500  # unknown output usage counted at its reserved maximum (3x)
 
 
 class Broken(MockProvider):

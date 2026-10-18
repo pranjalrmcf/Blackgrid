@@ -370,7 +370,16 @@ class LLMConfig(Contract):
 
     model: NonEmpty = "anthropic/claude-haiku-5.5"
     max_tokens_per_call: int = Field(default=2_000, ge=64, le=16_000)
+    # Explicit hidden-reasoning budget sent to OpenRouter (`reasoning.max_tokens`), so reasoning cannot
+    # consume an unbounded completion (D-063). None sends no reasoning setting (provider default).
+    reasoning_max_tokens: int | None = Field(default=None, ge=0, le=16_000)
     request_timeout_s: float = Field(default=60.0, gt=0, le=300)
+
+    @model_validator(mode="after")
+    def _reasoning_within_call(self) -> "LLMConfig":
+        if self.reasoning_max_tokens is not None and self.reasoning_max_tokens >= self.max_tokens_per_call:
+            raise ValueError("reasoning_max_tokens must be below max_tokens_per_call, leaving room for the answer")
+        return self
 
 
 class RunConfig(Contract):
