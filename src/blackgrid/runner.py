@@ -123,7 +123,8 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
         if not isinstance(built, BoundedGraph):
             raise ValueError("the window rule no longer selects a graph")
         return InvestigationInput(case_id=built.record.graph_id, question=config.question,
-                                  request={"method": "auto"}, graph=built.graph, record=built.record,
+                                  request={"method": "auto", "family": config.investigation_family,
+                                           "planning_mode": config.planning_mode}, graph=built.graph, record=built.record,
                                   spec=config.experiment)
     if kind == "dev":
         from blackgrid.benchmark import dev_cases
@@ -140,6 +141,18 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
         return InvestigationInput(case_id=case.public.case_id, question=case.public.question,
                                   request=case.public.request, graph=case.graph, record=case.record,
                                   spec=validation_spec(case.public.case_id))
+    if kind == "sprint5":
+        from blackgrid.sprint5 import evaluation_input
+        inp = evaluation_input(input_ref["index"])
+        config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
+        inp.request["planning_mode"] = config.planning_mode
+        return inp
+    if kind == "sprint5-live":
+        from blackgrid.sprint5_live import live_input
+        inp = live_input(input_ref["index"], input_ref.get("version", "s5-live-v1"))
+        config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
+        inp.request["planning_mode"] = config.planning_mode
+        return inp
     raise ValueError(f"run input {kind!r} cannot be reloaded")
 
 
@@ -147,6 +160,8 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
 
 
 KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json", "full_scope.json",
+                   "structural_contract.json",
+                   "node_centrality.json", "community_partition.json", "community_bridge.json", "ranking_sensitivity.json",
                    "graph_profile.json", "experiment_report.json", "sensitivity.json", "investigation.json",
                    "budget.json", "llm_trace.jsonl", "report.json", "report.md")
 
@@ -155,6 +170,10 @@ def finalizer(config: RunConfig, reproduce: str):
     def on_finalize(rt, state, result: InvestigationResult, ctx) -> tuple[str, str] | None:
         inp = rt.inputs(state)
         run_dir = rt.run_dir
+        if result.family != "community":
+            from blackgrid.structural import StructuralSpec
+            write_json(run_dir / "structural_contract.json", StructuralSpec(family=result.family,
+                       graph_sha256=inp.record.projection_sha256, seed=inp.spec.seed).model_dump(mode="json"))
         write_json(run_dir / "investigation.json", result.model_dump(mode="json"))
         write_json(run_dir / "budget.json", {"pricing": rt.pricing().model_dump(mode="json")
                                              if rt._provider is not None else None,

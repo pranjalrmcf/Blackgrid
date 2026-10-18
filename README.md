@@ -12,6 +12,16 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
 
 ## Status
 
+**Sprint 5's offline structural capability is implemented.** The arsenal now has seven tools, question-specific plans,
+one bounded follow-up round, local centrality/bridge rankings and evidence inspection in the console.
+See [usage](docs/sprint05_guide.md) and [evaluation and limitations](docs/sprint05_report.md).
+The 48-run scripted evaluation and clean reproduction work. Real-model trials and a budgeted console are now available;
+see [the live trial and UI report](docs/sprint05_live_report.md). Small successful checks do not establish an advantage from adaptive planning.
+
+```powershell
+uv run --frozen blackgrid run configs/collegemsg_sprint01.json --family auto --question "Which nodes connect different groups, and are the rankings stable?"
+```
+
 **Sprint 4 is complete as scoped** ([report](docs/sprint04_report.md)).
 - R1–R5 are fixed, each with a regression test.
 - A fresh, frozen offline evaluation (`blackgrid sprint4 --output runs/NEW`) ran 72 of 72 runs.
@@ -124,7 +134,8 @@ Then open http://127.0.0.1:8765.
 
 - **It updates live while runs progress.** You can browse every run and pilot.
 - **It can act on runs:** start **mock** runs and the pilot, and resume, cancel, deny, or reconcile runs.
-- **It never starts or approves paid calls.** Those stay on the command line.
+- **Paid calls are disabled by default.** Starting with `uv run --frozen blackgrid console --allow-paid` enables a retained
+  USD 0.50 allowance shared with the live trial. Restarting does not refill it. The browser cannot create a new allowance.
 - **It is local only.** It listens on 127.0.0.1 and protects actions with a per-session token.
 
 Every finished run also saves the same console as an **interactive offline snapshot**:

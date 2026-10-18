@@ -44,7 +44,7 @@ VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
 # v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
 # v4: neutral verdict wording; no 'preregistered' or strength words in claims (s4-v2, D-061).
 # v5: flags appear in the evidence map (#/flags/N) and can be cited (D-065).
-PROMPT_VERSION = "prompts-v5"
+PROMPT_VERSION = "prompts-v7 local-ranking-context"
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
@@ -72,6 +72,26 @@ SYSTEM = {
 SYSTEM["reviser"] = SYSTEM["analyst"] + (
     " Some of your previous claims were rejected by a rule-based critic; the reasons are provided. "
     "Rewrite the claims so they satisfy every rule, or drop them.")
+SYSTEM["planner"] += (" A structural family uses its own tools, not community significance tests. "
+                       "For centrality choose node_centrality; for bridges choose community_partition then "
+                       "community_bridge. If ranking robustness is requested add ranking_sensitivity. "
+                       "A bridge question may also use node_centrality as a supplementary comparison. "
+                       "Structural contracts are exploratory fixed settings, not significance tests. "
+                       "State your reason. Never interpret centrality as causal influence.")
+SYSTEM["analyst"] += (" For structural investigations copy claims exactly from allowed_claims, including their "
+                       "evidence paths. Local node rankings are rendered separately; do not invent individual claims.")
+SYSTEM["reviser"] += (" For structural investigations copy claims exactly from allowed_claims with their evidence paths. "
+                       "Do not invent node claims; local rankings are rendered separately.")
+SYSTEM["follow_up"] = ("Inspect the aggregate structural results. Reply JSON only: "
+                        "{\"decision\": \"answer\"|\"request_follow_up\"|\"abstain\", \"reason\": str, "
+                        "\"tool_calls\": [{\"tool\": \"ranking_sensitivity\", \"args\": {}}]}. "
+                        "At most one follow-up round, no duplicate computations or changed settings. "
+                        "Only request ranking_sensitivity if it will help qualify the ranking. "
+                        "You decide the next analysis, not the final individual ranking. Verified node tables "
+                        "are stored and rendered locally; their IDs are intentionally withheld from your prompt. "
+                        "Do not abstain solely because those private IDs are absent. Choose answer to let the "
+                        "local renderer present the table, or request the permitted missing sensitivity check. "
+                        "If ranking_sensitivity already ran, do not request it again.")
 
 
 @dataclass
@@ -95,6 +115,8 @@ class LLMCallSummary(Contract):
 
 
 class InvestigationResult(Contract):
+    family: str = "community"
+    follow_up: dict | None = None
     case_id: NonEmpty
     condition: Condition
     status: RunStatus

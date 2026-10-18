@@ -1,0 +1,94 @@
+{
+  "allowance": {
+    "authorization": "User requested real LLM use with budget below USD 1; selected USD 0.50 total.",
+    "baseline_project_usd": 0.1285851756,
+    "cap_usd": 0.5,
+    "ceiling_project_usd": 0.6285851756,
+    "created_utc": "2026-10-18T14:58:52.763485+00:00",
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "note": "One retained allowance for trial and console together. Restarting does not renew it.",
+    "remaining_usd": 0.48442170689999997,
+    "runs_dir": "C:\\Blackgrid\\runs",
+    "spent_usd": 0.015578293100000029,
+    "version": "live-allowance-v1"
+  },
+  "console_smoke": {
+    "accounted_usd": 0.0020718709,
+    "artifacts_verified": 14,
+    "claims": 5,
+    "family": "bridge",
+    "llm_calls": 2,
+    "mode": "live",
+    "provider_reported_usd": 0.00137556,
+    "run_id": "20261018T151142Z-fdbb5f",
+    "status": "completed",
+    "truncations": 0
+  },
+  "limitations": "Small exploratory pilots after development; structured claims only; not independent human validation or proof of adaptive benefit.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "pilots": {
+    "sprint5-live-v1": {
+      "arms": {
+        "adaptive": {
+          "accounted_usd": 0.0046344036,
+          "attempts": 4,
+          "calls": 10,
+          "claims": 7,
+          "tokens": 17203,
+          "unsupported": 0,
+          "useful": 0
+        },
+        "single": {
+          "accounted_usd": 0.0046944238,
+          "attempts": 4,
+          "calls": 7,
+          "claims": 7,
+          "tokens": 15124,
+          "unsupported": 0,
+          "useful": 3
+        }
+      },
+      "attempts": 8,
+      "manifest_artifacts_verified": 74,
+      "protocol": "s5-live-v1",
+      "provider_reported_usd": 0.006340866,
+      "status": "completed",
+      "truncated_calls": 0
+    },
+    "sprint5-live-v2": {
+      "arms": {
+        "adaptive": {
+          "accounted_usd": 0.0028343622999999997,
+          "attempts": 2,
+          "calls": 6,
+          "claims": 5,
+          "tokens": 11298,
+          "unsupported": 0,
+          "useful": 2
+        },
+        "single": {
+          "accounted_usd": 0.0013432325,
+          "attempts": 2,
+          "calls": 4,
+          "claims": 7,
+          "tokens": 6440,
+          "unsupported": 0,
+          "useful": 2
+        }
+      },
+      "attempts": 4,
+      "manifest_artifacts_verified": 41,
+      "protocol": "s5-live-v2",
+      "provider_reported_usd": 0.00307142,
+      "status": "completed",
+      "truncated_calls": 0
+    }
+  },
+  "provider_reported_task_usd": 0.010787845999999999,
+  "replay": {
+    "claims_and_follow_up_match": true,
+    "evidence": "runs/sprint5-live-v2-replay/verification.json",
+    "paid_spend_usd": 0,
+    "runs": 4
+  }
+}

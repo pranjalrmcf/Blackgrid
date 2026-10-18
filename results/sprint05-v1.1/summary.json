@@ -1,0 +1,44 @@
+{
+  "arms": {
+    "adaptive": {
+      "attempts": 16,
+      "calls": 40,
+      "claims": 36,
+      "errors": 0,
+      "tokens": 31527,
+      "tool_calls": 30,
+      "unsupported": 0,
+      "usd": 0.0,
+      "useful": 16
+    },
+    "baseline": {
+      "attempts": 16,
+      "calls": 28,
+      "claims": 36,
+      "errors": 0,
+      "tokens": 23836,
+      "tool_calls": 30,
+      "unsupported": 0,
+      "usd": 0.0,
+      "useful": 16
+    },
+    "single": {
+      "attempts": 16,
+      "calls": 28,
+      "claims": 28,
+      "errors": 0,
+      "tokens": 20687,
+      "tool_calls": 22,
+      "unsupported": 0,
+      "usd": 0.0,
+      "useful": 16
+    }
+  },
+  "attempts": 48,
+  "elapsed_s": 29.734405100000004,
+  "failure": null,
+  "mode": "scripted_offline",
+  "protocol": "s5-v1",
+  "real_llm_efficacy": "not_tested",
+  "status": "completed"
+}

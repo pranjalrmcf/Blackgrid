@@ -45,6 +45,8 @@ def _get(evidence: dict[str, object], path: str) -> object:
 
 def build_report(result: InvestigationResult, evidence: dict[str, object], record: GraphRecord, question: str,
                  run_id: str, reproduce: str) -> Report:
+    if result.family != "community":
+        return structural_report(result, evidence, record, question, run_id, reproduce)
     ev = evidence
     E = "experiment_report.json#/"
     S = "sensitivity.json#/"
@@ -207,6 +209,34 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
     return Report(title=f"BLACKGRID investigation - {result.case_id}", case_id=result.case_id,
                   condition=result.condition, status=result.status.value, verdict=result.verdict,
                   sections=tuple(sections))
+
+
+def structural_report(result: InvestigationResult, evidence: dict, record: GraphRecord, question: str,
+                      run_id: str, reproduce: str) -> Report:
+    """Aggregate claims are checked; individual rows are rendered locally by the console."""
+    items = tuple(ReportItem(kind="claim", text=c["text"], evidence=tuple(c["evidence"]), label="descriptive")
+                  for c in result.reported_claims)
+    reasons = tuple(ReportItem(kind="reference", text=r) for r in
+                    (result.plan_decision.reasons if result.plan_decision else ()))
+    return Report(title="BLACKGRID structural investigation", case_id=result.case_id, condition=result.condition,
+                  status=result.status.value, verdict=result.verdict, sections=(
+        ReportSection(title="Question and scope", items=(ReportItem(kind="reference", text=question),
+            ReportItem(kind="reference", text=f"Family: {result.family}; scope: {record.scope}; graph: {record.graph_id}"))),
+        ReportSection(title="Outcome", items=(ReportItem(kind="reference", text=f"Run status: {result.status.value}; "
+            "supported means the descriptive calculations completed, not significance or causal support."),) + reasons +
+            ((ReportItem(kind="reference", text=result.failure_reason),) if result.failure_reason else ())),
+        ReportSection(title="Checked aggregate findings", items=items or
+                      (ReportItem(kind="text", text="No structural claim passed review."),)),
+        ReportSection(title="Local ranking artifacts", items=(ReportItem(kind="reference", text=
+            "Node tables are local JSON artifacts and are inspectable in the console Rankings tab. "
+            "Degree counts contacts; betweenness measures shortest-path position; bridge rankings depend on the saved partition."),)),
+        ReportSection(title="Limitations", items=(ReportItem(kind="text", text=
+            "Descriptive and exploratory. Centrality is not causal influence. Partitions are not verified social groups. "
+            "Direction, event frequency and timing are discarded. Sampled betweenness is an estimate; tie ranks are shared. "
+            "Uniform edge removal is an assumed missingness mechanism, not a confidence interval or hidden truth recovery. "
+            "Raw node references and rankings remain local and are excluded from model evidence."),)),
+        ReportSection(title="Reproduction", items=(ReportItem(kind="reference", text=f"Run: {run_id}; {reproduce}"),)),
+    ))
 
 
 FLAG_TEXT = {

@@ -1,0 +1,19 @@
+{
+  "protocol": "s5-v1",
+  "classification": "offline_engineering_development_rerun",
+  "original_run": "runs/sprint5-v1",
+  "reviewed_run": "runs/sprint5-v1.1",
+  "clean_reproduction": "runs/sprint5-clean-source-v1.1/runs/reproduction",
+  "attempts_verified": 48,
+  "scores_and_artifact_hashes_verified": true,
+  "reproduction_aggregate_scores_match": true,
+  "clean_source_snapshot_files": 83,
+  "clean_environment_existing_locked_packages": 47,
+  "working_tree_tests_passed": 302,
+  "working_tree_tests_seconds": 203.57,
+  "clean_environment_sprint5_tests_passed": 23,
+  "paid_spend_usd": 0,
+  "real_llm_efficacy": "not_tested",
+  "human_review": "not_performed",
+  "limitations": "Scripted roles and fixed structural claim forms. Instances reused after UI/progress repairs. Numerical correctness and reproducibility do not establish real-model planning benefit."
+}

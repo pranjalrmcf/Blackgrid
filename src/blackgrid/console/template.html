@@ -75,16 +75,40 @@ a{color:var(--cyan)}a:hover{color:#fff}
 footer{margin-top:28px;color:var(--muted);font-size:12px;text-align:center}
 .bars .bar{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 8px rgba(62,240,255,.4)}
 </style>
+<style>
+:root{--bg:#f5f6fa;--panel:#fff;--line:#e4e7ef;--text:#192339;--muted:#667189;--cyan:#5046df;--magenta:#8759d7;--lime:#18744b;--amber:#9b6518;--red:#c44646;--node:#8d99e5;--hub:#5046df;color-scheme:light}
+body{background:var(--bg);background-image:none;font:15px/1.6 "Segoe UI",system-ui,sans-serif;padding:0 28px 44px}body:before{display:none}.wrap{max-width:1160px}
+header.top{padding:25px 0;border:0;gap:24px}.brand{font:750 18px "Segoe UI",sans-serif;color:var(--text);letter-spacing:.04em;text-shadow:none}.brand small{font:12px "Segoe UI",sans-serif;letter-spacing:0;color:var(--muted);margin-top:0}.mode{font:12px "Segoe UI",sans-serif;letter-spacing:0}.dot{box-shadow:none;animation:none;width:6px;height:6px}
+h1{font-size:22px;font-weight:650}h2{font:650 17px "Segoe UI",sans-serif;color:var(--text);text-transform:none;letter-spacing:0;line-height:1.4;margin-bottom:16px}h2:before,.panel:after{display:none}.panel{border-radius:16px;padding:25px;box-shadow:0 3px 14px #19233904}.grid{gap:20px}.panel.hero{padding:36px;background:linear-gradient(120deg,#fff,#f3f1ff)}.hero h2{font-size:30px;margin-bottom:5px;letter-spacing:-.035em}.intro{font-size:15px;color:var(--muted);margin:0 0 22px;max-width:640px}
+.btn{font:600 13px "Segoe UI",sans-serif;letter-spacing:0;text-transform:none;border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 16px;border-radius:9px;box-shadow:0 1px 2px #19233906}.btn:hover{background:#f1f0ff;border-color:#c5c0fb}.btn.primary{background:var(--cyan);color:white;border-color:var(--cyan);padding:12px 22px}.btn.primary:hover{background:#4035ca}.btn.selected{border-color:var(--cyan);color:var(--cyan);background:#f1efff}
+textarea,select,input[type=text],input[type=search]{font:14px "Segoe UI",sans-serif;border:1px solid #d8ddea;border-radius:9px;background:#fff;color:var(--text);padding:11px 12px}textarea{resize:vertical;outline-color:var(--cyan)}textarea:focus,select:focus,input:focus{outline:2px solid #c4befa;outline-offset:2px}.field-label{display:block;font-size:12px;font-weight:650;color:var(--muted);margin-bottom:6px}.query{width:100%;min-height:105px;margin:0 0 12px;padding:18px;font-size:17px;line-height:1.6}
+.badge{font:550 12px "Segoe UI",sans-serif;letter-spacing:0;text-transform:none;border:0;background:#f0f2f8;padding:4px 10px}.badge.ok{background:#eaf5ef;color:var(--lime);box-shadow:none}.badge.neutral{background:#eeedfb;color:var(--cyan);box-shadow:none}.badge.warn{background:#fff3df;box-shadow:none}.badge.bad{background:#fceeee;box-shadow:none}
+.stats{gap:16px}.stat{border:0;background:#f7f8fc;border-radius:10px;padding:15px}.stat span{font-size:12px;letter-spacing:0;text-transform:none}.stat b{font:650 24px "Segoe UI",sans-serif;color:var(--text)}.kv dd{font-family:inherit}.kv{gap:9px 20px}.mono,code{font-size:12px}.tabs{border:0;background:#e9ecf4;padding:5px;border-radius:11px;gap:3px}.tab{font:550 13px "Segoe UI",sans-serif;text-transform:none;letter-spacing:0;border:0;border-radius:8px;padding:9px 16px}.tab.on{background:white;box-shadow:0 1px 4px #19233912;color:var(--text)}
+th{font:600 12px "Segoe UI",sans-serif;text-transform:none;letter-spacing:0;padding:12px;color:var(--muted);background:#fafbfe}td{padding:13px 12px;font-size:14px}tr.click:hover td{background:#f7f6ff}.notice{border:0;background:#fff5e6;color:#80591c;border-radius:10px;padding:13px 16px}.notice.info{background:#f0efff;color:#4b43a8}.stepper{display:none}.claim{border-left-width:2px;background:#f6faf8;padding:16px;margin:12px 0}.claim .ev{font-size:12px}.claim details{margin-top:8px}.claim summary{cursor:pointer;color:var(--cyan);font-size:13px}.tip,.toast div{background:#fff;box-shadow:0 5px 25px #19233915;border-color:var(--line);color:var(--text)}.meter-track{background:#e9ecf3}.meter-fill,.bars .bar{background:var(--cyan);box-shadow:none}.net line{stroke:#aab1d066}.timeline .t{font:600 13px "Segoe UI",sans-serif;letter-spacing:0}.timeline li:before{background:white}.tick{font:11px "Segoe UI",sans-serif}.answer-lead{font-size:24px;line-height:1.4;font-weight:600;margin:0 0 12px;letter-spacing:-.025em}.answer-copy{font-size:16px;max-width:800px}.quiet{font-size:13px;color:var(--muted)}.run-question{font-size:15px;font-weight:600;max-width:490px}.run-meta{color:var(--muted);font-size:12px;margin-top:5px}.advanced summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}.advanced-body{margin-top:16px}
+@media(max-width:700px){body{padding:0 12px 28px}.panel,.panel.hero{padding:20px}.hero h2{font-size:25px}.query{font-size:16px}.mode{margin-left:0}.kv{grid-template-columns:1fr}.kv dd{margin-bottom:7px}.tab{padding:8px 11px}}
+</style>
+<style>
+/* Futuristic research console: restrained light, readable evidence. */
+:root{--bg:#060a12;--panel:#0c1422;--line:#253449;--text:#e5eefb;--muted:#97a9c2;--cyan:#54e0e9;--magenta:#9b8afb;--lime:#76e2b0;--amber:#f1c477;--red:#ff8599;--node:#728cda;--hub:#54e0e9;color-scheme:dark}
+body{background-color:var(--bg);background-image:linear-gradient(#54e0e905 1px,transparent 1px),linear-gradient(90deg,#54e0e905 1px,transparent 1px);background-size:56px 56px}
+body:before{display:block;background:radial-gradient(ellipse at 12% 0,#24a5b31b,transparent 48%),radial-gradient(ellipse at 90% 15%,#7b61ff14,transparent 45%)}
+header.top{border-bottom:1px solid var(--line);margin-bottom:25px}.brand{color:var(--text);font-family:ui-monospace,Consolas,monospace;letter-spacing:.19em}.brand small{margin-top:5px;letter-spacing:.02em}.dot{box-shadow:0 0 10px #76e2b06b}.mode{font-family:ui-monospace,Consolas,monospace}
+.panel{background:linear-gradient(135deg,#101b2aeb,#0b1220f5);border:1px solid var(--line);box-shadow:0 15px 45px #0003;border-radius:14px}.panel.hero{background:radial-gradient(ellipse at 100% 0,#236b7b21,transparent 60%),linear-gradient(125deg,#111e2e,#0c1221);border-top-color:#4c858f;overflow:hidden}.hero h2{font-size:36px;letter-spacing:-.035em;color:#eef7ff}.hero h2:before{display:none}.intro{color:#a8b9ce;max-width:690px}.eyebrow{font:600 11px ui-monospace,Consolas,monospace;letter-spacing:.18em;color:var(--cyan);margin:0 0 13px}.query{background:#080f1b;border-color:#34485f;box-shadow:inset 0 2px 10px #0003;color:#edf6ff}
+textarea,select,input[type=text],input[type=search]{background:#0a1321;border-color:#304359;color:var(--text)}textarea:focus,select:focus,input:focus{outline:2px solid #54e0e963;outline-offset:3px}.btn{background:#142236;border-color:#30465e;color:#c8daee;box-shadow:none}.btn:hover{background:#1c3046;border-color:#56909c}.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#06151c;font-weight:750;box-shadow:0 0 24px #54e0e91c}.btn.primary:hover{background:#8cebf0}.btn.selected{background:#16313c;color:var(--cyan);border-color:var(--cyan)}
+.engine-box{border:1px solid #344b64;background:linear-gradient(110deg,#142538,#101b2e);border-radius:11px;padding:16px 18px;margin:20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px}.engine-info{flex:1 1 230px}.engine-title{display:block;font-weight:650;color:#edf6ff;margin-bottom:3px}.engine-box select{min-width:235px;border-color:#4a7786}.engine-box .quiet{display:block;max-width:600px}.budget-line{font:12px ui-monospace,Consolas,monospace;color:var(--cyan);margin:11px 0 0}.field-label{color:#a9bed6}
+.badge{background:#18273b}.badge.ok{background:#15362d;color:var(--lime)}.badge.neutral{background:#15303a;color:var(--cyan)}.badge.warn{background:#392e1c;color:var(--amber)}.badge.bad{background:#3a202d;color:var(--red)}.stat{background:#101f30;border:1px solid var(--line)}.tabs{background:#0a111e;border:1px solid var(--line)}.tab.on{background:#1b3043;color:var(--cyan);box-shadow:inset 0 -2px var(--cyan)}th{background:#0a1422;color:#9cb2cc}td{border-color:#213047}tr.click:hover td{background:#152739}.notice{background:#342a1a;color:var(--amber)}.notice.info{background:#142c38;color:#96e5ec}.claim{background:#10251f;border-color:#76e2b0}.claim.rej{background:#301d26}.tip,.toast div{background:#111e30;border-color:#36546d;color:var(--text)}.meter-track{background:#1b2a3d}.meter-fill,.bars .bar{background:linear-gradient(90deg,var(--cyan),var(--magenta))}.timeline li:before{background:var(--bg)}.net line{stroke:#799cc64d}.answer-lead{color:#edf6ff}.advanced{border-top:1px solid var(--line);padding-top:8px;margin-top:22px}.advanced summary:hover{color:var(--cyan)}a:hover{color:#abf9ff}
+@media(max-width:700px){.hero h2{font-size:28px}.engine-box{padding:14px}.engine-box select{width:100%;min-width:0}.engine-info{flex-basis:100%}.btn.primary{width:100%}}
+</style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="brand" id="home">BLACKGRID<small>// INVESTIGATION CONSOLE</small></a>
+    <a class="brand" id="home">BLACKGRID<small>Network research workspace</small></a>
     <div id="title"></div>
     <div class="mode"><span class="dot" id="dot"></span><span id="modelabel"></span></div>
   </header>
   <main id="app"></main>
-  <footer>Local console. Data comes only from saved run artifacts. Mock outputs validate plumbing only. No identifiers, no external assets.</footer>
+  <footer>Local workspace. Node references stay on this computer; AI receives aggregate evidence only.</footer>
 </div>
 <div class="tip" id="tip"></div>
 <div class="toast" id="toast"></div>
@@ -165,26 +189,30 @@ async function route(){
   else { kind = BOOT.view; id = BOOT.payload && BOOT.payload.id; }
   try {
     const data = await load(kind, id);
+    const navigated = !current || current.kind !== kind || current.id !== id;
     current = {kind, id};
     if (kind === "index") renderIndex(data); else if (kind === "pilot") renderPilot(data); else renderRun(data);
+    if (navigated) window.scrollTo(0,0);
   } catch (err) { app.replaceChildren(panel("Error", "", h("p", {}, String(err.message || err)))); }
 }
 
-let filterText = "", filterStatus = new Set();
+let filterText = "", filterStatus = new Set(), liveSettings = {enabled:false};
 function renderIndex(data){
-  document.getElementById("title").replaceChildren(h("h1", {}, "Runs"));
+  document.getElementById("title").replaceChildren(h("span", {cls:"quiet"}, "Investigations"));
+  liveSettings = data.live || {enabled:false};
   const runs = data.runs || [];
   const statuses = [...new Set(runs.map(r => r.status))];
   const body = h("tbody");
   const draw = () => {
     body.replaceChildren(...runs.filter(r => (!filterStatus.size || filterStatus.has(r.status)) &&
-      (!filterText || JSON.stringify([r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
+      (!filterText || JSON.stringify([r.question, r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
       const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
-        h("td", {cls: "mono"}, r.id), h("td", {}, r.kind === "pilot" ? "pilot" : (r.case || "—")),
-        h("td", {}, badge(r.status)), h("td", {}, r.verdict ? badge(r.verdict) : "—"),
+        h("td", {}, h("div", {cls:"run-question"}, r.question || (r.kind === "pilot" ? "Offline system check" : r.case || "Investigation")), h("div", {cls:"run-meta"}, r.id)),
+        h("td", {}, r.kind === "pilot" ? "System check" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
+        h("td", {}, r.verdict==='rejected' ? h('span',{cls:'badge warn'},'Needs clarification') : badge(r.status)), h("td", {}, r.verdict==='rejected' ? 'Not answered' : r.status==='abstained' ? 'Withheld' : r.family && r.family !== "community" ? "Descriptive" : r.verdict ? badge(r.verdict) : "—"),
         h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
           ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
-          : [r.mode, r.condition, r.stage && ("stage " + r.stage)].filter(Boolean).join(" · ")),
+          : [r.mode === "live" ? "Real AI" : r.mode === "replay" ? "Recorded AI" : "Free demo", r.usd != null ? "$"+Number(r.usd).toFixed(4) : ""].filter(Boolean).join(" · ")),
         h("td", {cls: "small muted"}, r.reason || ""));
       return tr;
     }));
@@ -198,21 +226,45 @@ function renderIndex(data){
   const counts = statuses.map(st => h("div", {cls: "stat"}, h("span", {}, st.replace(/_/g, " ")), h("b", {}, runs.filter(r => r.status === st).length)));
   const blocks = [];
   if (LIVE) blocks.push(actionsPanel());
-  blocks.push(panel("Overview", "", h("div", {cls: "stats"}, h("div", {cls: "stat"}, h("span", {}, "runs"), h("b", {}, runs.length)), counts)));
-  blocks.push(panel("All runs", "", h("div", {cls: "row", style: "margin-bottom:12px"}, search, chips),
-    h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["run", "case", "status", "verdict", "details", "reason"].map(t => h("th", {}, t)))), body))));
+  blocks.push(panel("Recent investigations", "", h("div", {cls: "row", style: "margin-bottom:12px"}, search, chips),
+    h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["Question", "Analysis", "Status", "Finding", "Mode / cost", "Note"].map(t => h("th", {}, t)))), body))));
   app.replaceChildren(h("div", {cls: "grid"}, blocks));
   draw();
   if (LIVE && runs.some(r => r.status === "running")) timer = setTimeout(route, 3000);
 }
 
 function actionsPanel(){
-  const scope = h("select", {}, h("option", {value: "first_window"}, "first week (preregistered, ~2 min)"), h("option", {value: "full_dataset"}, "full dataset (exploratory, ~12 min)"));
-  const cond = h("select", {}, h("option", {value: "validated"}, "validated (critic on)"), h("option", {value: "tool_only"}, "tool_only (critic off)"));
-  const start = h("button", {cls: "btn", on: {click: () => act({action: "start", scope: scope.value, condition: cond.value})}}, "Start mock run");
+  const question = h("textarea", {id:"research-question", cls:"query", rows: "2", maxlength: "500", placeholder: "Ask about communities, centrality or connections between groups"});
+  question.value = "Which nodes connect different groups, and are the rankings stable?";
+  const examples = h("div", {cls: "row", style: "margin-bottom:12px"}, [
+    "Is community structure stronger than the degree-preserving null, and sensitive to missing edges?",
+    "Which nodes have many contacts and high betweenness?",
+    "Which nodes connect different groups, and are the rankings stable?"
+  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups"][i])));
+  const scope = h("select", {"aria-label":"Data scope"}, h("option", {value: "first_window"}, "CollegeMsg · first week"), h("option", {value: "full_dataset"}, "CollegeMsg · full dataset"));
+  const cond = h("select", {"aria-label":"Evidence checks"}, h("option", {value: "validated"}, "Evidence checks on"), h("option", {value: "tool_only"}, "Unchecked comparison"));
+  const mode = h("select", {id:"ai-mode", "aria-label":"AI mode"},
+    h("option", {value:"live", disabled:!liveSettings.enabled}, liveSettings.enabled ? "Real AI · DeepSeek Flash" : "Real AI · enable at startup"),
+    h("option", {value:"mock"}, "Free demo · scripted"));
+  mode.value = liveSettings.enabled ? "live" : "mock";
+  if(liveSettings.enabled) mode.value="live";
+  const adaptive = h('input',{type:'checkbox'});
+  const start = h("button", {cls: "btn primary", on: {click: () => act({action: "start", mode:mode.value, adaptive:adaptive.checked, scope: scope.value, condition: cond.value, question: question.value})}}, "Start investigation");
   const pilot = h("button", {cls: "btn", on: {click: () => act({action: "pilot"})}}, "Run mock pilot");
-  return panel("Actions", "", h("div", {cls: "row"}, h("span", {cls: "muted"}, "CollegeMsg investigation:"), scope, cond, start, pilot),
-    h("p", {cls: "small muted"}, "Mock mode only: the browser can never start or authorize paid calls. Live runs are started and approved from the command line (", h("code", {}, "--allow-paid"), ")."));
+  const budget = liveSettings.cap_usd != null
+    ? `Real AI allowance: $${Number(liveSettings.remaining_usd).toFixed(3)} left of $${Number(liveSettings.cap_usd).toFixed(2)}. Shared with the trial; restarting does not renew it.`
+    : "Real AI is off. Start the console with --allow-paid to use the retained $0.50 allowance. The free demo uses scripted roles with real calculations.";
+  const engineDescription = h("span", {cls:"quiet", id:"engine-description"});
+  const updateEngine = () => { engineDescription.textContent = mode.value === "live"
+    ? "A real LLM chooses from seven analysis tools and writes evidence-linked claims. Numerical tools and a rule-based critic check the results."
+    : "Scripted AI decisions with real graph calculations. No model calls or AI charges."; };
+  mode.addEventListener("change", updateEngine); updateEngine();
+  return panel("Understand your network.", "hero", h("p", {cls:"eyebrow"}, "BLACKGRID / RESEARCH CONSOLE"), h("p", {cls:"intro"}, "Ask a question. Explore the structure. Follow the evidence."),
+    h("label", {cls:"field-label", for:"research-question"}, "Your research question"), question, examples,
+    h("div", {cls:"engine-box"}, h("div", {cls:"engine-info"}, h("label", {cls:"engine-title", for:"ai-mode"}, "Investigation engine"), engineDescription), mode),
+    h("div", {cls: "row"}, scope, start), h("p", {cls:"budget-line"}, budget),
+    h("details", {cls:"advanced"}, h("summary", {}, "Experiment settings and system checks"),
+      h("div", {cls:"row advanced-body"}, cond, h('label',{cls:'quiet'},adaptive,' Allow an optional follow-up decision (extra AI call)'), pilot, h("span", {cls:"quiet"}, "Simple undirected graph; direction and message frequency are omitted."))));
 }
 
 async function act(body){
@@ -244,14 +296,15 @@ function stepper(ws, status){
 function renderRun(d){
   const inv = d.investigation || {}, ws = d.workflow || {}, sum = d.summary || {};
   const status = sum.status;
-  document.getElementById("title").replaceChildren(h("h1", {}, (inv.case_id || sum.case || "run"), " ", h("span", {cls: "muted mono small"}, d.id)));
-  const head = h("div", {cls: "row", style: "margin-top:14px"}, badge(status), inv.verdict ? badge(inv.verdict) : null,
-    h("span", {cls: "muted mono small"}, [inv.cost && inv.cost.mode, inv.condition].filter(Boolean).join(" · ")),
+  document.getElementById("title").replaceChildren(h("span", {cls:"quiet"}, "Investigation"));
+  const head = h("div", {cls: "row", style: "margin-top:14px"}, badge(status),
+    h("span", {cls: "quiet"}, (inv.cost || {}).mode === "live" ? "Real AI · $"+Number(inv.cost.actual_usd || 0).toFixed(4) : (inv.cost || {}).mode === "replay" ? "Recorded AI · no charge" : "Free demo · scripted AI"),
     h("a", {href: href("index"), cls: "small", style: "margin-left:auto"}, "← all runs"));
-  const tabs = [["overview", "Overview"], ["experiment", "Experiment"], ["network", "Network"], ["sensitivity", "Sensitivity"],
-                ["agent", "Agent trace"], ["claims", "Claims"], ["report", "Report"], ["budget", "Budget"]];
-  const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); }}}, label)));
-  const views = {overview: viewOverview, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
+  const tabs = [["overview", "Answer"], ["rankings", "People & positions"], ["network", "Network"],
+                ["claims", "Evidence"], ["agent", "Activity"], ["report", "Full report"], ["budget", "Cost"],
+                ["experiment", "Statistics"], ["sensitivity", "Edge sensitivity"]];
+  const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); window.scrollTo(0,0); }}}, label)));
+  const views = {overview: viewAnswer, rankings: viewRankings, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
                  agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget};
   app.replaceChildren(head, stepper(ws, status), bar, h("div", {cls: "grid"}, views[tab](d)));
   if (LIVE && (status === "running" || status === "paused")) timer = setTimeout(route, 2500);
@@ -293,6 +346,52 @@ function viewOverview(d){
     ["Active nodes", rec.active_nodes], ["Unique edges", rec.unique_edges], ["Components", prof.components], ["Max / median degree", `${prof.degree_max ?? "—"} / ${prof.degree_median ?? "—"}`],
     ["Window events", rec.window_events], ["Projection SHA-256", rec.projection_sha256]])));
   return out;
+}
+
+function viewAnswer(d){
+  const inv=d.investigation || {}, ws=d.workflow || {}, rec=d.record || {}, status=(d.summary || {}).status;
+  const question=(d.summary || {}).question || ((d.report || {}).sections || []).find(x=>x.title==='Question')?.items?.[0]?.text || 'Network investigation';
+  let title='Your investigation is in progress.', explanation='The selected tools are calculating results. This page updates automatically.';
+  if(inv.verdict==='rejected'){
+    title='This question needs a different interpretation.';
+    explanation=(inv.plan_decision || {}).reasons?.join(' ') || 'The available tools cannot support this question. Try a structural question about contacts or connections between groups.';
+  } else if(['failed','budget_exhausted','cancelled','denied','paused'].includes(status)){
+    title=status==='budget_exhausted'?'Stopped at a resource limit.':status==='paused'?'This investigation is paused.':'This investigation did not finish.';
+    explanation=inv.failure_reason || ws.reason || 'Inspect the activity and cost details before continuing.';
+  } else if(status==='partial'){
+    title='Only part of the question was answered.';
+    explanation=inv.failure_reason || 'Some required evidence is missing. The completed results are available below.';
+  } else if(status==='abstained'){
+    title='The agent withheld a final answer.';
+    explanation=inv.follow_up?.reason || inv.failure_reason || 'The available evidence did not support the requested answer. Any completed calculations remain available in the other tabs.';
+  } else if(status==='completed'){
+    if(d.bridges){
+      const rows=d.bridges.rows || [], top=rows.find(r=>r.bridge_rank===1);
+      title='Here are the nodes connecting different groups.';
+      explanation=top ? `Node ${top.node} is among the highest-ranked nodes, with ${top.cross_degree} contacts outside its detected group. This describes its network position; it does not establish influence over others.` : 'The calculation completed. Inspect the local ranking table for individual positions.';
+    } else if(d.centrality){
+      title='Contacts and shortest-path position tell different stories.';
+      explanation='Degree counts distinct contacts. Betweenness measures a node’s position along shortest paths. Compare both rankings rather than treating either as a measure of influence.';
+    } else if(d.experiment){
+      title=inv.verdict==='supported'?'Clustering exceeded the specified random comparison.':inv.verdict==='not_supported'?'The test did not support unusual clustering.':'The evidence is inconclusive.';
+      explanation='This conclusion applies to the selected projected graph and saved decision rule. It does not establish real social groups or causality.';
+    } else { title='The investigation is complete.'; explanation='Inspect the checked evidence and full report below.'; }
+  }
+  const output=[panel('Your question','',h('p',{cls:'answer-copy',style:'margin:0'},String(question).replace(/^> /,''))),
+    panel('Answer','',h('p',{cls:'answer-lead'},title),h('p',{cls:'answer-copy'},explanation),runActions(d))];
+  if((inv.cost || {}).mode==='mock') output.push(panel('About this demo','',h('p',{cls:'quiet',style:'margin:0'},'Graph calculations are real. The planner and writer are scripted stand-ins, so this run does not test a real language model.')));
+  const sen=d.ranking_sensitivity?.summary;
+  if(sen) output.push(panel('What changed when connections were removed?','',
+    h('div',{cls:'stats'},h('div',{cls:'stat'},h('span',{},'Top-set overlap'),h('b',{},`${Math.round(sen.mean_top_jaccard*100)}%`)),
+      h('div',{cls:'stat'},h('span',{},'Edges removed per check'),h('b',{},sen.removed_edges_per_replicate)),
+      h('div',{cls:'stat'},h('span',{},'Checks'),h('b',{},sen.replicates))),
+    h('p',{cls:'quiet'},'Overlap compares the top-five sets, including tied nodes. These checks assume uniform missing connections. They are a sensitivity test, not a confidence score.',
+      sen.removed_edges_per_replicate===0?' At this graph size, rounding removed no edges.':'')));
+  output.push(panel('Data used','',h('div',{cls:'stats'},
+    ...[['Nodes',rec.active_nodes],['Connections',rec.unique_edges],['Scope',rec.scope==='full_dataset'?'Full recording':'Selected window']].map(([name,value])=>h('div',{cls:'stat'},h('span',{},name),h('b',{},value ?? '—')))),
+    h('p',{cls:'quiet'},'An undirected connection means at least one observed interaction. Timing, direction and repeat-message counts are omitted.')));
+  output.push(h('section',{cls:'panel'},h('details',{cls:'advanced'},h('summary',{},'Run details and reproducibility'),h('div',{cls:'advanced-body'},...viewOverview(d)))));
+  return output;
 }
 
 function histogram(values, observed, q05, q95){
@@ -434,7 +533,13 @@ function viewClaims(d){
   const draw = () => {
     const out = [];
     if (inv.condition === "tool_only" && (inv.reported_claims || []).length) out.push(h("div", {cls: "notice"}, "tool_only condition: these claims were NOT reviewed by the critic."));
-    (inv.reported_claims || []).forEach(c => out.push(h("div", {cls: "claim"}, h("b", {}, `[${c.evidence_level}] `), c.text, h("div", {cls: "ev"}, "evidence: " + (c.evidence || []).join(", ")))));
+    (inv.reported_claims || []).forEach(c => out.push(h("div", {cls: "claim"}, h("b", {}, `[${c.evidence_level}] `), c.text,
+      h("details", {}, h("summary", {}, "Inspect cited evidence"), (c.evidence || []).map(path => {
+        const parts = path.split("#"), key = Object.keys(EVIDENCE_FILES).find(k => EVIDENCE_FILES[k] === parts[0]);
+        let value = key ? d[key] : undefined;
+        for (const part of (parts[1] || "").split("/").filter(Boolean)) value = value == null ? undefined : value[part];
+        return h("div", {cls: "ev"}, path + " = " + (value === undefined ? "Inspect saved artifact" : JSON.stringify(value)));
+      })))));
     if (showRejected) (inv.critic_decisions || []).filter(x => !x.accepted && !shown.has(JSON.stringify(x.claim))).forEach(x =>
       out.push(h("div", {cls: "claim rej"}, h("b", {}, "REJECTED "), (x.claim || {}).text || "", h("div", {cls: "why"}, (x.reasons || []).join("; ")))));
     host.replaceChildren(...(out.length ? out : [h("p", {cls: "muted"}, "No claims were drafted.")]));
@@ -442,6 +547,54 @@ function viewClaims(d){
   draw();
   const toggle = h("label", {cls: "small"}, h("input", {type: "checkbox", checked: true, on: {change: e => { showRejected = e.target.checked; draw(); }}}), " show rejected drafts");
   return [panel("Claims · critic review", "", toggle, host)];
+}
+
+const EVIDENCE_FILES = {centrality: "node_centrality.json", partition: "community_partition.json", bridges: "community_bridge.json",
+  ranking_sensitivity: "ranking_sensitivity.json", experiment: "experiment_report.json", sensitivity: "sensitivity.json", profile: "graph_profile.json"};
+
+function viewRankings(d){
+  const out = [panel("Structural interpretation", "", h("p", {cls: "muted"},
+    "Local descriptive rankings. Degree counts contacts. Betweenness measures shortest-path position, with unreachable pairs contributing zero. Cross-community degree depends on the saved partition. These measures do not establish causal influence."))];
+  const columnNames={node:'Node',degree:'Contacts',degree_rank:'Contact rank',betweenness:'Betweenness',betweenness_rank:'Path-position rank',community:'Detected group',cross_degree:'Contacts outside group',cross_fraction:'Share outside group',bridge_rank:'Cross-group rank'};
+  for (const [key, title, columns] of [
+    ["centrality", "Degree and betweenness", ["node", "degree", "degree_rank", "betweenness", "betweenness_rank"]],
+    ["bridges", "Connections across detected communities", ["node", "community", "cross_degree", "cross_fraction", "bridge_rank"]]]) {
+    const data = d[key]; if (!data) continue;
+    let rows = [...(data.rows || [])]; const host = h("div", {cls: "tablewrap"});
+    const draw = () => host.replaceChildren(h("table", {}, h("thead", {}, h("tr", {}, columns.map(col => h("th", {on: {click: () => {
+      rows.sort((a,b) => typeof a[col] === "number" ? b[col]-a[col] : String(a[col]).localeCompare(String(b[col]))); draw();
+    }}}, columnNames[col])))), h("tbody", {}, rows.map(row => h("tr", {}, columns.map(col => h("td", {}, typeof row[col] === "number" && !Number.isInteger(row[col]) ? f3(row[col]) : row[col])))))));
+    draw(); out.push(panel(title, "", h("p", {cls: "small muted"}, `Showing ${rows.length} of ${data.total_rows} local rows. Click a heading to sort; ties share ranks.` + (key==='centrality' ? ` Betweenness is ${data.summary.approximate ? 'estimated from sampled sources' : 'calculated exactly'}.` : '')), host));
+  }
+  if (d.partition) out.push(panel("Detected groups", "", h('p',{},`${d.partition.summary.communities} groups were produced by the saved partitioning method. These are descriptive groups, not verified social communities.`),
+    h('details',{cls:'advanced'},h('summary',{},'Partition method details'),kv(Object.entries(d.partition.summary || {})))));
+  if (d.ranking_sensitivity) out.push(panel("Ranking sensitivity", "", h('p',{},`Average top-set overlap: ${Math.round(d.ranking_sensitivity.summary.mean_top_jaccard*100)}%.`),
+    h('details',{cls:'advanced'},h('summary',{},'Sensitivity calculation details'),kv(Object.entries(d.ranking_sensitivity.summary || {}))),
+    h("p", {cls: "muted small"}, "Uniform removal sensitivity, not a confidence interval. Boundary ties are included; rank correlation is undefined for constant rankings.")));
+  const follow = (d.investigation || {}).follow_up;
+  if (follow) out.push(panel("Follow-up decision", "", kv([["Decision", follow.decision], ["Reason", follow.reason]])));
+  if (!d.centrality && !d.bridges) out.push(panel("Rankings", "", h("p", {}, "No ranking artifact is available for this run.")));
+  if (LIVE) {
+    const choose = h("select", {"aria-label": "Compare with another run"}, h("option", {value: ""}, "Select another run"));
+    const host = h("div");
+    load("index").then(index => { for (const row of index.runs || []) if (row.kind === "run" && row.id !== d.id)
+      choose.appendChild(h("option", {value: row.id}, row.id)); }).catch(() => {});
+    const compare = h("button", {cls: "btn", on: {click: async () => {
+      if (!choose.value) return;
+      try {
+        const other = await load("run", choose.value), a = d.record || {}, b = other.record || {};
+        if (a.projection_sha256 !== b.projection_sha256 || a.scope !== b.scope || !a.projection_sha256)
+          throw new Error("Comparison requires the same graph projection and scope.");
+        const key = d.bridges && other.bridges ? "bridges" : d.centrality && other.centrality ? "centrality" : null;
+        if (!key) throw new Error("Both runs must contain the same ranking tool.");
+        host.replaceChildren(kv([["Current run", d.id], ["Other run", other.id], ["Graph identity", a.projection_sha256],
+          ["Current summary", JSON.stringify(d[key].summary)], ["Other summary", JSON.stringify(other[key].summary)],
+          ["Interpretation", "Descriptive comparison only; differences do not establish effects."]]));
+      } catch(error) { host.replaceChildren(h("p", {}, error.message)); }
+    }}}, "Compare compatible runs");
+    out.push(panel("Run comparison", "", h("div", {cls: "row"}, choose, compare), host));
+  }
+  return out;
 }
 
 function viewReport(d){
@@ -493,7 +646,7 @@ function renderPilot(p){
 }
 
 // ---- boot ----
-document.getElementById("modelabel").textContent = LIVE ? "LIVE CONSOLE" : "SNAPSHOT · " + (BOOT.generated || "");
+document.getElementById("modelabel").textContent = LIVE ? "Local workspace" : "Saved investigation · " + (BOOT.generated || "");
 if (!LIVE) document.getElementById("dot").classList.add("off");
 document.getElementById("home").setAttribute("href", href("index"));
 if (LIVE) window.addEventListener("hashchange", () => { tab = "overview"; route(); });

@@ -1,0 +1,11 @@
+# Sprint 5 live follow-up check: s5-live-v2
+
+Frozen after inspecting s5-live-v1, before generating these new instances or dispatching new calls, 18 October 2026. The user's existing authorization and retained USD 0.50 allowance cover this check; no budget is renewed.
+
+The original eight attempts remain untouched. Their outcomes were single-plan 3/4 useful and adaptive 0/4 useful. Three adaptive runs abstained because IDs were intentionally absent, and both plans for one bridge question were rejected for including an extra centrality tool. This motivated prompts-v7 (local-renderer context) and acceptance of optional centrality alongside bridge analysis. Structural claim policy and numerical tools are unchanged.
+
+Two new independent graphs, seeds 271001 and 271101: G(28,48), then SBM(3 blocks of 10, within .4, between .025). Experiment seeds 281001 and 281002. Question 1 asks about contacts/betweenness; question 2 asks about cross-group connections and ranking stability. Verify no exact projection overlap with old development, Sprint 3/4/5 or s5-live-v1 graphs. No generator truth or node rows enter prompts.
+
+Run single-plan then adaptive on each graph: four attempts, all retained. Use the same model, 16,000 completion cap, 12,000 reasoning bound, 3x reservations at 2x fetched price, and remaining retained allowance. Per-run maximum USD 0.15. No automatic rerun. Halt on billing uncertainty, budget exhaustion or source change.
+
+Freeze protocol/source/dependencies before generation; recheck before each investigation. Use the same independent saved-artifact numerical/evidence scorer as s5-live-v1, plus explicit factual completeness: centrality needs degree and betweenness facts; bridge analysis needs partition count and cross-community degree; an explicit stability request also needs the Jaccard fact. Report missing facts, refusals/abstentions, required analyses, claims, calls, tokens, truncations and both accounted and provider-reported cost. Two graphs are an engineering check after adaptive development, not confirmatory proof of real-model efficacy or an error-rate guarantee. Single-plan mode is the default for paid console use to avoid unnecessary calls; optional follow-up is a visible setting.

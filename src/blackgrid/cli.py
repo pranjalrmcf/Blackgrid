@@ -105,10 +105,17 @@ def _early_record(args: argparse.Namespace, config: RunConfig, status: RunStatus
 def _cmd_run(args: argparse.Namespace) -> int:
     try:
         config = load_config(args.config)
-        overrides = {k: v for k, v in (("mode", args.mode), ("condition", args.condition)) if v}
+        overrides = {k: v for k, v in (("mode", args.mode), ("condition", args.condition),
+                                     ("investigation_family", args.family), ("question", args.question),
+                                     ("planning_mode", args.planning_mode)) if v}
         if overrides:
             config = RunConfig.model_validate(config.model_dump(mode="json") | overrides)
         config = apply_env_model(config, args.env_file)
+        if args.live_allowance:
+            from blackgrid.live_allowance import constrain
+            if config.mode.value != "live" or not args.allow_paid:
+                raise ValueError("a live allowance requires live mode and --allow-paid")
+            config = constrain(config, args.live_allowance, args.runs_dir)
     except (OSError, ValidationError, ValueError) as exc:
         print(f"invalid config: {exc}", file=sys.stderr)
         return EXIT_INVALID
@@ -152,7 +159,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return EXIT_INVALID
 
-    inp = InvestigationInput(case_id=built.record.graph_id, question=config.question, request={"method": "auto"},
+    inp = InvestigationInput(case_id=built.record.graph_id, question=config.question,
+                             request={"method": "auto", "family": config.investigation_family,
+                                      "planning_mode": config.planning_mode},
                              graph=built.graph, record=built.record, spec=config.experiment)
     reproduce = f"uv run --frozen blackgrid run {args.config.as_posix()} --mode {config.mode.value}"
     scope = ("FULL DATASET (exp-v2-full, exploratory): "
@@ -160,6 +169,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
              f"{built.record.unique_edges:,} connections; first run takes about 12 minutes"
              if config.scope == "full_dataset" else
              "first-week window (preregistered exp-v1.1); first run takes about 2 minutes")
+    if config.investigation_family != "community":
+        scope = f"{config.scope}, exploratory structural investigation; no community significance claim"
     print(f"running {config.condition} investigation in {config.mode.value} mode on the {scope}...",
           file=sys.stderr)
     try:
@@ -250,7 +261,11 @@ def _cmd_console(args: argparse.Namespace) -> int:
     from blackgrid.console.server import Console, serve
 
     args.runs_dir.mkdir(parents=True, exist_ok=True)
-    console = Console(args.runs_dir, args.cache_dir, args.config, args.data_root, args.port)
+    allowance = None
+    if args.allow_paid:
+        from blackgrid.live_allowance import ensure_allowance
+        allowance = ensure_allowance(args.runs_dir)
+    console = Console(args.runs_dir, args.cache_dir, args.config, args.data_root, args.port, live_allowance=allowance)
     try:
         httpd = serve(console)
     except OSError as exc:
@@ -417,6 +432,31 @@ def _cmd_sprint4_live(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
+    def sprint5_run(args):
+        from blackgrid.sprint5 import run_suite
+        try:
+            summary = run_suite(args.output)
+        except (OSError, ValueError, TimeoutError) as exc:
+            print(f"Sprint 5 evaluation failed: {exc}", file=sys.stderr)
+            return EXIT_RUN_FAILED
+        print(json.dumps(summary, indent=2))
+        return EXIT_OK if all(r["useful"] == 16 for r in summary["arms"].values()) else EXIT_RUN_FAILED
+    sprint5 = sub.add_parser("sprint5", help="run frozen offline structural-tool and planning evaluation")
+    sprint5.add_argument("--output", type=Path, required=True)
+    sprint5.set_defaults(func=sprint5_run)
+    def live5_run(args):
+        from blackgrid.sprint5_live import run_pilot
+        try:
+            summary = run_pilot(args.output, allow_paid=args.allow_paid)
+        except (OSError, ValueError, PermissionError) as exc:
+            print(f"Live pilot not completed: {exc}", file=sys.stderr)
+            return EXIT_RUN_FAILED
+        print(json.dumps(summary, indent=2))
+        return EXIT_OK if summary["status"] == "completed" else EXIT_RUN_FAILED
+    live5 = sub.add_parser("sprint5-live", help="small authorized real-model pilot using retained USD 0.50 allowance")
+    live5.add_argument("--output", type=Path, required=True)
+    live5.add_argument("--allow-paid", action="store_true")
+    live5.set_defaults(func=live5_run)
 
     sprint3 = sub.add_parser("sprint3", help="run the frozen offline validation and method comparison")
     sprint3.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
@@ -454,8 +494,12 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("config", type=Path)
     run.add_argument("--data-root", type=Path, default=REPO_ROOT, help="base for the config's relative dataset path")
     run.add_argument("--mode", choices=["mock", "live", "replay"])
+    run.add_argument("--family", choices=["community", "centrality", "bridge", "auto"], help="question-specific investigation")
+    run.add_argument("--question", help="structural research question (treat as untrusted data)")
+    run.add_argument("--planning-mode", choices=["adaptive", "single"], help="permit one follow-up or use one plan")
     run.add_argument("--condition", choices=["validated", "tool_only"])
     run.add_argument("--allow-paid", action="store_true", help="authorize paid LLM calls for this invocation")
+    run.add_argument("--live-allowance", type=Path, help="retained console/trial allowance; never resets prior spend")
     run.add_argument("--replay-from", type=Path, help="run directory whose llm_trace.jsonl to replay")
     run.add_argument("--env-file", type=Path, default=REPO_ROOT / ".env")
     run.add_argument("--parent", help="run ID this run deliberately changes (recorded, never resumed into)")
@@ -481,6 +525,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     con = sub.add_parser("console", parents=[common], help="serve the interactive console on 127.0.0.1")
     con.add_argument("--port", type=int, default=8765)
+    con.add_argument("--allow-paid", action="store_true", help="enable retained USD 0.50 live allowance; restarts do not renew it")
     con.add_argument("--config", type=Path, default=REPO_ROOT / "configs" / "collegemsg_sprint01.json",
                      help="config used by the console's 'Start mock run' action (always run in mock mode)")
     con.add_argument("--data-root", type=Path, default=REPO_ROOT)

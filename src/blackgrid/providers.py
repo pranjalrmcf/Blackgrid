@@ -142,6 +142,11 @@ class MockProvider:
             text = json.dumps(self._analyse(payload, revise=False))
         elif role == "reviser":
             text = json.dumps(self._analyse(payload, revise=True))
+        elif role == "follow_up":
+            text = json.dumps({"decision": "request_follow_up", "reason": "Check ranking stability before interpretation.",
+                               "tool_calls": [{"tool": "ranking_sensitivity", "args": {}}]}
+                              if not any(p.startswith("ranking_sensitivity.json#") for p in payload.get("evidence", {}))
+                              else {"decision": "answer", "reason": "Requested checks are complete.", "tool_calls": []})
         else:
             raise ProviderError(f"mock has no behaviour for role {role!r}")
         prompt_chars = sum(len(m["content"]) for m in messages)
@@ -150,6 +155,13 @@ class MockProvider:
 
     @staticmethod
     def _plan(payload: dict) -> dict:
+        from blackgrid.inquiry import family, requirements
+        task = payload.get("task", {})
+        question, request = task.get("question", ""), task.get("request", {})
+        kind = family(question, request)
+        if kind != "community":
+            return {"decision": "refuse" if kind == "clarify" else "run", "reason": "Select tools for the structural question.",
+                    "tool_calls": [{"tool": name, "args": args} for name, args in requirements(question, request).items()]}
         method = _request(payload).get("method", "auto")
         if method not in ("auto", "louvain"):
             return {"decision": "run", "tool_calls": [{"tool": "community_test", "args": {"method": method}}],
@@ -161,6 +173,8 @@ class MockProvider:
 
     @staticmethod
     def _analyse(payload: dict, revise: bool) -> dict:
+        if "allowed_claims" in payload:
+            return {"verdict": "supported", "flags": [], "claims": payload["allowed_claims"]}
         q = _ev(payload, "primary/result/observed_statistic")
         mean = _ev(payload, "primary/result/null/mean")
         p = _ev(payload, "primary/result/p_value")

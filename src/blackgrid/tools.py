@@ -42,8 +42,9 @@ from blackgrid.contracts import (
 )
 from blackgrid.experiment import CommunityTestReport, DeadlineExceeded, GraphProfile, profile, run_community_test
 from blackgrid.sensitivity import R_SENS, SensitivitySummary, run_replicate, summarise
+from blackgrid.structural import StructuralResult, compute as compute_structural
 
-TOOL_VERSION = "tools-v1 exp-v1.1 report-v2"
+TOOL_VERSION = "tools-v2 structural-v1 exp-v1.1 report-v2"
 MAX_REQUEST_BYTES = 2_000
 ANSWER_KEY_MARKERS = ("answer", "truth", "label", "sealed", "case_key", "casekey", "evaluator", "planted",
                       "hidden_edge", "generator_spec")
@@ -80,6 +81,10 @@ TOOLS: dict[str, type[Contract]] = {
     "profile_graph": ProfileArgs,
     "community_test": CommunityTestArgs,
     "edge_removal_sensitivity": SensitivityArgs,
+    "node_centrality": ProfileArgs,
+    "community_partition": ProfileArgs,
+    "community_bridge": ProfileArgs,
+    "ranking_sensitivity": ProfileArgs,
 }
 
 def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R_SENS) -> dict[str, str]:
@@ -87,6 +92,10 @@ def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R
     sens = spec.sensitivity
     return {
         "profile_graph": "Aggregate graph profile (sizes, components, degree summary). Args: {}.",
+        "node_centrality": "Local degree and normalized betweenness rankings; aggregate summary only to model. Args: {}.",
+        "community_partition": "Descriptive Louvain partition, five restarts; not a significance test. Args: {}.",
+        "community_bridge": "Cross-community degree and fraction; requires community_partition. Not influence. Args: {}.",
+        "ranking_sensitivity": "Three fixed 10% uniform removals; tie-inclusive top-five Jaccard and Spearman. Requires a ranking. Args: {}.",
         "community_test": f"Frozen modularity test ({spec.experiment_id}): Louvain modularity vs a degree-preserving "
                           f"double-edge-swap null, {spec.null_replicates} null replicates. "
                           "Args: {\"method\": \"louvain\"}. Other parameters are frozen and cannot be changed.",
@@ -145,6 +154,10 @@ ARTIFACT_NAMES = {
     "profile_graph": "graph_profile.json",
     "community_test": "experiment_report.json",
     "edge_removal_sensitivity": "sensitivity.json",
+    "node_centrality": "node_centrality.json",
+    "community_partition": "community_partition.json",
+    "community_bridge": "community_bridge.json",
+    "ranking_sensitivity": "ranking_sensitivity.json",
 }
 
 
@@ -216,11 +229,20 @@ def _check_prerequisites(name: str, args: Contract, ctx: ToolContext) -> None:
         raise ToolRejected("oversized graph: exceeds node/edge caps")
     if name == "community_test" and args.method != ctx.spec.method:
         raise ToolRejected(f"method {args.method!r} deviates from the preregistered spec ({ctx.spec.method!r})")
+    if name in ("node_centrality", "community_bridge", "ranking_sensitivity") and not len(ctx.graph):
+        raise ToolRejected("empty graph has no nodes to rank")
     if name == "edge_removal_sensitivity" and "experiment_report.json" not in ctx.outputs:
         raise ToolRejected("prerequisite missing: run community_test before edge_removal_sensitivity")
+    if name == "community_bridge" and "community_partition.json" not in ctx.outputs:
+        raise ToolRejected("prerequisite missing: run community_partition before community_bridge")
+    if name == "ranking_sensitivity" and not any(x in ctx.outputs for x in ("node_centrality.json", "community_bridge.json")):
+        raise ToolRejected("prerequisite missing: ranking required")
 
 
 def _run(name: str, ctx: ToolContext) -> dict:
+    if name in ("node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"):
+        return compute_structural(name, ctx.graph, ctx.record.projection_sha256, ctx.spec.seed,
+                                  ctx.spec.limits.tool_timeout_s, ctx.outputs)
     if name == "profile_graph":
         return profile(ctx.graph).model_dump(mode="json")
     if name == "community_test":
@@ -244,6 +266,9 @@ def _run(name: str, ctx: ToolContext) -> dict:
 
 def _cache_key(name: str, args: Contract, ctx: ToolContext) -> str:
     extra = [] if ctx.sensitivity_null_replicates == R_SENS else [ctx.sensitivity_null_replicates]
+    if name in ("community_bridge", "ranking_sensitivity"):
+        extra += [_sha({k: v for k, v in ctx.outputs.items() if k in
+                        ("community_partition.json", "community_bridge.json", "node_centrality.json")})]
     return _sha([TOOL_VERSION, name, args.model_dump(mode="json"), ctx.record.projection_sha256,
                  canonical_sha256(ctx.spec), ctx.unknown_pairs, *extra])
 
@@ -287,6 +312,14 @@ def _check_payload(name: str, payload: dict, ctx: ToolContext) -> None:
         main = ctx.outputs.get("experiment_report.json", {}).get("raw_verdict")
         if summary.main_raw_verdict != main or sum(summary.verdict_counts.values()) != summary.replicates:
             raise ValueError("sensitivity summary is inconsistent with the main result")
+    elif name in ("node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"):
+        report = StructuralResult.model_validate(payload)
+        if (report.tool, report.graph_sha256, report.nodes, report.edges, report.seed) != (
+                name, ctx.record.projection_sha256, nodes, edges, ctx.spec.seed):
+            raise ValueError("structural output identity mismatch")
+        if name != "ranking_sensitivity" and ({r.node for r in report.rows} != {str(n) for n in ctx.graph}
+                                               or len(report.rows) != nodes):
+            raise ValueError("structural rows must cover exactly the graph")
     else:
         raise ValueError(f"no cache validator for {name!r}")
 

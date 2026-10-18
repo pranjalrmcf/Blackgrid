@@ -47,7 +47,7 @@ from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
 # v4: R9 rejects unestablished "preregistered" wording (s4-v2, D-061).
 # v5: label variants, secondary scope, flags, null range and delta/null pairing, from the live-pilot review
 #     (D-064, D-065). Written after inspecting those claims: development evidence until fresh cases test it.
-CRITIC_VERSION = "critic-v5"
+CRITIC_VERSION = "critic-v6 structural-v1"
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -264,6 +264,10 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
 
     Raises AnswerKeyAccess if the plan reaches for evaluator-only data.
     """
+    from blackgrid.inquiry import family, validate_structural
+    if family(question, request) != "community":
+        allowed, calls, reason = validate_structural(question, request, plan)
+        return PlanDecision(allowed=allowed, tool_calls=tuple(calls), reasons=(reason,))
     if CAUSAL.search(question) or str(request.get("claim_type", "")).lower() == "causal":
         return PlanDecision(allowed=False, refusal_flag="causal_not_identified",
                             reasons=("Causal effects are not identified: static observational graph, no estimand, "
@@ -287,6 +291,8 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
         except ToolRejected as exc:
             return PlanDecision(allowed=False, refusal_flag="invalid_method", reasons=(str(exc),))
         checked.append({"tool": name, "args": args.model_dump(mode="json")})
+        if name not in ORDER:
+            return PlanDecision(allowed=False, reasons=("Tool does not belong to the frozen community protocol.",))
     planned = {c["tool"] for c in checked}
     added = [name for name in REQUIRED_TOOLS if name not in planned]
     checked += [{"tool": name, "args": REQUIRED_TOOLS[name]} for name in added]

@@ -2,8 +2,9 @@
 
 The same payloads feed the live console (JSON API) and the static snapshots (embedded JSON), so
 both modes always show the same thing. Deliberately excluded: LLM prompts and raw responses
-(`llm_trace.jsonl`, `ops/`), configs' secrets (none exist), node identifiers, and anything from
-answer keys. Untrusted text (LLM claims, questions) is passed as data and rendered with
+(`llm_trace.jsonl`, `ops/`), configs' secrets (none exist), and anything from
+answer keys. Local ranking tables may contain node references; these are not model evidence.
+Untrusted text (LLM claims, questions) is passed as data and rendered with
 `textContent` in the browser, never as HTML.
 """
 
@@ -18,6 +19,8 @@ RUN_FILES = {
     "sensitivity": "sensitivity.json", "record": "graph_record.json", "profile": "graph_profile.json",
     "layout": "layout.json", "budget": "budget.json", "report": "report.json", "workflow": "workflow_status.json",
     "window": "window_selection.json",
+    "centrality": "node_centrality.json", "partition": "community_partition.json",
+    "bridges": "community_bridge.json", "ranking_sensitivity": "ranking_sensitivity.json",
 }
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)?$")
 
@@ -50,6 +53,7 @@ def run_summary(runs_dir: Path, path: Path) -> dict:
     ws = _load(path / "workflow_status.json") or {}
     manifest = _load(path / "manifest.json") or {}
     record = _load(path / "graph_record.json") or {}
+    config = _load(path / "config.json") or {}
     return {
         "id": path.relative_to(runs_dir.resolve()).as_posix(), "kind": "run",
         "case": inv.get("case_id") or record.get("graph_id"),
@@ -58,6 +62,7 @@ def run_summary(runs_dir: Path, path: Path) -> dict:
         "mode": (inv.get("cost") or {}).get("mode"), "condition": inv.get("condition"),
         "pause": ws.get("pause"), "updated": ws.get("updated_utc"),
         "usd": (inv.get("cost") or {}).get("actual_usd"), "llm_calls": (inv.get("cost") or {}).get("llm_calls"),
+        "question": config.get("question"), "family": inv.get("family", "community"),
     }
 
 
@@ -75,12 +80,20 @@ def index_payload(runs_dir: Path) -> dict:
                               "summary": data.get("summary")})
             elif is_run(path):
                 items.append(run_summary(runs_dir, path))
+    items.sort(key=lambda item: (item.get("updated") or "", item.get("id", "")), reverse=True)
     return {"runs": items}
 
 
 def run_payload(runs_dir: Path, path: Path) -> dict:
     path = path.resolve()
     payload = {key: _load(path / name) for key, name in RUN_FILES.items()}
+    # Local inspection only. Bound browser payload size, but preserve all rows in local artifacts.
+    for key in ("centrality", "partition", "bridges"):
+        if payload[key]:
+            rows = payload[key].get("rows", [])
+            metric = "bridge_rank" if key == "bridges" else "betweenness_rank"
+            payload[key] = payload[key] | {"rows": sorted(rows, key=lambda r: (r.get(metric, 1), r["node"]))[:500],
+                                           "total_rows": len(rows), "display_limit": 500}
     payload["id"] = path.relative_to(runs_dir.resolve()).as_posix()
     payload["summary"] = run_summary(runs_dir, path)
     return payload

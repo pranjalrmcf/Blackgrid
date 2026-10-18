@@ -5,7 +5,8 @@ Safety rules:
   (blocks DNS-rebinding pages from reaching the API);
 * every state-changing request needs the per-session token embedded in the served page;
 * actions are a fixed allowlist that run the same CLI code paths and gates as the terminal;
-  mock mode only - the browser can never start or authorize paid calls;
+  default mock only; CLI-authorized live mode consumes a retained USD 0.50 allowance;
+  browser requests cannot create or renew that allowance;
 * one background job at a time; run IDs are validated against the runs directory;
 * strict response headers (no framing, no sniffing, same-origin connections only).
 """
@@ -41,10 +42,11 @@ HEADERS = {
 
 class Console:
     def __init__(self, runs_dir: Path, cache_dir: Path, config: Path, data_root: Path, port: int,
-                 full_config: Path | None = None) -> None:
+                 full_config: Path | None = None, live_allowance: Path | None = None) -> None:
         self.runs_dir, self.cache_dir, self.config, self.data_root = runs_dir, cache_dir, config, data_root
         self.full_config = full_config or config.parent / "collegemsg_full.json"
         self.port = port
+        self.live_allowance = live_allowance
         self.token = secrets.token_urlsafe(32)
         self.jobs: dict[str, dict] = {}
         self.lock = threading.Lock()
@@ -56,6 +58,9 @@ class Console:
         action = body.get("action")
         common = ["--runs-dir", str(self.runs_dir), "--cache-dir", str(self.cache_dir)]
         if action == "start":
+            mode = body.get("mode", "mock")
+            if mode not in ("mock", "live") or (mode == "live" and self.live_allowance is None):
+                raise ValueError("real AI requires console startup with --allow-paid")
             condition = body.get("condition", "validated")
             if condition not in ("validated", "tool_only"):
                 raise ValueError("condition must be validated or tool_only")
@@ -63,8 +68,25 @@ class Console:
             if scope not in ("first_window", "full_dataset"):
                 raise ValueError("scope must be first_window or full_dataset")
             config = self.full_config if scope == "full_dataset" else self.config
-            return ["run", str(config), "--mode", "mock", "--condition", condition,
+            if mode == "live":
+                from blackgrid.live_allowance import read_allowance
+                remaining = read_allowance(self.live_allowance, self.runs_dir)["remaining_usd"]
+                if remaining <= .000001:
+                    raise ValueError("live allowance exhausted")
+                config = self.config.parent / ("collegemsg_full_live.json" if scope == "full_dataset" else "collegemsg_live.json")
+            argv = ["run", str(config), "--mode", mode, "--condition", condition,
                     "--data-root", str(self.data_root), *common]
+            if mode == "live":
+                argv += ["--allow-paid", "--live-allowance", str(self.live_allowance)]
+                if body.get("adaptive", False) not in (True, False):
+                    raise ValueError("adaptive must be a boolean")
+                argv += ["--planning-mode", "adaptive" if body.get("adaptive", False) else "single"]
+            if "question" in body:
+                question = body["question"]
+                if not isinstance(question, str) or not 1 <= len(question.strip()) <= 500:
+                    raise ValueError("question must contain 1 to 500 characters")
+                argv += ["--family", "auto", "--question", question.strip()]
+            return argv
         if action == "pilot":
             return ["pilot", *common]
         if action in ("resume", "cancel", "deny", "reconcile"):
@@ -175,7 +197,17 @@ def make_handler(console: Console):
                 if url.path == "/":
                     self._send(200, live_page(console.token).encode("utf-8"), "text/html; charset=utf-8")
                 elif url.path == "/api/index":
-                    self._json(200, index_payload(console.runs_dir))
+                    data = index_payload(console.runs_dir)
+                    data["live"] = {"enabled": False}
+                    if console.live_allowance:
+                        from blackgrid.live_allowance import read_allowance
+                        try:
+                            allowance = read_allowance(console.live_allowance, console.runs_dir)
+                            data["live"] = {key: allowance[key] for key in ("model", "cap_usd", "spent_usd", "remaining_usd")}
+                            data["live"]["enabled"] = allowance["remaining_usd"] > .000001
+                        except (OSError, ValueError):
+                            data["live"] = {"enabled": False, "error": "Live allowance unavailable"}
+                    self._json(200, data)
                 elif url.path == "/api/run":
                     self._json(200, console.live_run(query.get("id", "")))
                 elif url.path == "/api/pilot":

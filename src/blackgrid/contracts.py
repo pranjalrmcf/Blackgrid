@@ -383,6 +383,8 @@ class LLMConfig(Contract):
 
 
 class RunConfig(Contract):
+    investigation_family: Literal["community", "centrality", "bridge", "auto"] = "community"
+    planning_mode: Literal["adaptive", "single"] = "adaptive"
     protocol_version: Literal["sprint01-v0.1"] = PROTOCOL_VERSION
     mode: ExecutionMode = ExecutionMode.MOCK
     condition: Literal["validated", "tool_only"] = "validated"
