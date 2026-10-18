@@ -12,6 +12,14 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
 
 ## Status
 
+**Sprint 6 is implemented: baseline-first temporal link prediction** ([report](docs/sprint06_report.md),
+[simple guide](docs/sprint06_guide.md)).
+- `blackgrid predict-eval` runs the frozen, sealed-test evaluation; `blackgrid forecast` produces a known-node
+  forecast, viewable in the console as **Forecast connections**.
+- Recent-activity methods beat static ones in both tasks. New connections remain hard to predict (AP about 0.002 at a
+  base rate of 5.5e-5). Repeat interactions reach AP 0.14–0.40.
+- USD 0; reproduced exactly in a clean environment.
+
 **Sprint 5's offline structural capability is implemented.** The arsenal now has seven tools, question-specific plans,
 one bounded follow-up round, local centrality/bridge rankings and evidence inspection in the console.
 See [usage](docs/sprint05_guide.md) and [evaluation and limitations](docs/sprint05_report.md).

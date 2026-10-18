@@ -814,3 +814,71 @@ All four findings were reproduced as failing tests before fixing.
 - **Observed failure:** the UI example asking about community structure versus a degree-preserving null was classified as centrality because of the word degree. A valid community plan was consequently rejected by structural validation.
 - **Fix:** exclude the degree-preserving baseline phrase from centrality keyword matching, preserving ordinary degree-ranking requests. No scientific method, threshold or saved result changed.
 - **Verification:** 33 focused Sprint 5 and allowance checks passed, including complete offline community workflows for hyphenated, spaced and en-dash spellings. The regression uses 19 null replicates and one sensitivity replicate for routing verification only, not scientific evaluation. Initial assertions omitted the recorded sensitivity subcalls; corrected the assertion to compare tool families. No paid calls made. Restart the console before retrying the question; the failed run remains preserved.
+
+### D-069 — Sprint 6 Sessions 1–3 (synthetic only): temporal pipeline, baselines, metrics (2026-10-18)
+- **Request (user):** "start with sprint 6." This was taken as implementation authorization for SPRINT_06.md. No paid calls, no new dependencies, no CollegeMsg processing.
+- **Implemented:** `src/blackgrid/prediction/`.
+  - `temporal.py`: elapsed-time boundaries; history strictly before the cutoff; horizon labels with cold-start exclusion counts; complete streamed candidate universes for `new_pair`/`repeat_pair`; a 2M cap that stops instead of sampling; a shared seeded tie-break; aggregate-only snapshot manifests.
+  - `scores.py`: random/constant controls; CN, Jaccard, Adamic–Adar, RA and PA; recent-activity product and recent RA at `H` and `2H`; pair frequency and recency for repeats only.
+  - `metrics.py`: AP, P@K, R@K, tie-aware ROC-AUC and tie rate, with not-evaluable outcomes and a per-method time limit.
+  - `synthetic.py`: a triadic-closure event stream.
+- **Tests:** `tests/test_prediction.py`, 22 passing.
+  - Boundaries; events at the cutoff are future; self-loops, repeats and reversals; future-positive-beyond-horizon is a zero; the task partition; the capacity stop.
+  - A **future-mutation check**: history fingerprint, nodes, candidates and every method's scores are unchanged.
+  - Structural scores match the networkx reference on triangle, path, star and disconnected graphs; zero denominators; hand-computed AP/P@K/R@K/AUC and ties.
+  - One synthetic new-pair forecast end to end, with the same universe for every method.
+  - **Disclosed fix:** a fixture bug let "triadic" steps pick an existing neighbour, which made a repeat instead of a new pair. It was fixed before any real data. This is a synthetic development fixture, not a benchmark.
+- **Protocol:** `protocols/sprint06_prediction_v1.md` is a **draft**, not frozen.
+- **Blocked, needs the user:**
+  1. A CollegeMsg rights/use decision for Sprint 6 forecasting (§2 gate; D-003 covered Sprint 1 only).
+  2. Whether to add a numerical dependency (e.g. numpy/scikit-learn) for the Session 4 logistic model. Real-data training rows may approach the 2M cap, which is too slow in pure Python. The alternative is to skip the supervised stage and record that.
+- **Status:** active.
+
+### D-070 — CollegeMsg rights for Sprint 6 forecasting, and the numerical dependency decision (2026-10-18)
+- **Rights (user):** answered "Yes, authorize" to: "Do you authorize local, non-commercial use of CollegeMsg for Sprint 6 forecasting (no redistribution of raw or pair-level data)?"
+  - This extends D-003 to Sprint 6 forecasting under the same terms: local, non-commercial, cited (SNAP CollegeMsg; Panzarasa, Opsahl & Carley 2009).
+  - The raw file hash is unchanged, and no raw events, pair rankings or pair-level labels are redistributed or committed. Shareable outputs are aggregates only.
+  - This is a recorded use decision, not a verified open licence.
+- **Dependency (user):** chose "Add numpy + scikit-learn". They are used only for the Session 4 regularized logistic baseline and its scaling, and resolved under the existing `exclude-newer` date. No other library is added.
+- **Status:** active.
+
+### D-071 — Sprint 6 history-only preflight, then protocol freeze (2026-10-18)
+- **Preflight on CollegeMsg** after D-070, before freezing:
+  - 59,835 events over 193.7 days, so H = 19.37 days.
+  - Candidate counts were computed at b2–b9 from history only. The largest is 1,752,569 `new_pair` candidates at b9, within the 2M cap.
+  - Label counts (positives, cold-start exclusions) were computed for b2–b7 only. No test-period (b8, b9) label or count, and no score or metric, was computed.
+- **Consequence, fixed before results:** `new_pair` supervised development rows (b2–b5) total 5,333,254, above the 2M cap. The `new_pair` logistic model is a recorded capacity stop, not sampled. `repeat_pair` has 44,901 rows and trains.
+- **Freeze:** `protocols/sprint06_prediction_v1.md` was frozen with this disclosure and its execution details (§8). The run records the file hash.
+- **Implementation for Sessions 4–5:**
+  - `prediction/features.py`: per-cutoff method columns.
+  - `prediction/fast.py`: vectorized metrics, equal to the reference implementation in tests.
+  - `prediction/model.py`: logistic, `C ∈ {0.1, 1, 10}`, 200 iterations, training-only scaling, nonconvergence = failure.
+  - `prediction/suite.py`: an ordered, trusted evaluator with a test-label spy check and a tampered-prediction rejection, both tested.
+  - CLI: `blackgrid predict-eval`.
+- **Status:** active.
+
+### D-072 — Sprint 6 executed: prediction-v1 results, forecast integration, reproduction (2026-10-18)
+- **Evaluation:** `runs/sprint6-v1`, under the frozen protocol hash. 72 s, 4 fitted configurations, USD 0, no LLM.
+  - The selection was frozen before the test forecasts. Test arrays were hashed before any test label was read.
+  - Summary in `results/sprint06-v1/summary.json` (aggregates only).
+- **New pair:** prevalence about 5.5e-5.
+  - Selected PA (static) and recent-activity-product 2H (temporal).
+  - Test AP: PA 3.9e-4 / 1.07e-3; temporal 2.5e-3 / 2.0e-3. Mean difference +0.0015.
+  - The logistic model was a capacity stop (5.33M rows > 2M), as recorded in D-071.
+- **Repeat pair:** prevalence 0.6–0.9%.
+  - Selected RA (static) and logistic C = 10 (temporal).
+  - Test AP: RA 0.010 / 0.007; logistic 0.401 / 0.137. Mean difference +0.26.
+  - Pair recency, not selected, beat the selected model at b9 (0.195). This is reported, not re-selected.
+- **Integration (Session 6):**
+  - `prediction/service.py`: `temporal_profile`, `link_prediction` and `prediction_compare` tools with strict arguments and no cutoff, candidate, label, code or budget inputs. Test aggregates are readable only from a completed, frozen evaluation.
+  - `prediction/claims.py`: `pred-critic-v1`, checking scope, evidence, metric citations, probability/causal/overreach wording and cold start.
+  - The `blackgrid forecast` CLI and a console **Forecast connections** view, checked in the browser with no console errors.
+  - The forecast path is deterministic with a scripted plan. The tools are not wired into the LangGraph LLM planner, and no live AI is used.
+- **Fixes during the session:**
+  - A peak-memory measurement bug (missing Windows argtypes) made the original run record `None`. It is fixed and tested.
+  - A rejected forecast created an empty folder; the plan is now validated first, and the empty folder was removed.
+  - The predictive checker's cold-start rule was made clause-aware.
+  - Tiny AP values are displayed in scientific notation.
+- **Reproduction (Session 7):** a clean offline copy built from `uv.lock` passed 357 tests (1 skipped: `leidenalg`). The rerun's validation, selection and test JSON, and all prediction-array hashes, are identical. Peak memory 534 MB.
+- **Docs:** `docs/sprint06_report.md` and `docs/sprint06_guide.md`.
+- **Status:** active.

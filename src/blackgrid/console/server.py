@@ -23,7 +23,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from blackgrid.console.data import index_payload, is_run, pilot_payload, resolve, run_payload
+from blackgrid.console.data import forecast_payload, index_payload, is_run, pilot_payload, resolve, run_payload
 from blackgrid.console.render import live_page
 
 MAX_BODY = 4_096
@@ -215,6 +215,11 @@ def make_handler(console: Console):
                     if path is None or not (path / "pilot.json").is_file():
                         raise LookupError("unknown pilot")
                     self._json(200, pilot_payload(console.runs_dir, path))
+                elif url.path == "/api/forecast":
+                    path = resolve(console.runs_dir, query.get("id", ""))
+                    if path is None or not (path / "forecast.json").is_file():
+                        raise LookupError("unknown forecast")
+                    self._json(200, forecast_payload(console.runs_dir, path))
                 elif url.path == "/api/job":
                     job = console.jobs.get(query.get("id", ""))
                     self._json(200, job) if job else self._json(404, {"error": "unknown job"})

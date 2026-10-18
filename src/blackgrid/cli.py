@@ -429,6 +429,44 @@ def _cmd_sprint4_live(args: argparse.Namespace) -> int:
     return EXIT_OK if suite["status"] == "completed" else EXIT_RUN_FAILED
 
 
+def _cmd_predict_eval(args: argparse.Namespace) -> int:
+    """Sprint 6: run the frozen prediction-v1 evaluation on CollegeMsg (local, offline, USD 0)."""
+    from blackgrid.collegemsg import load_events
+    from blackgrid.prediction.suite import run
+
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("prediction output must be under runs/ (pair-level artifacts stay local)", file=sys.stderr)
+        return EXIT_INVALID
+    config = load_config(args.config)
+    table = load_events(args.data_root / config.dataset.path, config.dataset.sha256)
+    folder = run(list(table.events), args.output, protocol_path=REPO_ROOT / "protocols" / "sprint06_prediction_v1.md",
+                 data_sha256=table.sha256)
+    print(f"prediction-v1 completed: {folder}")
+    return EXIT_OK
+
+
+def _cmd_forecast(args: argparse.Namespace) -> int:
+    """Sprint 6: prospective known-node forecast from a frozen prediction-v1 evaluation (mock, USD 0)."""
+    from datetime import UTC, datetime
+
+    from blackgrid.collegemsg import load_events
+    from blackgrid.console.render import write_forecast_snapshot, write_index_snapshot
+    from blackgrid.prediction.service import PredictionToolRejected, forecast
+
+    config = load_config(args.config)
+    table = load_events(args.data_root / config.dataset.path, config.dataset.sha256)
+    out = args.runs_dir / f"forecast-{args.task}-{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
+    try:
+        folder = forecast(list(table.events), args.evaluation, out, args.task, args.method, data_sha256=table.sha256)
+    except PredictionToolRejected as exc:
+        print(f"forecast rejected: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    write_forecast_snapshot(args.runs_dir, folder)
+    write_index_snapshot(args.runs_dir)
+    print(f"forecast: {folder / 'forecast.html'}")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -469,6 +507,19 @@ def build_parser() -> argparse.ArgumentParser:
     sprint4.add_argument("--protocol", choices=("s4-v1", "s4-v2"), default="s4-v2",
                          help="frozen protocol; each has its own fresh case IDs")
     sprint4.set_defaults(func=_cmd_sprint4)
+    predict = sub.add_parser("predict-eval", help="Sprint 6: frozen temporal link-prediction evaluation (local)")
+    predict.add_argument("config", type=Path, help="a config naming the approved CollegeMsg file")
+    predict.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    predict.add_argument("--data-root", type=Path, default=REPO_ROOT)
+    predict.set_defaults(func=_cmd_predict_eval)
+    fc = sub.add_parser("forecast", help="Sprint 6: forecast connections from a frozen prediction-v1 evaluation")
+    fc.add_argument("config", type=Path)
+    fc.add_argument("--evaluation", type=Path, required=True, help="completed prediction-v1 folder, e.g. runs/sprint6-v1")
+    fc.add_argument("--task", choices=("new_pair", "repeat_pair"), default="new_pair")
+    fc.add_argument("--method", default="selected", help="'selected' (frozen choice) or a registered method name")
+    fc.add_argument("--runs-dir", type=Path, default=REPO_ROOT / "runs")
+    fc.add_argument("--data-root", type=Path, default=REPO_ROOT)
+    fc.set_defaults(func=_cmd_forecast)
     live4 = sub.add_parser("sprint4-live", help="run the frozen Sprint 4 live pilot (paid; needs --allow-paid)")
     live4.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
     live4.add_argument("--max-usd", type=float, default=0.50, help="total pilot cap in USD (at most 0.50)")

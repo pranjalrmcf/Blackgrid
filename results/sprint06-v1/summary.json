@@ -1,0 +1,501 @@
+{
+  "boundaries": [
+    1082040961,
+    1083714579,
+    1085388197,
+    1087061815,
+    1088735433,
+    1090409052,
+    1092082670,
+    1093756288,
+    1095429906,
+    1097103524,
+    1098777143
+  ],
+  "data_sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+  "elapsed_s": 71.86097589999554,
+  "fitted_configurations": 4,
+  "horizon_s": 1673618,
+  "logistic": {
+    "new_pair": {
+      "configs": {},
+      "note": "5333254 supervised development rows > 2,000,000 cap; not sampled (protocol \u00a73)",
+      "status": "capacity_exceeded"
+    },
+    "repeat_pair": {
+      "configs": {
+        "0.1": {
+          "status": "completed"
+        },
+        "1.0": {
+          "status": "completed"
+        },
+        "10.0": {
+          "status": "completed"
+        }
+      },
+      "development_rows": 44901
+    }
+  },
+  "note": "Aggregates only; no pair or node identifiers. Exploratory: two held-out windows of one network.",
+  "peak_memory_bytes": {
+    "clean_reproduction": 559939584,
+    "original_run": null
+  },
+  "protocol_sha256": "47ab19d1a5257b941c7c5d0a396f2794e019e2cce9611a6cb67fc4b0f4e3779d",
+  "selection": {
+    "new_pair": {
+      "static_reference": "preferential_attachment",
+      "temporal": "recent_activity_product_2H"
+    },
+    "repeat_pair": {
+      "refit_rows": 71177,
+      "static_reference": "resource_allocation",
+      "temporal": "logistic_C10.0"
+    }
+  },
+  "test": {
+    "new_pair": {
+      "cutoffs": {
+        "b8": {
+          "candidates": 1680202,
+          "cold_start_positive_pairs_excluded": 79,
+          "methods": {
+            "adamic_adar": {
+              "average_precision": 0.0001411025965731323,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.6633153211933843,
+              "tie_rate": 0.9704065344524051
+            },
+            "common_neighbors": {
+              "average_precision": 0.00013328937939684272,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.6595485800583539,
+              "tie_rate": 0.9999928580015974
+            },
+            "constant": {
+              "average_precision": 6.247166834731357e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5,
+              "tie_rate": 1.0
+            },
+            "jaccard": {
+              "average_precision": 8.964802089221556e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.6343525269322858,
+              "tie_rate": 0.9995464831014366
+            },
+            "preferential_attachment": {
+              "average_precision": 0.00038597343079466954,
+              "no_two_hop_ap": 0.0005734771520067105,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.8846417940508282,
+              "tie_rate": 0.9996928940686893,
+              "two_hop_ap": 0.00042340386624185503
+            },
+            "random": {
+              "average_precision": 5.3801790266999025e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.47465530204770523,
+              "tie_rate": 0.0
+            },
+            "recent_activity_product_2H": {
+              "average_precision": 0.002519826653540404,
+              "no_two_hop_ap": 0.002692750542536526,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010638297872340425,
+              "roc_auc": 0.788396151230197,
+              "tie_rate": 0.9997619333865809,
+              "two_hop_ap": 0.003062041796367708
+            },
+            "recent_activity_product_H": {
+              "average_precision": 0.003603179059626701,
+              "precision_at_k": 0.02,
+              "recall_at_k": 0.02127659574468085,
+              "roc_auc": 0.7361266137450434,
+              "tie_rate": 0.999905368521166
+            },
+            "recent_resource_allocation_2H": {
+              "average_precision": 0.00012049638315280605,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5241790877273391,
+              "tie_rate": 0.999906558854233
+            },
+            "recent_resource_allocation_H": {
+              "average_precision": 0.00013448545542068329,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5154457110887857,
+              "tie_rate": 0.9999779788382588
+            },
+            "resource_allocation": {
+              "average_precision": 0.0001653717046111339,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.6641819891365647,
+              "tie_rate": 0.9708654078497705
+            }
+          },
+          "positives": 94,
+          "prevalence": 5.594565415348869e-05
+        },
+        "b9": {
+          "candidates": 1752569,
+          "cold_start_positive_pairs_excluded": 51,
+          "methods": {
+            "adamic_adar": {
+              "average_precision": 0.00043201725745124574,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.6255357369747399,
+              "tie_rate": 0.9713295168407065
+            },
+            "common_neighbors": {
+              "average_precision": 0.00044586712951504075,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.620533968878075,
+              "tie_rate": 0.999993152908673
+            },
+            "constant": {
+              "average_precision": 6.70322408709932e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5,
+              "tie_rate": 1.0
+            },
+            "jaccard": {
+              "average_precision": 7.94082640310128e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5929091346913762,
+              "tie_rate": 0.99957091561017
+            },
+            "preferential_attachment": {
+              "average_precision": 0.001065716551270017,
+              "no_two_hop_ap": 0.000519613268313887,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.8042586818741287,
+              "tie_rate": 0.999718698664646,
+              "two_hop_ap": 0.002261672012496283
+            },
+            "random": {
+              "average_precision": 5.843003868093992e-05,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5236200916742607,
+              "tie_rate": 0.0
+            },
+            "recent_activity_product_2H": {
+              "average_precision": 0.001996540099003168,
+              "no_two_hop_ap": 0.00759494921543879,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.7765040786886113,
+              "tie_rate": 0.9998328168534306,
+              "two_hop_ap": 0.0016835038291849853
+            },
+            "recent_activity_product_H": {
+              "average_precision": 0.0014381213353874308,
+              "precision_at_k": 0.02,
+              "recall_at_k": 0.020833333333333332,
+              "roc_auc": 0.6590854692673344,
+              "tie_rate": 0.9999178349040752
+            },
+            "recent_resource_allocation_2H": {
+              "average_precision": 0.00031451264498850317,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5249000567103363,
+              "tie_rate": 0.9999572056792058
+            },
+            "recent_resource_allocation_H": {
+              "average_precision": 0.00035627988031048524,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.5099769874010422,
+              "tie_rate": 0.9999880175901776
+            },
+            "resource_allocation": {
+              "average_precision": 0.00042019824321873404,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.010416666666666666,
+              "roc_auc": 0.6280376656777784,
+              "tie_rate": 0.9717939778690596
+            }
+          },
+          "positives": 96,
+          "prevalence": 5.477673061659769e-05
+        }
+      },
+      "mean_ap_difference": 0.0015323383852394426,
+      "paired_ap_difference_temporal_minus_static": [
+        0.0021338532227457344,
+        0.0009308235477331508
+      ]
+    },
+    "repeat_pair": {
+      "cutoffs": {
+        "b8": {
+          "candidates": 13518,
+          "cold_start_positive_pairs_excluded": 79,
+          "methods": {
+            "adamic_adar": {
+              "average_precision": 0.009464375771517711,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5064460418222554,
+              "tie_rate": 0.5557774818760172
+            },
+            "common_neighbors": {
+              "average_precision": 0.009496037426057903,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5088889796489918,
+              "tie_rate": 0.9992602455984613
+            },
+            "constant": {
+              "average_precision": 0.01113349326831251,
+              "precision_at_k": 0.03,
+              "recall_at_k": 0.0234375,
+              "roc_auc": 0.5,
+              "tie_rate": 1.0
+            },
+            "jaccard": {
+              "average_precision": 0.009799800645768488,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.0078125,
+              "roc_auc": 0.5036139376400298,
+              "tie_rate": 0.9439266163633674
+            },
+            "logistic_C10.0": {
+              "average_precision": 0.40121789080963255,
+              "precision_at_k": 0.51,
+              "recall_at_k": 0.3984375,
+              "roc_auc": 0.9546104835698282,
+              "tie_rate": 0.0
+            },
+            "pair_frequency": {
+              "average_precision": 0.07708822926875886,
+              "precision_at_k": 0.19,
+              "recall_at_k": 0.1484375,
+              "roc_auc": 0.7547610156833457,
+              "tie_rate": 0.9977807367953839
+            },
+            "pair_recency": {
+              "average_precision": 0.3498810837950186,
+              "precision_at_k": 0.47,
+              "recall_at_k": 0.3671875,
+              "roc_auc": 0.9325155199775952,
+              "tie_rate": 0.010652463382157125
+            },
+            "preferential_attachment": {
+              "average_precision": 0.010263091307891097,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5386943381254667,
+              "tie_rate": 0.9344577600236721
+            },
+            "random": {
+              "average_precision": 0.01167750711303233,
+              "precision_at_k": 0.02,
+              "recall_at_k": 0.015625,
+              "roc_auc": 0.5327203136669156,
+              "tie_rate": 0.0
+            },
+            "recent_activity_product_2H": {
+              "average_precision": 0.12329191315371396,
+              "precision_at_k": 0.21,
+              "recall_at_k": 0.1640625,
+              "roc_auc": 0.8813071788648245,
+              "tie_rate": 0.9736647433052227
+            },
+            "recent_activity_product_H": {
+              "average_precision": 0.1522766415534978,
+              "precision_at_k": 0.23,
+              "recall_at_k": 0.1796875,
+              "roc_auc": 0.8639046746639283,
+              "tie_rate": 0.9877940523746116
+            },
+            "recent_resource_allocation_2H": {
+              "average_precision": 0.04076627774059077,
+              "precision_at_k": 0.11,
+              "recall_at_k": 0.0859375,
+              "roc_auc": 0.5933433299103809,
+              "tie_rate": 0.9957833999112294
+            },
+            "recent_resource_allocation_H": {
+              "average_precision": 0.05853695431709783,
+              "precision_at_k": 0.13,
+              "recall_at_k": 0.1015625,
+              "roc_auc": 0.5580735973674383,
+              "tie_rate": 0.998890368397692
+            },
+            "resource_allocation": {
+              "average_precision": 0.009716801896436651,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5073915351941748,
+              "tie_rate": 0.5588844503624797
+            }
+          },
+          "positives": 128,
+          "prevalence": 0.009468856339695221
+        },
+        "b9": {
+          "candidates": 13691,
+          "cold_start_positive_pairs_excluded": 51,
+          "methods": {
+            "adamic_adar": {
+              "average_precision": 0.007398270958796758,
+              "precision_at_k": 0.02,
+              "recall_at_k": 0.024096385542168676,
+              "roc_auc": 0.4986582130993108,
+              "tie_rate": 0.5570082535972537
+            },
+            "common_neighbors": {
+              "average_precision": 0.007401392036315406,
+              "precision_at_k": 0.01,
+              "recall_at_k": 0.012048192771084338,
+              "roc_auc": 0.49370586402045574,
+              "tie_rate": 0.9993426338470528
+            },
+            "constant": {
+              "average_precision": 0.006171490831871291,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.5,
+              "tie_rate": 1.0
+            },
+            "jaccard": {
+              "average_precision": 0.0060061316059097855,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.4762794564501392,
+              "tie_rate": 0.9440508363158279
+            },
+            "logistic_C10.0": {
+              "average_precision": 0.13724511161474048,
+              "precision_at_k": 0.2,
+              "recall_at_k": 0.24096385542168675,
+              "roc_auc": 0.8579078217632434,
+              "tie_rate": 0.0
+            },
+            "pair_frequency": {
+              "average_precision": 0.02133921672095968,
+              "precision_at_k": 0.07,
+              "recall_at_k": 0.08433734939759036,
+              "roc_auc": 0.665269101095741,
+              "tie_rate": 0.9980279015411584
+            },
+            "pair_recency": {
+              "average_precision": 0.19469563533298384,
+              "precision_at_k": 0.21,
+              "recall_at_k": 0.25301204819277107,
+              "roc_auc": 0.9099245305737943,
+              "tie_rate": 0.010517858447155066
+            },
+            "preferential_attachment": {
+              "average_precision": 0.00954035929679155,
+              "precision_at_k": 0.04,
+              "recall_at_k": 0.04819277108433735,
+              "roc_auc": 0.5187828031703534,
+              "tie_rate": 0.9362354831641224
+            },
+            "random": {
+              "average_precision": 0.005117799513524484,
+              "precision_at_k": 0.0,
+              "recall_at_k": 0.0,
+              "roc_auc": 0.45060134718769257,
+              "tie_rate": 0.0
+            },
+            "recent_activity_product_2H": {
+              "average_precision": 0.03785099833713696,
+              "precision_at_k": 0.05,
+              "recall_at_k": 0.060240963855421686,
+              "roc_auc": 0.8250953549648329,
+              "tie_rate": 0.978526039003725
+            },
+            "recent_activity_product_H": {
+              "average_precision": 0.04050504725362626,
+              "precision_at_k": 0.08,
+              "recall_at_k": 0.0963855421686747,
+              "roc_auc": 0.744134385867987,
+              "tie_rate": 0.9904316704404353
+            },
+            "recent_resource_allocation_2H": {
+              "average_precision": 0.010324478612217133,
+              "precision_at_k": 0.03,
+              "recall_at_k": 0.03614457831325301,
+              "roc_auc": 0.5290389954881254,
+              "tie_rate": 0.9986122270104448
+            },
+            "recent_resource_allocation_H": {
+              "average_precision": 0.008954458411875917,
+              "precision_at_k": 0.03,
+              "recall_at_k": 0.03614457831325301,
+              "roc_auc": 0.5158283043992549,
+              "tie_rate": 0.9995617558980352
+            },
+            "resource_allocation": {
+              "average_precision": 0.007410517656431814,
+              "precision_at_k": 0.02,
+              "recall_at_k": 0.024096385542168676,
+              "roc_auc": 0.5124767146186155,
+              "tie_rate": 0.5602220436783288
+            }
+          },
+          "positives": 83,
+          "prevalence": 0.006062376743846323
+        }
+      },
+      "mean_ap_difference": 0.2606678414357523,
+      "paired_ap_difference_temporal_minus_static": [
+        0.3915010889131959,
+        0.12983459395830868
+      ]
+    }
+  },
+  "validation_mean_ap": {
+    "new_pair": {
+      "adamic_adar": 0.0003931266515547288,
+      "common_neighbors": 0.00037343077707325693,
+      "constant": 0.0001322561818998856,
+      "jaccard": 0.00020629571671335935,
+      "preferential_attachment": 0.0008338927888094463,
+      "random": 0.00014059057668916803,
+      "recent_activity_product_2H": 0.0063494774750843044,
+      "recent_activity_product_H": 0.006102574765706357,
+      "recent_resource_allocation_2H": 0.0007936660629292945,
+      "recent_resource_allocation_H": 0.001455481389787964,
+      "resource_allocation": 0.0004274524553134533
+    },
+    "repeat_pair": {
+      "adamic_adar": 0.018815490363333277,
+      "common_neighbors": 0.017692792750005286,
+      "constant": 0.013100037095192727,
+      "jaccard": 0.014564179755064952,
+      "logistic_C0.1": 0.3262264146258555,
+      "logistic_C1.0": 0.32623832354243054,
+      "logistic_C10.0": 0.3263255783538359,
+      "pair_frequency": 0.04752392947640438,
+      "pair_recency": 0.28968625778516216,
+      "preferential_attachment": 0.014952807456527419,
+      "random": 0.012204390663045735,
+      "recent_activity_product_2H": 0.10310718301181673,
+      "recent_activity_product_H": 0.1267067206544512,
+      "recent_resource_allocation_2H": 0.04313228948353983,
+      "recent_resource_allocation_H": 0.04076570683683407,
+      "resource_allocation": 0.021222042959239545
+    }
+  },
+  "version": "prediction-v1"
+}

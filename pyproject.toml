@@ -8,7 +8,9 @@ dependencies = [
     "langgraph>=0.6",
     "langgraph-checkpoint-sqlite>=2",
     "networkx>=3.3",
+    "numpy>=2.4.6",
     "pydantic>=2.7",
+    "scikit-learn>=1.9.1",
 ]
 
 [project.scripts]

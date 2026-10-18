@@ -173,7 +173,7 @@ async function api(path, body){
 function href(kind, id){
   if (LIVE) return kind === "index" ? "#/" : `#/${kind}/${encodeURIComponent(id)}`;
   if (kind === "index") return BOOT.base + "index.html";
-  return BOOT.base + id + (kind === "pilot" ? "/pilot.html" : "/report.html");
+  return BOOT.base + id + (kind === "pilot" ? "/pilot.html" : kind === "forecast" ? "/forecast.html" : "/report.html");
 }
 async function load(kind, id){
   if (!LIVE) return BOOT.payload;
@@ -185,13 +185,14 @@ async function load(kind, id){
 async function route(){
   clearTimeout(timer);
   let kind = "index", id = null;
-  if (LIVE) { const m = location.hash.match(/^#\/(run|pilot)\/(.+)$/); if (m) { kind = m[1]; id = decodeURIComponent(m[2]); } }
+  if (LIVE) { const m = location.hash.match(/^#\/(run|pilot|forecast)\/(.+)$/); if (m) { kind = m[1]; id = decodeURIComponent(m[2]); } }
   else { kind = BOOT.view; id = BOOT.payload && BOOT.payload.id; }
   try {
     const data = await load(kind, id);
     const navigated = !current || current.kind !== kind || current.id !== id;
     current = {kind, id};
-    if (kind === "index") renderIndex(data); else if (kind === "pilot") renderPilot(data); else renderRun(data);
+    if (kind === "index") renderIndex(data); else if (kind === "pilot") renderPilot(data);
+    else if (kind === "forecast") renderForecast(data); else renderRun(data);
     if (navigated) window.scrollTo(0,0);
   } catch (err) { app.replaceChildren(panel("Error", "", h("p", {}, String(err.message || err)))); }
 }
@@ -208,7 +209,7 @@ function renderIndex(data){
       (!filterText || JSON.stringify([r.question, r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
       const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
         h("td", {}, h("div", {cls:"run-question"}, r.question || (r.kind === "pilot" ? "Offline system check" : r.case || "Investigation")), h("div", {cls:"run-meta"}, r.id)),
-        h("td", {}, r.kind === "pilot" ? "System check" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
+        h("td", {}, r.kind === "pilot" ? "System check" : r.kind === "forecast" ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
         h("td", {}, r.verdict==='rejected' ? h('span',{cls:'badge warn'},'Needs clarification') : badge(r.status)), h("td", {}, r.verdict==='rejected' ? 'Not answered' : r.status==='abstained' ? 'Withheld' : r.family && r.family !== "community" ? "Descriptive" : r.verdict ? badge(r.verdict) : "—"),
         h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
           ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
@@ -643,6 +644,32 @@ function renderPilot(p){
       panel("Comparison", "s6", bars),
       panel("Per case", "", h("div", {cls: "row", style: "margin-bottom:10px"}, h("span", {cls: "muted small"}, "condition"), sel, h("span", {cls: "muted small"}, "click a column to sort · click a row to open its run")),
         h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, cols.map(([k, t]) => h("th", {on: {click: () => { asc = key === k ? !asc : true; key = k; draw(); }}}, t)))), body)))));
+}
+
+// ---- Sprint 6: forecast connections (retrospective evaluation kept separate from the prospective forecast) ----
+function renderForecast(d){
+  const f = d.forecast || {}, p = f.prediction || {}, c = f.compare || {}, prof = f.profile || {};
+  const day = t => (typeof t === "number" ? new Date(t * 1000).toISOString().slice(0, 10) : "—");
+  const fx = v => (typeof v === "number" ? (v !== 0 && Math.abs(v) < 0.01 ? v.toExponential(2) : v.toFixed(3)) : (v ?? "—"));
+  const task = p.task === "repeat_pair" ? "Repeat interactions" : "New connections";
+  document.getElementById("title").replaceChildren(h("h1", {}, "Forecast connections · ", task, " ", h("span", {cls: "muted mono small"}, d.id)));
+  const cut = c.cutoffs || {}, prev = c.prevalence || {}, sel = c.selection || {};
+  const methods = Object.keys(cut.b8 || {});
+  const evalRows = methods.map(m => h("tr", {}, h("td", {cls: "mono"}, m + (m === sel.temporal ? "  ← selected temporal" : m === sel.static_reference ? "  ← selected static" : "")),
+    ["b8", "b9"].map(k => h("td", {cls: "mono"}, fx(((cut[k] || {})[m] || {}).average_precision)))));
+  const claims = (f.decisions || []).map(x => h("li", {}, h("span", {cls: "badge " + (x.accepted ? "ok" : "bad")}, x.accepted ? "checked" : "rejected"), " ",
+    String(x.claim.text || ""), x.reasons && x.reasons.length ? h("div", {cls: "small muted"}, x.reasons.join("; ")) : null));
+  const rank = (d.ranking || []).map(r => h("tr", {}, h("td", {cls: "mono"}, r.rank), h("td", {cls: "mono"}, (r.pair || []).join(" – ")), h("td", {cls: "mono"}, f3(r.score))));
+  app.replaceChildren(h("div", {cls: "row", style: "margin-top:14px"}, h("span", {cls: "badge neutral"}, "Free demo · no AI call"), h("a", {href: href("index"), cls: "small", style: "margin-left:auto"}, "← all runs")),
+    h("div", {cls: "grid"},
+      panel("Answer", "", h("div", {cls: "notice"}, "Scores rank pairs; they are not probabilities. Pairs with people first seen after the cutoff are not covered."),
+        kv([["Task", task], ["Method", p.method], ["History up to", day(p.cutoff)], ["Forecast horizon", (p.horizon_days ?? "—") + " days"],
+            ["Candidate pairs", p.candidates], ["Candidate policy", p.candidate_policy], ["Known people", prof.history_nodes]]),
+        h("h3", {}, "Checked statements"), h("ul", {}, claims)),
+      panel("Retrospective evaluation (frozen prediction-v1, sealed test)", "", h("div", {cls: "small muted"}, `Test prevalence: b8 ${fx(prev.b8)} · b9 ${fx(prev.b9)} · mean AP difference (temporal − static): ${fx(c.mean_ap_difference)}`),
+        h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["Method", "AP b8", "AP b9"].map(t => h("th", {}, t)))), h("tbody", {}, evalRows)))),
+      panel("Prospective forecast · top pairs (local only)", "", h("div", {cls: "small muted"}, "No realized outcome exists yet. These local identifiers never leave this computer."),
+        h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["Rank", "Pair", "Score"].map(t => h("th", {}, t)))), h("tbody", {}, rank))))));
 }
 
 // ---- boot ----

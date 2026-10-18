@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from importlib import resources
 from pathlib import Path
 
-from blackgrid.console.data import index_payload, pilot_payload, run_payload
+from blackgrid.console.data import forecast_payload, index_payload, pilot_payload, run_payload
 
 
 def template() -> str:
@@ -48,6 +48,12 @@ def write_run_snapshot(runs_dir: Path, run_dir: Path) -> Path:
 def write_pilot_snapshot(runs_dir: Path, pilot_dir: Path) -> Path:
     out = pilot_dir / "pilot.html"
     out.write_bytes(snapshot("pilot", pilot_payload(runs_dir, pilot_dir), _base(runs_dir, pilot_dir)).encode("utf-8"))
+    return out
+
+
+def write_forecast_snapshot(runs_dir: Path, folder: Path) -> Path:
+    out = folder / "forecast.html"
+    out.write_bytes(snapshot("forecast", forecast_payload(runs_dir, folder), _base(runs_dir, folder)).encode("utf-8"))
     return out
 
 
