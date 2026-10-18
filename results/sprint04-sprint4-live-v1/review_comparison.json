@@ -1,0 +1,71 @@
+{
+  "status": "AI-reviewed (Codex_AI); human gate waived (D-059); development evidence",
+  "sheet_sha256": "76a4c869687f4e20ff879500994d155b150eb0eb3f0ee06fc14ab0595f5b21d6",
+  "claims": 65,
+  "arm": "validated (tool_only produced no claims)",
+  "review_accepted": 60,
+  "flagged": 5,
+  "support_counts": {
+    "supported": 61,
+    "partly_supported": 4
+  },
+  "misleading_counts": {
+    "no": 60,
+    "yes": 5
+  },
+  "cases_with_claims": 17,
+  "cases_all_claims_accepted": 12,
+  "critic_v4_accepted_all_reported_claims": true,
+  "flagged_claims": [
+    {
+      "review_id": "live-011",
+      "case": "val-311",
+      "claim": "Null distribution: mean 0.416, median 0.412, sd 0.014; observed 0.410 is within the null range.",
+      "support": "partly_supported",
+      "misleading": "yes",
+      "note": "Mean, median, SD and observed value round correctly. No null minimum, maximum or quantile bounds are cited, so being within the null range cannot be verified from these summaries.",
+      "numbers_bound": true,
+      "critic_v4_accepted": true
+    },
+    {
+      "review_id": "live-015",
+      "case": "val-313",
+      "claim": "Primary delta Q 0.27 vs null mean 0.48 (q95 0.52); null replicates 99.",
+      "support": "supported",
+      "misleading": "yes",
+      "note": "The numbers match the cited delta Q, null mean, q95 and replicate count. However, juxtaposing delta Q with the null mean compares a difference with a score and may be mistaken for observed Q versus its null. Label the quantities separately or cite observed Q for that comparison.",
+      "numbers_bound": true,
+      "critic_v4_accepted": true
+    },
+    {
+      "review_id": "live-039",
+      "case": "val-302",
+      "claim": "Observed delta_q was 0.5611705641432158; p_value 0.01; null mean 0.29420042678068836; null q95 0.32062359624785314.",
+      "support": "partly_supported",
+      "misleading": "yes",
+      "note": "The cited 0.5611705641432158 is observed_statistic, not delta_q. The null mean, q95 and p-value match. If delta Q means observed minus null mean, the cited values imply approximately 0.2669701374, not 0.5611705641.",
+      "numbers_bound": true,
+      "critic_v4_accepted": true
+    },
+    {
+      "review_id": "live-041",
+      "case": "val-308",
+      "claim": "Secondary largest_component analysis verdict was not_supported; observed statistic 0.3757, p=0.22, z=0.7188.",
+      "support": "partly_supported",
+      "misleading": "yes",
+      "note": "The secondary statistic, p-value and z round correctly. The cited not_supported verdict is the overall report verdict, not a secondary-analysis verdict. Cite the secondary verdict or describe the saved overall verdict separately.",
+      "numbers_bound": true,
+      "critic_v4_accepted": true
+    },
+    {
+      "review_id": "live-063",
+      "case": "val-312",
+      "claim": "Flag degree_confound applies; saved and raw verdicts are not_supported.",
+      "support": "partly_supported",
+      "misleading": "yes",
+      "note": "Both saved verdicts match their citations. Neither citation establishes the degree_confound flag; cite the flag or the evidence and rule establishing it.",
+      "numbers_bound": true,
+      "critic_v4_accepted": true
+    }
+  ]
+}

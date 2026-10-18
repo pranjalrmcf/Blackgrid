@@ -750,3 +750,24 @@ All four findings were reproduced as failing tests before fixing.
   - 263 passed.
 - **s4-v3 pilot code:** unchanged and closed. Its stop threshold (USD 0.03) is below one new reservation, so any future pilot needs a new protocol with a recomputed threshold.
 - **Status:** active.
+
+### D-064 — Review of the 65 live-pilot claims (2026-10-18)
+- **Reviewer:** Codex_AI, not a human, under the user's waiver (D-059), using `review-rubric-v1`. The sheet is copied to `results/sprint04-sprint4-live-v1/review_sheet.csv`; the comparison is in `review_comparison.json`.
+- **Scope:** all 65 claims come from the validated arm and were accepted by critic-v4. The tool_only arm wrote none (D-062).
+- **Result:**
+  - 60/65 (92%) supported and not misleading.
+  - 4 partly supported; 5 misleading in total.
+  - In 12 of the 17 cases with claims, every claim was accepted.
+  - No strength, causal or "preregistered" wording.
+- **The 5 flagged claims all had correct numbers.** The problems are meaning and citation:
+  - **live-039:** the observed Q (0.561) was labelled "delta_q". critic-v4's labelled-number check matches "delta Q" but not the snake_case "delta_q", which was confirmed by a direct check. **This is a concrete critic gap.**
+  - **live-041:** a "secondary analysis verdict" cited the overall verdict field.
+  - **live-063:** a `degree_confound` flag was asserted without citing the flag.
+  - **live-011:** "within the null range" was asserted without citing quantiles.
+  - **live-015:** delta Q was set side by side with the null mean, inviting a wrong comparison.
+- **Reading:**
+  - With tools constrained, the checked real model wrote mostly supported, number-exact claims.
+  - The remaining errors are label and citation slips that the rule critic does not model.
+  - The 92% figure comes from an AI reviewer on one run of 24 synthetic cases. It is not a human-validated support rate or an error-rate guarantee.
+- **Not done:** critic changes. Fixing these after inspection would be a new version (critic-v5), and its effect would need fresh cases.
+- **Status:** active.

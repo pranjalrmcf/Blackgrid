@@ -161,3 +161,12 @@ taking 37 minutes.
 - **Safety finding:** the provider returned 40,576 output tokens on one call despite a 16,000 limit. The spending guard
   caught the overrun and stopped that run, but the "worst case can't exceed the cap" guarantee does not hold for this
   model. This must be fixed before any larger live run.
+
+### Live claim review (D-064)
+
+An AI reviewer (Codex_AI, human gate waived) checked all 65 real-model claims:
+- **60 (92%) were supported and not misleading.** No strength, causal or "preregistered" wording appeared.
+- **The 5 flagged claims all had correct numbers but wrong labels or citations.** For example, observed Q was called
+  "delta_q", which the critic misses because it only recognizes "delta Q"; a flag was asserted without being cited;
+  and a secondary-analysis verdict cited the overall verdict field.
+- These are candidates for critic-v5, which would then need testing on fresh cases.
