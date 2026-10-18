@@ -1,3 +1,7 @@
+# Secrets (API keys). Never commit.
+.env
+.env.*
+
 # Raw datasets: no redistribution rights (decision D-003). Only manifests are tracked.
 data/*
 !data/manifests/

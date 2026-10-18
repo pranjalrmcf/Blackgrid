@@ -1,4 +1,4 @@
-"""The offline entry point validates configs and records honest manifests for every outcome."""
+"""End-to-end CLI behaviour on small local fixtures (offline, mock mode)."""
 
 from __future__ import annotations
 
@@ -12,27 +12,37 @@ from blackgrid.contracts import RunManifest, RunStatus
 CONFIG = Path(__file__).resolve().parents[1] / "configs" / "collegemsg_sprint01.json"
 
 
-def fixture_config(tmp_path: Path, events: str, sha: str | None = None, experiment: dict | None | str = "keep"
-                   ) -> Path:
+def fixture_config(tmp_path: Path, events: str, sha: str | None = None, **overrides) -> Path:
     data = tmp_path / "data" / "events.txt"
-    data.parent.mkdir(parents=True)
+    data.parent.mkdir(parents=True, exist_ok=True)
     data.write_bytes(events.encode("utf-8"))
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     config["dataset"]["path"] = "data/events.txt"
     config["dataset"]["sha256"] = sha or hashlib.sha256(data.read_bytes()).hexdigest()
-    if experiment != "keep":
-        config["experiment"] = experiment
+    config["experiment"] |= {"null_replicates": 19, "sensitivity": {"mechanism": "uniform", "removal_fraction": 0.1,
+                                                                   "replicates": 2}}
+    config |= overrides
     path = tmp_path / "config.json"
     path.write_text(json.dumps(config), encoding="utf-8")
     return path
 
 
-def run(tmp_path: Path, config: Path) -> tuple[int, Path, RunManifest]:
+def run(tmp_path: Path, config: Path, *extra: str) -> tuple[int, Path | None, RunManifest | None]:
     runs = tmp_path / "runs"
-    code = main(["run", str(config), "--runs-dir", str(runs), "--data-root", str(tmp_path)])
-    (run_dir,) = runs.iterdir()
-    manifest = RunManifest.model_validate_json((run_dir / "manifest.json").read_text(encoding="utf-8"))
-    return code, run_dir, manifest
+    code = main(["run", str(config), "--runs-dir", str(runs), "--data-root", str(tmp_path),
+                 "--cache-dir", str(tmp_path / "cache"), *extra])
+    dirs = sorted(p for p in runs.iterdir() if p.is_dir()) if runs.is_dir() else []
+    if not dirs:
+        return code, None, None
+    run_dir = dirs[-1]
+    return code, run_dir, RunManifest.model_validate_json((run_dir / "manifest.json").read_text(encoding="utf-8"))
+
+
+def planted_events() -> str:
+    from blackgrid.benchmark import dev_cases
+
+    graph = dev_cases()["dev-001"].graph
+    return "".join(f"{u} {v} {1000 + i}\n" for i, (u, v) in enumerate(graph.edges()))
 
 
 def test_validate_shipped_config(capsys):
@@ -46,49 +56,63 @@ def test_validate_rejects_bad_config(tmp_path):
     assert main(["validate", str(bad)]) == EXIT_INVALID
 
 
-def test_tiny_graph_is_built_then_experiment_abstains(tmp_path):
-    code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, "1 2 10\n2 3 20\n3 3 30\n"))
-    assert code == EXIT_RUN_FAILED
-    assert manifest.status is RunStatus.ABSTAINED
-    assert manifest.failure_reason.startswith("experiment_abstained: S1")
-    assert [c.outcome for c in manifest.tool_calls] == ["completed", "abstained"]
-    assert manifest.cost.actual_usd == 0 and manifest.cost.llm_calls == 0 and manifest.claims == ()
+def test_full_mock_investigation_completes_with_linked_artifacts(tmp_path):
+    code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, planted_events()))
+    assert code == EXIT_OK and manifest.status is RunStatus.COMPLETED
     for name, digest in manifest.artifacts.items():
-        assert hashlib.sha256((run_dir / name).read_bytes()).hexdigest() == digest
-    record = json.loads((run_dir / "graph_record.json").read_text(encoding="utf-8"))
-    assert (record["active_nodes"], record["unique_edges"], record["self_loop_events_excluded"]) == (3, 2, 1)
+        assert hashlib.sha256((run_dir / name).read_bytes()).hexdigest() == digest, name
+    for claim in manifest.claims:  # every manifest claim links to a real artifact hash
+        for link in claim.evidence:
+            assert manifest.artifacts[link.artifact] == link.sha256
+    assert manifest.cost.actual_usd == 0 and manifest.cost.llm_calls >= 2
+    assert (run_dir / "report.md").is_file() and (run_dir / "report.html").is_file()
+    assert (tmp_path / "runs" / "index.html").is_file()
+    inv = json.loads((run_dir / "investigation.json").read_text(encoding="utf-8"))
+    assert inv["verdict"] == "supported"
 
 
-def test_run_records_experiment_verdict(tmp_path):
-    from blackgrid.benchmark import dev_cases
-
-    graph = dev_cases()["dev-001"].graph
-    events = "".join(f"{u} {v} {1000 + i}\n" for i, (u, v) in enumerate(graph.edges()))
-    experiment = json.loads(CONFIG.read_text(encoding="utf-8"))["experiment"] | {"null_replicates": 19}
-    code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, events, experiment=experiment))
-    assert code == EXIT_RUN_FAILED and manifest.status is RunStatus.FAILED
-    assert "verdict 'supported'" in manifest.failure_reason and "not_implemented" in manifest.failure_reason
-    assert manifest.seeds == {"experiment_master": 20261017}
-    report = json.loads((run_dir / "experiment_report.json").read_text(encoding="utf-8"))
-    assert report["primary"]["result"]["p_value"] == 1 / 20
+def test_tiny_graph_experiment_abstains(tmp_path):
+    code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, "1 2 10\n2 3 20\n3 3 30\n"))
+    assert code == EXIT_RUN_FAILED and manifest.status is RunStatus.ABSTAINED
+    assert "S1" in manifest.failure_reason
+    report = (run_dir / "report.md").read_text(encoding="utf-8")
+    assert "abstain" in report
 
 
-def test_run_without_experiment_spec_fails_explicitly(tmp_path):
-    code, _, manifest = run(tmp_path, fixture_config(tmp_path, "1 2 10\n", experiment=None))
-    assert code == EXIT_RUN_FAILED and manifest.failure_reason.startswith("not_configured")
-
-
-def test_run_records_load_failure_on_checksum_mismatch(tmp_path):
+def test_checksum_mismatch_fails_before_investigation(tmp_path):
     code, _, manifest = run(tmp_path, fixture_config(tmp_path, "1 2 10\n", sha="0" * 64))
-    assert code == EXIT_RUN_FAILED
-    assert manifest.failure_reason.startswith("load_failed: DataIntegrityError")
-    assert manifest.tool_calls[0].outcome == "failed"
+    assert code == EXIT_RUN_FAILED and manifest.failure_reason.startswith("load_failed: DataIntegrityError")
 
 
-def test_run_records_window_abstention(tmp_path):
+def test_window_abstention(tmp_path):
     events = "".join(f"0 {i} 0\n" for i in range(1, 1_001))
     code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, events))
-    assert code == EXIT_RUN_FAILED
-    assert manifest.status is RunStatus.ABSTAINED
-    assert "graph_record.json" not in manifest.artifacts
+    assert code == EXIT_RUN_FAILED and manifest.status is RunStatus.ABSTAINED
     assert (run_dir / "window_selection.json").is_file()
+
+
+def test_live_mode_refused_without_explicit_authorization(tmp_path, capsys):
+    config = fixture_config(tmp_path, planted_events())
+    assert run(tmp_path, config, "--mode", "live")[0] == EXIT_INVALID  # config lacks paid authorization
+    live = fixture_config(tmp_path, planted_events(), mode="live", paid_execution_authorized=True)
+    code, run_dir, _ = run(tmp_path, live)  # config authorizes, but --allow-paid is missing
+    assert code == EXIT_INVALID and run_dir is None
+    assert "--allow-paid" in capsys.readouterr().err
+
+
+def test_replay_reproduces_a_mock_run(tmp_path):
+    config = fixture_config(tmp_path, planted_events())
+    _, first_dir, first = run(tmp_path, config)
+    code, second_dir, second = run(tmp_path, config, "--mode", "replay", "--replay-from", str(first_dir))
+    assert code == EXIT_OK and second_dir != first_dir
+    a = json.loads((first_dir / "investigation.json").read_text(encoding="utf-8"))
+    b = json.loads((second_dir / "investigation.json").read_text(encoding="utf-8"))
+    assert (a["verdict"], a["reported_claims"]) == (b["verdict"], b["reported_claims"])
+
+
+def test_tool_only_condition_reports_unreviewed_claims(tmp_path):
+    code, run_dir, manifest = run(tmp_path, fixture_config(tmp_path, planted_events()), "--condition", "tool_only")
+    inv = json.loads((run_dir / "investigation.json").read_text(encoding="utf-8"))
+    assert inv["condition"] == "tool_only" and inv["critic_decisions"] == []
+    assert manifest.claims == ()  # unreviewed claims never become manifest claims
+    assert "NOT validated" in (run_dir / "report.md").read_text(encoding="utf-8")

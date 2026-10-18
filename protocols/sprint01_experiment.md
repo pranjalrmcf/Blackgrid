@@ -1,4 +1,4 @@
-# BLACKGRID — Sprint 1 experiment specification (exp-v1)
+# BLACKGRID — Sprint 1 experiment specification (exp-v1, amended exp-v1.1 — see §11)
 
 Status: **preregistered 2026-10-17, Day 5, before any community statistic was computed on CollegeMsg.** This file fills in the outline in `sprint01_protocol.md` §6. Synthetic development cases may be run freely while building and debugging; the CollegeMsg window may not be analysed under rules other than these. Known in advance (D-016, D-017): the window has 104 nodes, 137 edges and 8 connected components. The thresholds below are set from general principles, not tuned to that graph.
 
@@ -82,6 +82,43 @@ Wording rules:
 ## 9. Prespecified sensitivity (implemented Day 6)
 
 Uniform random removal of **10%** of observed edges, **20** replicates. The full experiment is re-run on each reduced graph, with the same R, seeds derived from the replicate, and the same verdict rule. Report the distribution of Q_obs and ΔQ, and the fraction of verdicts that agree with the full-graph verdict. This is a sensitivity analysis, not an uncertainty interval.
+
+## 11. Amendment exp-v1.1 (2026-10-18, Day 6)
+
+**Disclosure.** This amendment was written after two runs:
+
+- the Day 5 development check (D-026), which showed the dev-006 failure;
+- the first CollegeMsg run (D-028, verdict `not_supported`).
+
+No sensitivity analysis had run on any graph. None of these changes alters the CollegeMsg primary verdict:
+
+- the window declares no unobserved pairs;
+- the verdict was not `supported`;
+- the flags only add disclosures.
+
+Changes A and B are development-driven, so they are adaptive. They must be re-checked on fresh validation cases before any confirmatory use.
+
+**A. Incomplete observation.** If the graph record declares UNKNOWN (unobserved) pairs:
+
+- add the flag `incomplete_observation`;
+- downgrade a `supported` verdict to `inconclusive`.
+
+Rationale: unobserved pairs are not non-links, and the null treats every absent pair as a non-link, so the test cannot separate structure from the observation pattern.
+
+**B. Degree heterogeneity disclosure.** If the maximum degree is at least 5 × the median degree:
+
+- add the flag `degree_confound`;
+- require the report to state that hubs inflate raw modularity and that the degree-preserving null is the control.
+
+This changes no verdict.
+
+**C. Sensitivity replicate count.**
+
+- *Problem:* §9 asked for "the same R" (499). On the 137-edge window that costs about 18 s per reduced graph, about 6 minutes for 20 replicates.
+- *Change:* sensitivity re-runs use **R_sens = 99** (resolution 0.01). Each reduced-graph experiment is its own tool call under the 60 s cap.
+- *Basis:* chosen on runtime (D-024 timings) before any sensitivity result existed.
+
+**D. Sensitivity agreement uses raw verdicts.** Each replicate's removed edges are recorded as UNKNOWN pairs in its graph record. This demonstrates the missing-edge semantics. Agreement is computed on the raw verdict, before rule A, so that the agreement fraction measures robustness rather than restating rule A.
 
 ## 10. Out of scope
 

@@ -337,9 +337,21 @@ class BudgetLimits(Contract):
     max_revision_rounds: int = Field(default=CEILING_REVISION_ROUNDS, ge=0, le=CEILING_REVISION_ROUNDS)
 
 
+class LLMConfig(Contract):
+    """Provider settings. The model is only contacted in live mode; pricing is fetched before any call."""
+
+    model: NonEmpty = "anthropic/claude-haiku-5.5"
+    max_tokens_per_call: int = Field(default=1_200, ge=64, le=4_000)
+    request_timeout_s: float = Field(default=60.0, gt=0, le=120)
+
+
 class RunConfig(Contract):
     protocol_version: Literal["sprint01-v0.1"] = PROTOCOL_VERSION
     mode: ExecutionMode = ExecutionMode.MOCK
+    condition: Literal["validated", "tool_only"] = "validated"
+    question: NonEmpty = ("Is the observed community structure in this messaging window stronger than expected "
+                          "under a degree-preserving null, and how sensitive is that to missing edges?")
+    llm: LLMConfig = LLMConfig()
     paid_execution_authorized: bool = False
     network_allowed: Literal[False] = False
     dataset: DatasetSource
@@ -362,6 +374,7 @@ class ToolCallRecord(Contract):
     outcome: Outcome
     elapsed_s: float = Field(ge=0)
     error: str | None = None
+    cached: bool = False
 
 
 class CostRecord(Contract):

@@ -166,6 +166,7 @@ class Analysis(Contract):
     mean_swap_acceptance: float | None = None
     delta_q: float | None = None
     z: float | None = None
+    null_values: tuple[float, ...] = ()  # every successful null Q, in replicate order (for plots/audit)
 
 
 def _check_deadline(deadline: float) -> None:
@@ -233,7 +234,7 @@ def analyse(graph: nx.Graph, spec: ExperimentSpec, scope: str, deadline: float) 
     )
     delta = observed_q - mean
     return Analysis(**sizes, **diagnostics, suitable=True, result=result, delta_q=delta,
-                    z=delta / sd if sd > 0 else None)
+                    z=delta / sd if sd > 0 else None, null_values=tuple(null_q))
 
 
 def _quantile(ordered: list[float], q: float) -> float:
@@ -254,8 +255,10 @@ class CommunityTestReport(Contract):
     profile: GraphProfile
     primary: Analysis
     secondary: Analysis | None = None
-    verdict: Verdict
+    raw_verdict: Verdict  # exp-v1 §6 rule only
+    verdict: Verdict  # after exp-v1.1 rule A (incomplete observation)
     flags: tuple[NonEmpty, ...] = ()
+    unknown_pairs: int = Field(default=0, ge=0)
     elapsed_s: float = Field(ge=0)
 
 
@@ -272,8 +275,15 @@ def verdict(primary: Analysis, secondary: Analysis | None, connected: bool, alph
     return "inconclusive"
 
 
-def run_community_test(graph: nx.Graph, spec: ExperimentSpec, *, spec_sha256: str) -> CommunityTestReport:
-    """Run primary (whole graph) and, if disconnected, secondary (largest component) analyses."""
+DEGREE_CONFOUND_RATIO = 5  # exp-v1.1 rule B: max degree >= 5 x median degree
+
+
+def run_community_test(graph: nx.Graph, spec: ExperimentSpec, *, spec_sha256: str, unknown_pairs: int = 0
+                       ) -> CommunityTestReport:
+    """Run primary (whole graph) and, if disconnected, secondary (largest component) analyses.
+
+    `unknown_pairs` is the GraphRecord's count of unobserved pairs (exp-v1.1 rule A).
+    """
     start = time.perf_counter()
     deadline = start + spec.limits.tool_timeout_s
     if graph.number_of_nodes() > spec.limits.max_nodes or graph.number_of_edges() > spec.limits.max_edges:
@@ -288,6 +298,14 @@ def run_community_test(graph: nx.Graph, spec: ExperimentSpec, *, spec_sha256: st
         if primary.suitable:
             largest = graph.subgraph(max(nx.connected_components(graph), key=len)).copy()
             secondary = analyse(largest, spec, "largest_component", deadline)
+    if info.edges and info.degree_max >= DEGREE_CONFOUND_RATIO * max(info.degree_median, 1):
+        flags.append("degree_confound")
+    raw = verdict(primary, secondary, connected, spec.alpha)
+    final = raw
+    if unknown_pairs:
+        flags.append("incomplete_observation")
+        if raw == "supported":
+            final = "inconclusive"
     return CommunityTestReport(
         experiment_id=spec.experiment_id,
         graph_id=spec.graph_id,
@@ -295,7 +313,9 @@ def run_community_test(graph: nx.Graph, spec: ExperimentSpec, *, spec_sha256: st
         profile=info,
         primary=primary,
         secondary=secondary,
-        verdict=verdict(primary, secondary, connected, spec.alpha),
+        raw_verdict=raw,
+        verdict=final,
         flags=tuple(flags),
+        unknown_pairs=unknown_pairs,
         elapsed_s=round(time.perf_counter() - start, 6),
     )

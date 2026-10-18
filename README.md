@@ -1,64 +1,132 @@
 # Blackgrid
 
-Bounded, evidence-grounded network-science investigations. Sprint 1 builds one offline, reproducible vertical slice on a bounded CollegeMsg window, with synthetic known-truth checks. Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `AGENTS.md`, and `protocols/sprint01_protocol.md`.
+Bounded, evidence-grounded network-science investigations. Sprint 1 delivers one offline, reproducible vertical slice. It runs a preregistered community-vs-null experiment on a bounded CollegeMsg window, plus synthetic known-truth checks. The work is driven by a constrained planner/analyst, an allowlisted tool executor, and a rule-based critic. It produces an evidence-linked report or abstains.
+
+Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, and `AGENTS.md`. The study rules are in `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`. Every decision is in `docs/decision_log.md`, and the sprint outcome is in `docs/sprint01_report.md`.
 
 ## Status
 
-Sprint 1, Day 5. Implemented so far:
+Sprint 1 is implemented (Days 1–14). The mock pipeline is reproduced from a clean environment. **No live LLM run has been made yet.** See `docs/sprint01_report.md` for acceptance criteria, results, and limitations.
 
-- the loader (checksum and schema checks), the size-only window selection, and the undirected projection;
-- an 8-case synthetic development benchmark with evaluator-only answer keys (`benchmarks/README.md`);
-- hand-checked CollegeMsg parser/window fixtures;
-- the preregistered community-vs-null experiment (`protocols/sprint01_experiment.md`: Louvain modularity against degree-preserving nulls, R = 499).
+## 1. Setup (once)
 
-`run` builds the bounded graph, runs the frozen experiment, and writes `experiment_report.json`. It still records a **failed** manifest (`not_implemented`), because sensitivity, critic, and report stages arrive on Days 6–10. The experiment has not yet been run on the real CollegeMsg window. The aggregate data manifest is at `data/manifests/collegemsg.json`. For a study plan, see `docs/learning_guide.md`.
-
-## Setup (offline after the first sync)
-
-Requires Python 3.11 and [uv](https://docs.astral.sh/uv/).
+You need Python 3.11 and [uv](https://docs.astral.sh/uv/). From the repository root:
 
 ```bash
 uv sync --frozen
 ```
 
-The raw dataset is not distributed (decision D-003). Place the SNAP CollegeMsg file at `data/CollegeMsg.txt/CollegeMsg.txt`. Its SHA-256 must be `e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f`.
+The raw dataset is not redistributed (D-003). Put the SNAP CollegeMsg file at `data/CollegeMsg.txt/CollegeMsg.txt`; its SHA-256 must be `e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f`.
 
-## Entry point
-
-```bash
-uv run --frozen blackgrid validate configs/collegemsg_sprint01.json
-```
-
-```bash
-uv run --frozen blackgrid run configs/collegemsg_sprint01.json
-```
-
-- `run` executes offline in mock mode. No network, no secrets, no paid calls.
-- Each invocation writes `runs/<run_id>/manifest.json` and `config.json` (git-ignored).
-- Exit codes: `0` success, `1` invalid config, `2` the run did not complete (failed/abstained; see the manifest).
-- Live mode is rejected unless `paid_execution_authorized` is set, which requires separate user authorization.
-
-## Tests
+## 2. Run the tests
 
 ```bash
 uv run --frozen pytest
 ```
 
+## 3. Run the CollegeMsg investigation, free and offline (mock mode)
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_sprint01.json
+```
+
+The first run takes about 1.5 minutes: the experiment plus 20 sensitivity replicates. Repeats use the cache and take seconds; add `--no-cache` to recompute everything. The command prints the run folder. Inside it:
+
+- `report.md`: the evidence-linked report;
+- `report.html`: the visual console;
+- `manifest.json`: hashes, seeds, tool calls, cost;
+- the raw artifacts.
+
+To compare with the unvalidated condition (no plan validator, no critic):
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_sprint01.json --condition tool_only
+```
+
+## 4. Run the mock pilot (8 synthetic cases × 2 conditions)
+
+```bash
+uv run --frozen blackgrid pilot
+```
+
+## 5. Open the UI
+
+Each run writes a self-contained HTML console page; `runs/index.html` lists every run and pilot. Rebuild all pages:
+
+```bash
+uv run --frozen blackgrid ui
+```
+
+Then open `runs/index.html` in your browser. Double-clicking it works, because the pages are fully offline. Or serve the folder:
+
+```bash
+uv run --frozen python -m http.server 8765 --bind 127.0.0.1 --directory runs
+```
+
+and visit http://localhost:8765/index.html.
+
+The console shows:
+
+- the experiment: observed modularity against the null distribution, ΔQ, z, and p;
+- the projected network, coloured by degree and **not** by community;
+- the missing-edge sensitivity analysis;
+- the agent trace: planner → validator → tools → analyst → critic;
+- accepted and rejected claims with reasons;
+- the full report and the budget meters.
+
+**Prediction:** Sprint 1 has no predictive model (graph prediction is gated to Phase 3). The UI says so rather than showing invented predictions.
+
+## 6. Live LLM run with OpenRouter (costs money)
+
+Live mode sends **only aggregate statistics and the task text** to the model. It never sends raw events or user IDs. It needs three things:
+
+1. Your key in `.env`, as `OPEN_ROUTER_API_KEY=...` (also accepted: `OPENROUTER_API_KEY`). `.env` is git-ignored.
+2. `configs/collegemsg_live.json` (`mode: live`, `paid_execution_authorized: true`). Check `llm.model`; the default `anthropic/claude-haiku-5.5` was **not verified** against OpenRouter's catalogue. If the ID is wrong, the run stops before spending anything and lists similar model IDs.
+3. The `--allow-paid` flag on the command line:
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_live.json --allow-paid
+```
+
+Before any call, BLACKGRID fetches the model's current price from OpenRouter; if it cannot, it refuses to run. Every call is reserved at its worst case (full `max_tokens`) against these caps:
+
+- 8 calls, 20,000 tokens, and USD 0.50 per run;
+- USD 10 for the whole sprint, tracked in `runs/spend_ledger.json`;
+- 1 retry per failed call, 2 revision rounds.
+
+A typical validated run makes 2–4 calls.
+
+To re-run a live investigation for free, replay its recorded responses:
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_sprint01.json --mode replay --replay-from runs/<live_run_id>
+```
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | completed |
+| `1` | invalid config, or live mode not authorized or not priced |
+| `2` | the run did not complete (abstained, failed, or budget exhausted); see `manifest.json` |
+
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `src/blackgrid/contracts.py` | Graph, experiment, result, claim, and run-manifest contracts |
-| `src/blackgrid/cli.py` | Offline CLI |
-| `src/blackgrid/collegemsg.py` | Loader, window selection, projection |
-| `src/blackgrid/synthetic.py`, `benchmark.py` | Synthetic generators and the dev benchmark |
-| `benchmarks/` | Split policy, public dev registry; `sealed/` is reserved and git-ignored |
-| `tests/fixtures/collegemsg/` | Hand-checked parser/window fixtures |
-| `configs/` | Validated run configurations |
-| `protocols/` | Versioned study protocols |
-| `docs/decision_log.md` | Append-only decision log |
+| `src/blackgrid/contracts.py` | Typed contracts: graph, experiment, result, claim, budget, manifest |
+| `src/blackgrid/collegemsg.py` | Loader, size-only window selection, projection |
+| `src/blackgrid/experiment.py` | Louvain modularity vs degree-preserving null, suitability, verdict rule |
+| `src/blackgrid/sensitivity.py` | Missing-edge sensitivity (removed pairs become *unknown*) |
+| `src/blackgrid/tools.py` | Allowlisted tools, guarded executor, network guard, cache |
+| `src/blackgrid/budget.py`, `providers.py` | Budget ledger; mock / OpenRouter / replay providers |
+| `src/blackgrid/agent.py`, `critic.py` | Bounded controller; plan validator and claim critic |
+| `src/blackgrid/report.py`, `ui.py` | Evidence-linked report; static HTML console |
+| `src/blackgrid/synthetic.py`, `benchmark.py`, `pilot.py` | Synthetic generators, dev benchmark, mock pilot |
+| `benchmarks/` | Split policy and public dev registry; `sealed/` is reserved and git-ignored |
+| `configs/`, `protocols/`, `docs/` | Run configs, preregistered protocols, decision log, reports |
 | `data/` | Raw inputs, read-only and not tracked (only `data/manifests/` is tracked) |
-| `runs/` | Run artifacts, not tracked |
+| `runs/` | Run artifacts and UI pages, not tracked |
 
 ## Data citation
 

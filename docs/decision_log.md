@@ -216,3 +216,105 @@ Append-only. Each entry: ID, date (UTC), decision, rationale, status. Never edit
 - **Evidence label:** descriptive. The observed window's modularity is typical of degree-preserving randomizations of itself. This is *no evidence beyond the null*; it does not show that communities are absent. It applies only to the projected first-week window.
 - **Pending:** the Day 6 missing-edge sensitivity analysis and the Days 9–10 critic/report have not run. No report claim exists yet.
 - **Status:** recorded. The result is not to be revisited by changing the window, method, or thresholds.
+
+### D-029 — Full Sprint 1 authorized, plus a UI and a live adapter (2026-10-18)
+- **Request:** The user asked to implement the rest of Sprint 1 (Days 6–14), explained how to run it, built a "futuristic UI" for analysis, experimentation, and prediction, and supplied an OpenRouter key in `.env` for testing.
+- **UI deviation, user-requested:** Sprint 1 and `AGENTS.md` exclude a UI or dashboard. The UI is built as the smallest form that meets the request:
+  - static, self-contained HTML pages generated from run artifacts;
+  - no server, framework, external assets, or new dependencies.
+  - All artifact and model text is HTML-escaped, and node identifiers are never shown.
+- **Prediction:** Sprint 1 has no predictive model (Phase 3 gate). The UI and report state this rather than inventing predictions.
+- **Secrets:** `.env` was untracked and absent from history. It is now git-ignored. The key is read at run time, never logged, and never printed in this session.
+- **Live spend:** authorizing a live *capability* is not authorization for this agent to spend. No live call was made (D-035).
+- **Status:** active.
+
+### D-030 — exp-v1.1 amendment (2026-10-18)
+- **Where:** `protocols/sprint01_experiment.md` §11.
+- **Disclosure:** written after D-026 (dev-006 failure) and D-028 (CollegeMsg `not_supported`), and before any sensitivity analysis ran.
+- **Changes:**
+  - **A.** Unobserved (UNKNOWN) pairs add an `incomplete_observation` flag and downgrade `supported` to `inconclusive`.
+  - **B.** A `degree_confound` disclosure is added when max degree ≥ 5 × median.
+  - **C.** Sensitivity replicates use R_sens = 99, by runtime; each replicate is its own bounded call.
+  - **D.** Sensitivity agreement is measured on raw verdicts.
+- **Effect on CollegeMsg:** the primary verdict is unchanged; only the `degree_confound` flag is added.
+- **Caveat:** rules A and B are development-driven, so they must be re-checked on fresh validation cases before any confirmatory use.
+- **Status:** frozen.
+
+### D-031 — Days 6–12 implementation (2026-10-18)
+- **Modules:**
+  - `sensitivity.py`: removed pairs become UNKNOWN.
+  - `tools.py`:
+    - allowlist of `profile_graph`, `community_test`, `edge_removal_sensitivity`;
+    - strict argument schemas and a 2 KB request cap;
+    - prerequisite and preregistration checks, and graph-size caps;
+    - an in-process network guard and a cooperative deadline;
+    - a deterministic cache;
+    - answer-key markers stop the run.
+  - `budget.py`: worst-case reservation before each call; caps on calls, tokens, USD per run and per sprint (persisted), retries, and revisions.
+  - `providers.py`: mock (default), OpenRouter (live, gated, pricing fetched first), replay (prompt-hash verified).
+  - `agent.py`: bounded planner → validator → executor → analyst → critic → reviser loop.
+  - `critic.py`: rubric `critic-v1`, rules R1–R7, plus the pre-execution plan validator.
+  - `report.py`: evidence-linked items, with every number checked against cited values. A failing check fails the run.
+  - `pilot.py`: evaluator `eval-v1`.
+  - `ui.py`, `runner.py`, and the CLI commands `run`, `pilot`, `ui`.
+- **Contract additions:**
+  - `RunConfig.condition`, `question`, and `llm`;
+  - `ToolCallRecord.cached`;
+  - `Analysis.null_values`;
+  - `CommunityTestReport.raw_verdict` and `unknown_pairs`.
+- **Bug found and preserved:**
+  - *Failure:* the first pilot (`runs/pilot-20261018T055227Z`) used a mock planner/analyst that read `request` from the wrong level of its input. So the scripted mock never exercised the invalid-method (dev-007) or causal (dev-008) requests in the tool_only condition.
+  - *Fix:* corrected, with a regression test added.
+  - *Record:* that pilot is kept as a failed attempt and superseded by D-032.
+- **Known enforcement gaps (stated, not hidden):**
+  - There is no OS-level sandbox.
+  - Worker memory is not capped on Windows; the graph-size cap is the proxy.
+  - The timeout is a cooperative deadline inside trusted tools, not a hard kill.
+  - The network guard is in-process. It blocks Python sockets, not native code.
+- **Status:** active.
+
+### D-032 — Mock pilot results (2026-10-18; `runs/pilot-20261018T055709Z`, mock, eval-v1)
+- **Summary** (8 dev cases per condition):
+
+  | Metric | tool_only | validated |
+  |---|---|---|
+  | Useful coverage | 2/8 | 8/8 |
+  | Correct verdict | 3/8 | 8/8 |
+  | Required flags present | 3/8 | 8/8 |
+  | Unsupported claims | 7/15 = 0.47 | 0/12 |
+  | LLM calls | 16 | 19 |
+  | Tokens | 13,288 | 19,931 |
+  | Failures | 0 | 0 |
+  | USD | 0 | 0 |
+
+- **What these numbers are:** a check of plumbing and of the critic's catch rate on mistakes I scripted into the mock.
+- **What they are not:** evidence that criticism helps a real model.
+- **Why the validated condition looks favourable:**
+  - eval-v1 shares rules with critic-v1 (numbers, causal language);
+  - rules A and B were added after seeing dev failures.
+- **Status:** recorded, labelled exploratory/plumbing.
+
+### D-033 — CollegeMsg full investigation, mock mode (2026-10-18)
+- **Runs:** `20261018T055724Z-75fab7` (computed), plus cached re-run `20261018T060002Z-08aab6`.
+- **Primary:** verdict `not_supported`, unchanged from D-028: Q = 0.587, null mean 0.593, p = 0.718. The largest-component analysis gives p = 0.252. Flags: `disconnected`, `degree_confound`.
+- **Sensitivity** (10% uniform removal, 20 replicates, R_sens = 99): 20 of 20 raw verdicts agreed (`not_supported`). Reduced-graph Q ranged 0.593–0.632.
+- **Critic:** rejected both naive drafts (R6 structure, R7 comparison) and accepted 2 revised descriptive claims. The report passed the number check. Status `completed`.
+- **Caveat:** the analyst text is scripted (mock). Only the statistics are real.
+- **Status:** recorded.
+
+### D-034 — Clean-environment reproduction (2026-10-18)
+- **Setup:**
+  - Repository files were copied into a fresh folder with no `.venv`, `runs`, cache, `.env`, or raw data.
+  - A fresh environment was built by `uv sync --frozen --offline`.
+  - The data was read from its original location via `--data-root`.
+- **Test result:** 137 passed, 1 skipped. The skip is the real-file test, which needs data in the folder by design.
+- **Rerun:** `blackgrid run --no-cache`, mock, offline, completed in 94 s.
+- **Comparison:** apart from timings and run IDs, the result is identical to `20261018T055724Z-75fab7`: graph record, profile, experiment report (all 499 null values), sensitivity, report, claims, and LLM prompt hashes.
+- **Tolerated nondeterminism:** wall-clock timings, run IDs, and timestamps.
+- **Status:** first slice reproduced.
+
+### D-035 — Live mode gated; not exercised by the agent (2026-10-18)
+- **Gates:** live requires `paid_execution_authorized: true` in the config (`configs/collegemsg_live.json`) **and** `--allow-paid` at invocation **and** a key in env/`.env`. OpenRouter pricing is fetched before any call; if it is unavailable, nothing is sent.
+- **Model:** the default `anthropic/claude-haiku-5.5` is unverified; an attempted catalogue lookup returned no pricing fields.
+- **Test coverage:** the OpenRouter HTTP path is tested only through its refusal paths and redaction (no paid calls made). Its first real call is untested.
+- **Status:** active.
