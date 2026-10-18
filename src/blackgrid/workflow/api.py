@@ -32,6 +32,7 @@ from blackgrid.workflow.engine import (
     build_result,
     expected_scope,
     validate_state,
+    write_json,
 )
 from blackgrid.workflow.store import OperationStore, RunLocked
 
@@ -111,6 +112,25 @@ def _runtime(services: Services, run_id: str, run_dir: Path, spec: RunSpec, owne
                    deadline_s=spec.deadline_s, on_finalize=spec.on_finalize, on_render=spec.on_render)
 
 
+def _mark_interrupted(services: Services, rt: Runtime) -> None:
+    """An interrupted worker is no longer running: record a resumable pause, never a stale 'running' (R5).
+
+    Any dispatched paid call keeps its operation state, so resume still applies reconciliation rules.
+    """
+    if not services.store.owns(rt.run_id, rt.owner):
+        return  # displaced: the current owner decides the status
+    reason = "interrupted: the worker process stopped; run `blackgrid resume` to continue"
+    services.store.set_status(rt.run_id, "paused", reason, pause={"kind": "interrupted", "reason": reason})
+    path = rt.run_dir / "workflow_status.json"
+    try:
+        current = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"run_id": rt.run_id}
+        write_json(path, current | {"status": "paused", "reason": reason,
+                                    "pause": {"kind": "interrupted", "reason": reason},
+                                    "updated_utc": datetime.now(UTC).isoformat()})
+    except (OSError, ValueError):
+        pass  # the store row above is authoritative
+
+
 def _drive(services: Services, rt: Runtime, payload: object) -> Outcome:
     graph = build(rt).compile(checkpointer=services.saver)
     cfg = {"configurable": {"thread_id": rt.run_id}}
@@ -118,6 +138,10 @@ def _drive(services: Services, rt: Runtime, payload: object) -> Outcome:
         values = graph.invoke(payload, cfg, durability="sync")
     except SimulatedCrash:
         raise  # a simulated process death: leave the lock and state exactly as a crash would
+    except (KeyboardInterrupt, SystemExit):
+        _mark_interrupted(services, rt)
+        services.store.release(rt.run_id, rt.owner)
+        raise
     except BaseException:
         services.store.release(rt.run_id, rt.owner)
         raise

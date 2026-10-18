@@ -12,6 +12,16 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
 
 ## Status
 
+**Sprint 4 is in progress (repairs done; review and fresh evaluation pending).**
+- The five reproduced gaps R1–R5 are fixed, each with a regression in `tests/test_sprint4.py` (D-057):
+  - a live worker keeps its lease through long tool calls, and a displaced worker cannot publish;
+  - unimplemented methods are rejected;
+  - cache entries are validated before use;
+  - interruptions leave an accurate status.
+- `critic-v3` rejects unoperationalized strength wording and one-sided comparisons. It is provisional until the
+  blinded human review in [`docs/sprint04_review_rubric.md`](docs/sprint04_review_rubric.md) is completed.
+- A fresh frozen evaluation (Session 6) has not started.
+
 **Sprint 3's offline scope is implemented and evaluated.** It adds 24 fresh
 synthetic validation cases, paired mock evaluation with independent artifact scoring,
 an actual CPU Louvain–Leiden comparison, and blinded claims for human review.
@@ -185,7 +195,7 @@ Every step of a run is saved, so an interrupted run continues where it stopped w
 |---|---|
 | `blackgrid status` | List runs |
 | `blackgrid status RUN_ID` | Stage, required/completed/missing analyses, remaining limits, pause reason |
-| `blackgrid resume RUN_ID` | Continue. Add `--allow-paid` to approve a paused live run. Add `--force-unlock` only after a crash. |
+| `blackgrid resume RUN_ID` | Continue. Add `--allow-paid` to approve a paused live run. A run whose worker crashed is taken over automatically once that process has exited. A live worker is never displaced, even during a long tool call. Use `--force-unlock` only if a process is alive but truly stuck. |
 | `blackgrid cancel RUN_ID` | Stop at the next safe step |
 | `blackgrid deny RUN_ID` | Refuse paid execution |
 | `blackgrid reconcile RUN_ID --retry` or `--stop` | Resolve a paid call whose outcome is unknown. It is never resent automatically. |

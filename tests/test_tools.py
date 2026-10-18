@@ -39,7 +39,7 @@ def ctx(tmp_path) -> ToolContext:
     ({"tool": "community_test", "args": "louvain"}, "malformed"),
     ({"tool": "community_test", "args": {"method": "louvain", "code": "x"}}, "invalid arguments"),
     ({"tool": "community_test", "args": {"method": "spectral"}}, "invalid arguments"),
-    ({"tool": "community_test", "args": {"method": "greedy_modularity"}}, "deviates from the preregistered"),
+    ({"tool": "community_test", "args": {"method": "greedy_modularity"}}, "invalid arguments"),  # R2
     ({"tool": "edge_removal_sensitivity", "args": {}}, "prerequisite missing"),
     ({"tool": "profile_graph", "args": {}, "x": "y" * 3000}, "oversized request"),
 ])

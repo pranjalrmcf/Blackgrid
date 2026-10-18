@@ -225,6 +225,12 @@ def run_suite(output: Path) -> Path:
         errors.append({"phase": "suite", "error": type(exc).__name__ + ": " + str(exc)[:300]})
         append(attempts, {"state": "failed", **errors[-1]})
         status = "failed"
+    except BaseException as exc:  # KeyboardInterrupt/SystemExit: the process is ending, not running (R5)
+        errors.append({"phase": "suite", "error": type(exc).__name__ + ": " + (str(exc)[:300] or "interrupted"),
+                       "resumable": False, "note": "rerun the suite in a NEW output directory"})
+        append(attempts, {"state": "interrupted", **errors[-1]})
+        status = "interrupted"
+        raise
     finally:
         # Root record preserves a failed attempt too; no result is silently replaced.
         save(output / "suite.json", {"suite": SUITE_VERSION, "status": status,

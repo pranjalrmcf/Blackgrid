@@ -284,6 +284,10 @@ def run_community_test(graph: nx.Graph, spec: ExperimentSpec, *, spec_sha256: st
 
     `unknown_pairs` is the GraphRecord's count of unobserved pairs (exp-v1.1 rule A).
     """
+    if spec.method != "louvain" or spec.null_model != "degree_preserving_double_edge_swap":
+        # Defence in depth for specs built without validation (R2): never substitute a method silently.
+        raise ValueError(f"method/null {spec.method!r}/{spec.null_model!r} is not implemented; only "
+                         "louvain with degree_preserving_double_edge_swap is executed")
     start = time.perf_counter()
     deadline = start + spec.limits.tool_timeout_s
     if graph.number_of_nodes() > spec.limits.max_nodes or graph.number_of_edges() > spec.limits.max_edges:

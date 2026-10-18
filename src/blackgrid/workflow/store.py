@@ -52,6 +52,33 @@ class StoreError(RuntimeError):
     """The store or a run record is missing or inconsistent."""
 
 
+def pid_alive(pid: int) -> bool:
+    """Whether a process with this pid is running on this host. Unknown counts as alive (conservative)."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not handle:
+            return ctypes.get_last_error() == 5  # access denied: it exists; otherwise it is gone
+        try:
+            code = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return True
+            return code.value == 259  # STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)  # POSIX: signal 0 only checks existence (never used on Windows, where it kills)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
 def now() -> str:
     return datetime.now(UTC).isoformat()
 
@@ -166,20 +193,35 @@ class OperationStore:
 
     # --- single-worker lock ---------------------------------------------------------------------------
 
-    def acquire(self, run_id: str, *, force: bool = False, stale_after_s: float = 900.0) -> str:
+    def acquire(self, run_id: str, *, force: bool = False) -> str:
+        """Take the run's single-worker lease (Sprint 4 R1).
+
+        Elapsed time alone never proves a worker is dead: heartbeats pause during a long tool call.
+        A held lease is taken over only when its owner process has exited (checked on this host, so
+        the store must not be shared across machines); a live but stalled owner needs a deliberate
+        `force`. A reused pid looks alive, which errs towards refusing. A displaced owner is fenced:
+        its next heartbeat or publication check raises RunLocked, so it cannot adopt a late result.
+        """
         owner = uuid.uuid4().hex
         with self.tx() as c:
-            row = c.execute("SELECT lock_owner, heartbeat_utc FROM runs WHERE run_id=?", (run_id,)).fetchone()
+            row = c.execute("SELECT lock_owner, lock_pid, heartbeat_utc FROM runs WHERE run_id=?",
+                            (run_id,)).fetchone()
             if row is None:
                 raise StoreError(f"unknown run {run_id!r}")
             if row["lock_owner"] and not force:
-                beat = datetime.fromisoformat(row["heartbeat_utc"]) if row["heartbeat_utc"] else None
-                if beat is None or datetime.now(UTC) - beat < timedelta(seconds=stale_after_s):
-                    raise RunLocked(f"run {run_id} is held by another worker (use --force-unlock only if that "
-                                    "process has really stopped)")
+                if row["lock_pid"] is None or pid_alive(row["lock_pid"]):
+                    beat = datetime.fromisoformat(row["heartbeat_utc"]) if row["heartbeat_utc"] else None
+                    age = f"last heartbeat {(datetime.now(UTC) - beat).total_seconds():.0f} s ago" if beat else                         "no heartbeat"
+                    raise RunLocked(f"run {run_id} is held by another worker that is still running (pid "
+                                    f"{row['lock_pid']}, {age}); a long tool call does not release it. Use "
+                                    "--force-unlock only if that process has really stopped")
             c.execute("UPDATE runs SET lock_owner=?, lock_pid=?, heartbeat_utc=? WHERE run_id=?",
                       (owner, os.getpid(), now(), run_id))
         return owner
+
+    def owns(self, run_id: str, owner: str) -> bool:
+        row = self.conn.execute("SELECT lock_owner FROM runs WHERE run_id=?", (run_id,)).fetchone()
+        return row is not None and row["lock_owner"] == owner
 
     def heartbeat(self, run_id: str, owner: str) -> None:
         with self.tx() as c:

@@ -615,3 +615,34 @@ All four findings were reproduced as failing tests before fixing.
   - At deepseek-v4-flash prices, reserving the worst case (16,000 tokens at 2× list price) for each of the 8 calls costs about USD 0.12.
 - **Departure:** this exceeds the SPRINT_01.md token ceiling of 20,000. The money ceilings, not tokens, remain the binding spend control. No paid run was made.
 - **Status:** active.
+
+### D-057 — Sprint 4 repairs R1–R5, critic-v3 (provisional), review rubric (2026-10-18)
+- **Baseline:** revision `cfb1e86`; full suite passing before any change. Each repair has a regression in `tests/test_sprint4.py`, and each regression was confirmed to fail before its fix.
+- **R1, worker lease.**
+  - A held lease is taken over only when the owner process has exited (checked on this host).
+  - A live owner keeps the lease however old its heartbeat is, so a 1,200 s tool call is safe. A stalled but live owner needs a deliberate `--force-unlock`.
+  - Fencing: a displaced owner cannot record a late tool result or publish state. The heartbeat is checked before the artifact write and before every node checkpoint.
+  - Assumptions: the store is not shared across machines, and a reused pid errs towards refusing.
+- **R2, method contracts.**
+  - `ExperimentSpec` and the `community_test` arguments now accept only `louvain` with `degree_preserving_double_edge_swap`, the only implemented combination.
+  - The executor also refuses a spec that bypassed validation. No new methods were implemented, and valid configs and their hashes are unchanged.
+- **R3, cache.**
+  - Cache v2 wraps each entry with its computation identity (key, tool, tool version, projection, spec) and a payload hash.
+  - Before reuse, entries are checked against their schema and against invariants for the current graph and spec.
+  - Any corrupt, malformed, empty, stale (including all v1), mismatched or inconsistent entry is renamed `*.rejected-<time>`, the reason is recorded on the tool call (`cache_rejected`), and the result is recomputed under the same protocol.
+  - Writes are write-then-rename.
+  - **Consequence:** existing cache entries are recomputed once. The next full-dataset run takes about 12 minutes again.
+- **R4, critic-v3 (provisional).**
+  - R7: a comparison with the null must cite an observed value, a null-side value and the test conclusion.
+  - New R8: effect-strength wording ("strong", "clear", "real groups", …) is rejected, because no threshold was preregistered.
+  - The `strong community structure` claim accepted in run 103944 would now be rejected.
+  - This version was written with knowledge of the Sprint 3 claim forms, so it is not validated by them. It stays provisional until the blinded human review is compared and a fresh evaluation is run.
+  - Not yet done: treating unknown claim forms as "unassessed" (Session 5, item 5).
+- **Prompts-v3.** Tool descriptions are generated from the configured replicates and scope. The planner used to be told "20 replicates" even when 5 would run.
+- **R5, interruption status.**
+  - A KeyboardInterrupt or SystemExit in the Sprint 3 suite now records `status: interrupted` with the error, instead of `running`.
+  - An interrupted investigation is recorded as a resumable pause of kind `interrupted`, with its lock released. Dispatched paid operations keep their state, so reconciliation still applies on resume.
+- **Versions:** critic, prompt and cache versions changed. Runs paused under older versions cannot be resumed (identity check); start a new run with `--parent`.
+- **Review gate:** `docs/sprint04_review_rubric.md` (`review-rubric-v1`) was frozen before any judgment, and `results/sprint04-review/review_sheet.csv` (81 blinded claims) awaits human reviewers. **Pending.**
+- **Not started:** Session 6 (fresh frozen evaluation and clean reproduction). It needs the human review first.
+- **Status:** active.

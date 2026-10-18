@@ -10,7 +10,12 @@ Rubric (version `critic-v1`), applied to every drafted claim:
   R4 level         Sprint 1 tools support only `descriptive` (or `unsupported`) claims
   R5 causal        causal language is rejected: no estimand or identification argument exists
   R6 structure     "has community structure"-type wording needs verdict == supported
-  R7 comparison    "exceeds / higher than" the null needs delta_q > 0 and p <= alpha
+  R7 comparison    "exceeds / higher than" the null needs delta_q > 0 and p <= alpha, and the claim must
+                   cite both sides: an observed value, a null-side value (null mean or delta Q), and the
+                   test conclusion (p-value or verdict)  [v3]
+  R8 strength      effect-strength adjectives ("strong", "weak", "substantial", "clear", "real groups", ...)
+                   are rejected: a small p against a null is not an effect size, and no threshold for
+                   such words is preregistered  [v3]
 
 The critic is a rule set, not a model, and it is not independent scientific validation.
 """
@@ -23,7 +28,10 @@ from dataclasses import dataclass
 from blackgrid.contracts import Contract, EvidenceLevel, NonEmpty
 from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
 
-CRITIC_VERSION = "critic-v2"  # v2: no bare x100 matches; labelled numbers must match their field (D-038)
+# v2: no bare x100 matches; labelled numbers must match their field (D-038).
+# v3: comparisons cite both sides; unoperationalized strength wording is rejected (Sprint 4 R4, D-057).
+#     Provisional until the blinded human review (docs/sprint04_review_rubric.md) is complete.
+CRITIC_VERSION = "critic-v3"
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -31,6 +39,13 @@ STRUCTURE = re.compile(r"\b(community structure|communities exist|has communitie
                        r"(communit\w*|groups|clusters)|friend[- ]?groups|is (highly )?modular)\b", re.I)
 COMPARATIVE = re.compile(r"\b(exceed\w*|higher than|greater than|larger than|stronger than|above the null)\b", re.I)
 NEGATION = re.compile(r"\b(not|no|never|neither|nor|without|does ?n.t)\b(\W+\w+){0,3}\W*$", re.I)
+STRENGTH = re.compile(r"\b(strong(ly)?|weak(ly)?|substantial(ly)?|pronounced|marked(ly)?|considerabl[ey]|"
+                      r"dramatic(ally)?|very|highly|clear(ly)?|robust(ly)?|large|huge|massive|real|genuine|"
+                      r"meaningful)\b(\W+\w+){0,3}?\W+(communit\w*|structure|groups?|clusters?|modular\w*|"
+                      r"effects?|evidence|signal|differences?)\b", re.I)
+OBSERVED_SIDE = ("observed_statistic", "observed_q_min", "observed_q_max", "observed_q_median")
+NULL_SIDE = ("null/mean", "delta_q", "delta_q_min", "delta_q_median", "delta_q_max")
+CONCLUSION = ("p_value", "#/verdict", "/raw_verdict")
 ISO_TIME = re.compile(r"\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?")
 NUMBER = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?!\.?\d)(?![A-Za-z_])(%?)")
 ALLOWED_LEVELS = {EvidenceLevel.DESCRIPTIVE, EvidenceLevel.UNSUPPORTED}
@@ -140,6 +155,16 @@ def critique(claim: object, ctx: CriticContext) -> CriticDecision:
         if ctx.delta_q is None or ctx.p_value is None or not (ctx.delta_q > 0 and ctx.p_value <= ctx.alpha):
             reasons.append("R7: says observed exceeds the null, but delta_q/p do not show that")
             break
+        sides = [name for name, suffixes in (("an observed value", OBSERVED_SIDE), ("a null-side value", NULL_SIDE),
+                                             ("the test conclusion (p-value or verdict)", CONCLUSION))
+                 if not any(path.endswith(suffixes) for path in cited)]
+        if sides:
+            reasons.append(f"R7: comparison with the null does not cite {', '.join(sides)}")
+        break
+    strength = STRENGTH.search(text)
+    if strength:
+        reasons.append(f"R8: strength wording {strength.group(1)!r} has no preregistered threshold; report the "
+                       "numbers (Q, null mean, delta Q, p) instead")
     return CriticDecision(claim=claim, accepted=not reasons, reasons=tuple(reasons), flags=tuple(dict.fromkeys(flags)))
 
 

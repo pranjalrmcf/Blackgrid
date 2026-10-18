@@ -256,9 +256,10 @@ class ExperimentSpec(Contract):
     hypothesis: NonEmpty
     competing_explanations: tuple[NonEmpty, ...] = Field(min_length=1)
     task: Literal["community_structure_vs_null"]
-    method: Literal["louvain", "greedy_modularity"]
+    # Only the implemented combination is accepted (Sprint 4 R2): never record a choice that is not executed.
+    method: Literal["louvain"]
     statistic: Literal["modularity"]
-    null_model: Literal["degree_preserving_double_edge_swap", "erdos_renyi_gnm"]
+    null_model: Literal["degree_preserving_double_edge_swap"]
     null_replicates: int = Field(ge=19, le=10_000)
     swaps_per_edge: float = Field(default=10.0, gt=0, le=100)
     swap_attempt_factor: int = Field(default=100, ge=1, le=1_000)
@@ -412,6 +413,7 @@ class ToolCallRecord(Contract):
     elapsed_s: float = Field(ge=0)
     error: str | None = None
     cached: bool = False
+    cache_rejected: str | None = None  # why a cache entry was refused and the result recomputed (R3)
 
 
 class CostRecord(Contract):

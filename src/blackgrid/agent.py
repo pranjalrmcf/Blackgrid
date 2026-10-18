@@ -40,7 +40,9 @@ from blackgrid.tools import ToolContext
 
 Condition = Literal["validated", "tool_only"]
 VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
-PROMPT_VERSION = "prompts-v2"  # v2: claim-count/length limits and corrective retry notes (D-037)
+# v2: claim-count/length limits and corrective retry notes (D-037).
+# v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
+PROMPT_VERSION = "prompts-v3"
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
