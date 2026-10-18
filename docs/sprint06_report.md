@@ -124,3 +124,20 @@ and run once, with five rolling test windows and models trained only on earlier 
 **Secondary finding:** a logistic model on time-decayed features improved on the v1 winners in 4 of 5 windows for both
 tasks (about +70% AP for new connections, +7% for repeat messages). This needs confirmation on unseen data before it
 can count as a confirmed improvement.
+
+## Addendum: prediction-v3, confirmation on a second dataset (Bitcoin OTC, D-078)
+
+A schema-driven loader now reads other edge-list formats. Bitcoin OTC (36k trust ratings, 2010–2016, unseen by this
+project) was used to test one pre-registered hypothesis: *the v2 logistic model beats the v1 winners on new data.*
+
+| Mean AP, 5 rolling windows | New connections* | Repeat interactions |
+|---|---:|---:|
+| v1 winner (recent activity / pair recency) | 0.022 | 0.032 |
+| **logistic_v2** | **0.050** (won 5/5) | **0.176** (won 5/5) |
+| random | 0.001 | 0.007 |
+
+\*Among users active in the last 190 days. This rule keeps the task within the size cap and excluded 7–37% of real
+new pairs (reported per window).
+
+**Verdict: H1 confirmed for both tasks.** The improvement found on CollegeMsg holds on a different kind of network.
+Boosted trees again did worse than the logistic model.

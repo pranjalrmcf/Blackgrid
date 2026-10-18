@@ -953,3 +953,43 @@ All four findings were reproduced as failing tests before fixing.
   - Confirming the logistic gain would need a pre-registered primary on genuinely unseen data (a later CollegeMsg extract or another dataset).
 - **Tests:** `tests/test_prediction_v2.py` (5 tests): hand-checked formulas, no future leakage in v2 columns, seeded sampling and weights, and training cutoffs always earlier than the origin.
 - **Status:** active.
+
+### D-077 — Bitcoin OTC rights, and the multi-dataset plan (2026-10-18)
+- **Inventory** (structure only; no raw rows printed). `data/` also holds:
+  - SNAP Bitcoin OTC (35,592 signed ratings, 5,881 users, 2010–2016);
+  - Reddit hyperlinks (286,561 links, 35,776 subreddits, a sentiment column and an 86-dimensional property vector);
+  - Wiki-talk (7.8M events, 1.14M users);
+  - StackOverflow (63.5M events, 2.6M users).
+- **Rights (user):** selected only "Bitcoin OTC" for: "Which datasets do you authorize for local, non-commercial analysis with citation (no redistribution of raw or pair-level data)?"
+  - Same terms as D-003/D-070: local, non-commercial, cited. Raw rows, pair rankings and pair-level labels are never committed or sent to a model. This is not a verified open licence.
+  - Reddit, Wiki-talk and StackOverflow stay **unauthorized**; only their file structure was read.
+- **Citations for Bitcoin OTC:**
+  - S. Kumar, F. Spezzano, V.S. Subrahmanian, C. Faloutsos. *Edge Weight Prediction in Weighted Signed Networks.* IEEE ICDM 2016.
+  - S. Kumar, B. Hooi, D. Makhija, M. Kumar, C. Faloutsos, V.S. Subrahmanian. *REV2: Fraudulent User Prediction in Rating Platforms.* ACM WSDM 2018.
+  - Source: https://snap.stanford.edu/data/soc-sign-bitcoin-otc.html
+- **Scope (user):** "Bitcoin first": a generic loader, then a frozen Bitcoin protocol and one run.
+- **Status:** active.
+
+### D-078 — prediction-v3: H1 confirmed on Bitcoin OTC (2026-10-18)
+- **Run:** `runs/sprint6-v3-bitcoin`, frozen protocol `protocols/sprint06_prediction_v3_bitcoin.md`, run once.
+  - 101 s, 0.99 GB peak memory, USD 0, no LLM.
+  - Aggregates are in `results/sprint06-v3-bitcoin/summary.json`.
+  - The data was unseen by this project before this run; only structure and history-only sizes were inspected before the freeze.
+- **New infrastructure:**
+  - `blackgrid.datasets`: a schema-driven loader (separator, header, columns, unix/datetime times, dense ID mapping, numeric attributes, checksum, malformed-row counts). Only datasets with a recorded rights decision are registered.
+  - Candidate rule `History.restrict_to_active`.
+  - Generalized rolling evaluator (primary model, rule, coverage reporting) and the `blackgrid predict-confirm` command.
+- **Candidate rule:** `new_pair` pairs among users active in the last H (190 days), chosen by size only. It excluded 88/1,238, 129/809, 141/632, 104/279 and 33/123 known-node new positives at b5–b9 (7–37%). The target is therefore "pairs among recently active users".
+- **H1 confirmed in both tasks.** `logistic_v2` against the v1 reference won 5/5 origins each:
+  - `new_pair` mean AP 0.0499 vs 0.0216 (recent-activity product), +0.028. Random 0.0011. Mean P@100 0.166.
+  - `repeat_pair` mean AP 0.176 vs 0.032 (pair recency), +0.144. Random 0.007. Mean P@100 0.236.
+- **Secondary (descriptive):**
+  - Gradient-boosted trees again lagged the logistic model (0.015 / 0.095), consistent with v2.
+  - The temporal triangle was the best single heuristic for new pairs here (0.0375), unlike on CollegeMsg.
+  - On Bitcoin, pair recency is weak for repeats. The logistic model's direction and reciprocity features carry the gain; this is plausible, because many "repeats" are return ratings.
+- **Limitations:**
+  - One additional network: a trust-rating platform in decline, with 295 active users at b9.
+  - Labels ignore the rating sign.
+  - No significance test.
+  - Results now cover a messaging network (development evidence) and a rating network (confirmatory).
+- **Status:** active.

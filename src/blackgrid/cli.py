@@ -483,6 +483,23 @@ def _cmd_predict_rolling(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_predict_confirm(args: argparse.Namespace) -> int:
+    """prediction-v3: frozen confirmation of logistic_v2 on an authorized second dataset (local, USD 0)."""
+    from blackgrid.datasets import load
+    from blackgrid.prediction.rolling import run
+
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("prediction output must be under runs/", file=sys.stderr)
+        return EXIT_INVALID
+    data = load(args.dataset, args.data_root)
+    folder = run(data.events, args.output, protocol_path=REPO_ROOT / "protocols" / "sprint06_prediction_v3_bitcoin.md",
+                 data_sha256=data.sha256, version="prediction-v3", primary="logistic_v2", active_window_bins=1,
+                 note=f"confirmatory test of H1 on unseen data ({args.dataset})")
+    (folder / "dataset_profile.json").write_text(json.dumps(data.profile, indent=2, sort_keys=True), encoding="utf-8")
+    print(f"prediction-v3 completed: {folder}")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -533,6 +550,11 @@ def build_parser() -> argparse.ArgumentParser:
     rolling_p.add_argument("--output", type=Path, required=True)
     rolling_p.add_argument("--data-root", type=Path, default=REPO_ROOT)
     rolling_p.set_defaults(func=_cmd_predict_rolling)
+    confirm = sub.add_parser("predict-confirm", help="prediction-v3: confirm logistic_v2 on Bitcoin OTC (local)")
+    confirm.add_argument("--dataset", choices=["snap-bitcoin-otc"], default="snap-bitcoin-otc")
+    confirm.add_argument("--output", type=Path, required=True)
+    confirm.add_argument("--data-root", type=Path, default=REPO_ROOT / "data")
+    confirm.set_defaults(func=_cmd_predict_confirm)
     fc = sub.add_parser("forecast", help="Sprint 6: forecast connections from a frozen prediction-v1 evaluation")
     fc.add_argument("config", type=Path)
     fc.add_argument("--evaluation", type=Path, required=True, help="completed prediction-v1 folder, e.g. runs/sprint6-v1")

@@ -60,6 +60,12 @@ class History:
     sent: Counter = field(default_factory=Counter)  # node -> historical events it sent (prediction-v2)
     received: Counter = field(default_factory=Counter)  # node -> historical events it received
     directed: frozenset = frozenset()  # (source, target) pairs observed before the cutoff
+    eligible: frozenset | None = None  # new_pair candidate nodes when a candidate rule restricts them (v3)
+
+    def restrict_to_active(self, window: int) -> "History":
+        """Candidate rule (prediction-v3): new_pair candidates only among nodes active in [cutoff - window, cutoff)."""
+        self.eligible = frozenset(n for n, times in self.node_times.items() if times and times[-1] >= self.cutoff - window)
+        return self
 
     def degree(self, node: int) -> int:
         return len(self.adjacency.get(node, ()))
@@ -154,8 +160,12 @@ def horizon_labels(events: Iterable[Event], hist: History, end: int) -> Labels:
 
 
 def candidate_count(hist: History, task: Task) -> int:
-    n = len(hist.nodes)
-    return n * (n - 1) // 2 - len(hist.pair_count) if task == "new_pair" else len(hist.pair_count)
+    if task == "repeat_pair":
+        return len(hist.pair_count)
+    nodes = hist.eligible if hist.eligible is not None else hist.nodes
+    n = len(nodes)
+    inside = sum(1 for a, b in hist.pair_count if a in nodes and b in nodes) if hist.eligible is not None         else len(hist.pair_count)
+    return n * (n - 1) // 2 - inside
 
 
 def candidates(hist: History, task: Task) -> Iterator[Pair]:
@@ -166,7 +176,7 @@ def candidates(hist: History, task: Task) -> Iterator[Pair]:
     if task == "repeat_pair":
         yield from sorted(hist.pair_count)
         return
-    ordered = sorted(hist.nodes)
+    ordered = sorted(hist.eligible if hist.eligible is not None else hist.nodes)
     for i, a in enumerate(ordered):
         neighbours = hist.adjacency.get(a, frozenset())
         for b in ordered[i + 1:]:

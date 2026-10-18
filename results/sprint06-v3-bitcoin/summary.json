@@ -1,0 +1,893 @@
+{
+  "candidate_rule": "new_pair among nodes active in the last H",
+  "dataset": {
+    "dataset_id": "snap-bitcoin-otc",
+    "exact_duplicate_rows": 0,
+    "malformed_by_reason": {},
+    "max_timestamp": 1453684323,
+    "min_timestamp": 1289241911,
+    "nodes": 5881,
+    "rating_positive_fraction": 0.8998932344347045,
+    "rights_decision": "D-077",
+    "self_loop_events": 0,
+    "semantics": "a trust rating (-10..+10) given by one user to another",
+    "sha256": "76bd9d8f1d3ff9a1813d9fc8e6902a0ee4d0a2f8c1003842dbc9ec79149ab60c",
+    "valid_events": 35592
+  },
+  "elapsed_s": 100.69986559999961,
+  "note": "Aggregates only; no user IDs, pairs or rows.",
+  "peak_memory_bytes": 1037201408,
+  "primary": "logistic_v2",
+  "protocol_sha256": "b4bc8a75b3bf83f791512c381ccc57998e7c0043e015eda1f73217877fcfb5a2",
+  "summary": {
+    "new_pair": {
+      "mean_ap": {
+        "decay_activity_product": 0.03061885475454378,
+        "hgb_v2": 0.015403976039968816,
+        "logistic_v2": 0.04994120274016304,
+        "preferential_attachment": 0.0141268706822603,
+        "random": 0.0011135855687030194,
+        "recency_product": 0.01776763237754429,
+        "recent_activity_product_2H": 0.021639702973241665,
+        "resource_allocation": 0.02173500014458914,
+        "temporal_triangle": 0.037543430276437625
+      },
+      "mean_p_at_100": {
+        "decay_activity_product": 0.11600000000000002,
+        "hgb_v2": 0.042,
+        "logistic_v2": 0.16599999999999998,
+        "preferential_attachment": 0.052000000000000005,
+        "random": 0.002,
+        "recency_product": 0.074,
+        "recent_activity_product_2H": 0.076,
+        "resource_allocation": 0.09,
+        "temporal_triangle": 0.13599999999999998
+      },
+      "primary": {
+        "ap_differences": {
+          "b5": 0.01549384291534332,
+          "b6": 0.023931015379285218,
+          "b7": 0.04011854879552466,
+          "b8": 0.017550173867960504,
+          "b9": 0.04441391787649314
+        },
+        "evaluable_origins": 5,
+        "improved": true,
+        "mean_difference": 0.028301499766921367,
+        "model": "logistic_v2",
+        "origins_won": 5,
+        "reference": "recent_activity_product_2H"
+      }
+    },
+    "repeat_pair": {
+      "mean_ap": {
+        "decay_activity_product": 0.03616818661427932,
+        "decayed_pair_count": 0.013198700564171795,
+        "hgb_v2": 0.09445951607938141,
+        "logistic_v2": 0.17574922711193658,
+        "pair_recency": 0.03168489236010329,
+        "preferential_attachment": 0.02023541504670363,
+        "random": 0.006875757902268516,
+        "recency_product": 0.048877444305391614,
+        "recent_activity_product_2H": 0.029911677087549403,
+        "resource_allocation": 0.017348229333772634,
+        "temporal_triangle": 0.046107988736219116
+      },
+      "mean_p_at_100": {
+        "decay_activity_product": 0.06400000000000002,
+        "decayed_pair_count": 0.0,
+        "hgb_v2": 0.136,
+        "logistic_v2": 0.23600000000000004,
+        "pair_recency": 0.036000000000000004,
+        "preferential_attachment": 0.05800000000000001,
+        "random": 0.004,
+        "recency_product": 0.07,
+        "recent_activity_product_2H": 0.06200000000000001,
+        "resource_allocation": 0.044000000000000004,
+        "temporal_triangle": 0.08399999999999999
+      },
+      "primary": {
+        "ap_differences": {
+          "b5": 0.14780835009494447,
+          "b6": 0.1207810901818823,
+          "b7": 0.15929587537044104,
+          "b8": 0.07604395486079803,
+          "b9": 0.21639240325110054
+        },
+        "evaluable_origins": 5,
+        "improved": true,
+        "mean_difference": 0.14406433475183328,
+        "model": "logistic_v2",
+        "origins_won": 5,
+        "reference": "pair_recency"
+      }
+    }
+  },
+  "version": "prediction-v3",
+  "windows": {
+    "new_pair": {
+      "b5": {
+        "candidates": 1718039,
+        "excluded_by_candidate_rule": 88,
+        "known_node_positives": 1238,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.02343725554827298,
+            "precision_at_k": 0.12,
+            "recall_at_k": 0.010434782608695653,
+            "roc_auc": 0.9106523358591438
+          },
+          "hgb_v2": {
+            "average_precision": 0.007551548159608149,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.0008695652173913044,
+            "roc_auc": 0.8895355071826451
+          },
+          "logistic_v2": {
+            "average_precision": 0.03232975907041569,
+            "precision_at_k": 0.12,
+            "recall_at_k": 0.010434782608695653,
+            "roc_auc": 0.9280748176802193
+          },
+          "preferential_attachment": {
+            "average_precision": 0.01383005887931092,
+            "precision_at_k": 0.15,
+            "recall_at_k": 0.013043478260869565,
+            "roc_auc": 0.8704554808144266
+          },
+          "random": {
+            "average_precision": 0.0006584906752446349,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.4973402484022732
+          },
+          "recency_product": {
+            "average_precision": 0.01395017685730882,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.00782608695652174,
+            "roc_auc": 0.8773632381643167
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.016835916155072368,
+            "precision_at_k": 0.1,
+            "recall_at_k": 0.008695652173913044,
+            "roc_auc": 0.8857898020147513
+          },
+          "resource_allocation": {
+            "average_precision": 0.015777131861128044,
+            "precision_at_k": 0.14,
+            "recall_at_k": 0.01217391304347826,
+            "roc_auc": 0.7406382028647518
+          },
+          "temporal_triangle": {
+            "average_precision": 0.024145670758473015,
+            "precision_at_k": 0.18,
+            "recall_at_k": 0.01565217391304348,
+            "roc_auc": 0.7399197734972965
+          }
+        },
+        "positives": 1150,
+        "prevalence": 0.0006693678082977162,
+        "training_cutoffs": [
+          2,
+          3,
+          4
+        ],
+        "training_rows": 108826
+      },
+      "b6": {
+        "candidates": 1138042,
+        "excluded_by_candidate_rule": 129,
+        "known_node_positives": 809,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.022419544010978256,
+            "precision_at_k": 0.14,
+            "recall_at_k": 0.020588235294117647,
+            "roc_auc": 0.894033340774012
+          },
+          "hgb_v2": {
+            "average_precision": 0.012928188404501943,
+            "precision_at_k": 0.16,
+            "recall_at_k": 0.023529411764705882,
+            "roc_auc": 0.7073493111303898
+          },
+          "logistic_v2": {
+            "average_precision": 0.040269574039405065,
+            "precision_at_k": 0.21,
+            "recall_at_k": 0.030882352941176472,
+            "roc_auc": 0.8922060350540781
+          },
+          "preferential_attachment": {
+            "average_precision": 0.010323437617419794,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.004411764705882353,
+            "roc_auc": 0.8822584132249477
+          },
+          "random": {
+            "average_precision": 0.0006285761262675974,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.5050718021175317
+          },
+          "recency_product": {
+            "average_precision": 0.015474185676755231,
+            "precision_at_k": 0.1,
+            "recall_at_k": 0.014705882352941176,
+            "roc_auc": 0.8588083407559102
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.016338558660119847,
+            "precision_at_k": 0.08,
+            "recall_at_k": 0.011764705882352941,
+            "roc_auc": 0.8894390186910329
+          },
+          "resource_allocation": {
+            "average_precision": 0.013314043492885171,
+            "precision_at_k": 0.1,
+            "recall_at_k": 0.014705882352941176,
+            "roc_auc": 0.7823592935954893
+          },
+          "temporal_triangle": {
+            "average_precision": 0.014657805116972917,
+            "precision_at_k": 0.04,
+            "recall_at_k": 0.0058823529411764705,
+            "roc_auc": 0.772719378133735
+          }
+        },
+        "positives": 680,
+        "prevalence": 0.0005975174905671319,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "training_rows": 195664
+      },
+      "b7": {
+        "candidates": 385895,
+        "excluded_by_candidate_rule": 141,
+        "known_node_positives": 632,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.03847060175618116,
+            "precision_at_k": 0.16,
+            "recall_at_k": 0.032586558044806514,
+            "roc_auc": 0.915069326781085
+          },
+          "hgb_v2": {
+            "average_precision": 0.021231688348932475,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.002036659877800407,
+            "roc_auc": 0.8927821734437908
+          },
+          "logistic_v2": {
+            "average_precision": 0.06856389194803661,
+            "precision_at_k": 0.25,
+            "recall_at_k": 0.05091649694501019,
+            "roc_auc": 0.9448944928125887
+          },
+          "preferential_attachment": {
+            "average_precision": 0.011856014569998416,
+            "precision_at_k": 0.02,
+            "recall_at_k": 0.004073319755600814,
+            "roc_auc": 0.8585885520694966
+          },
+          "random": {
+            "average_precision": 0.0013035435008740867,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.002036659877800407,
+            "roc_auc": 0.49762006027647426
+          },
+          "recency_product": {
+            "average_precision": 0.024067036594028025,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.012219959266802444,
+            "roc_auc": 0.9101695037245123
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.028445343152511952,
+            "precision_at_k": 0.12,
+            "recall_at_k": 0.024439918533604887,
+            "roc_auc": 0.883680488288524
+          },
+          "resource_allocation": {
+            "average_precision": 0.025123065770718232,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.018329938900203666,
+            "roc_auc": 0.8436657898234056
+          },
+          "temporal_triangle": {
+            "average_precision": 0.07447929537826486,
+            "precision_at_k": 0.25,
+            "recall_at_k": 0.05091649694501019,
+            "roc_auc": 0.844618663546033
+          }
+        },
+        "positives": 491,
+        "prevalence": 0.0012723668355381645,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "training_rows": 253128
+      },
+      "b8": {
+        "candidates": 146268,
+        "excluded_by_candidate_rule": 104,
+        "known_node_positives": 279,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.02686566777323434,
+            "precision_at_k": 0.05,
+            "recall_at_k": 0.02857142857142857,
+            "roc_auc": 0.9221896815238043
+          },
+          "hgb_v2": {
+            "average_precision": 0.01713278175255507,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.005714285714285714,
+            "roc_auc": 0.9018048972718943
+          },
+          "logistic_v2": {
+            "average_precision": 0.038553544732946414,
+            "precision_at_k": 0.08,
+            "recall_at_k": 0.045714285714285714,
+            "roc_auc": 0.9445554739593468
+          },
+          "preferential_attachment": {
+            "average_precision": 0.01407442043843735,
+            "precision_at_k": 0.04,
+            "recall_at_k": 0.022857142857142857,
+            "roc_auc": 0.8747430550598396
+          },
+          "random": {
+            "average_precision": 0.001123908340129641,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.490669681054436
+          },
+          "recency_product": {
+            "average_precision": 0.01236097839297312,
+            "precision_at_k": 0.05,
+            "recall_at_k": 0.02857142857142857,
+            "roc_auc": 0.8820782261005954
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.02100337086498591,
+            "precision_at_k": 0.02,
+            "recall_at_k": 0.011428571428571429,
+            "roc_auc": 0.9128346816264786
+          },
+          "resource_allocation": {
+            "average_precision": 0.022802897892055248,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.03428571428571429,
+            "roc_auc": 0.8752102721260724
+          },
+          "temporal_triangle": {
+            "average_precision": 0.035019804957053625,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.05142857142857143,
+            "roc_auc": 0.8682534315225819
+          }
+        },
+        "positives": 175,
+        "prevalence": 0.0011964339431728061,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "training_rows": 272955
+      },
+      "b9": {
+        "candidates": 41578,
+        "excluded_by_candidate_rule": 33,
+        "known_node_positives": 123,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.04190120468405213,
+            "precision_at_k": 0.11,
+            "recall_at_k": 0.12222222222222222,
+            "roc_auc": 0.9187264322749282
+          },
+          "hgb_v2": {
+            "average_precision": 0.018175673534246442,
+            "precision_at_k": 0.02,
+            "recall_at_k": 0.022222222222222223,
+            "roc_auc": 0.7136209399237262
+          },
+          "logistic_v2": {
+            "average_precision": 0.06998924391001139,
+            "precision_at_k": 0.17,
+            "recall_at_k": 0.18888888888888888,
+            "roc_auc": 0.9371569289111711
+          },
+          "preferential_attachment": {
+            "average_precision": 0.02055042190613503,
+            "precision_at_k": 0.02,
+            "recall_at_k": 0.022222222222222223,
+            "roc_auc": 0.8773161985259459
+          },
+          "random": {
+            "average_precision": 0.0018534092009991371,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.43643623859107855
+          },
+          "recency_product": {
+            "average_precision": 0.022985784366656263,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.07777777777777778,
+            "roc_auc": 0.8575106054762823
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.02557532603351825,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.06666666666666667,
+            "roc_auc": 0.894917271928697
+          },
+          "resource_allocation": {
+            "average_precision": 0.031657861706158995,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.06666666666666667,
+            "roc_auc": 0.892753192355487
+          },
+          "temporal_triangle": {
+            "average_precision": 0.039414575171423716,
+            "precision_at_k": 0.12,
+            "recall_at_k": 0.13333333333333333,
+            "roc_auc": 0.882904293611004
+          }
+        },
+        "positives": 90,
+        "prevalence": 0.0021646062821684543,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "training_rows": 280363
+      }
+    },
+    "repeat_pair": {
+      "b5": {
+        "candidates": 14064,
+        "excluded_by_candidate_rule": null,
+        "known_node_positives": null,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.043715980921690246,
+            "precision_at_k": 0.1,
+            "recall_at_k": 0.054945054945054944,
+            "roc_auc": 0.7588168566773955
+          },
+          "decayed_pair_count": {
+            "average_precision": 0.017558477131240296,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.6582387501563413
+          },
+          "hgb_v2": {
+            "average_precision": 0.13259038086898783,
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.10989010989010989,
+            "roc_auc": 0.9332490013948017
+          },
+          "logistic_v2": {
+            "average_precision": 0.18889213427127236,
+            "precision_at_k": 0.34,
+            "recall_at_k": 0.18681318681318682,
+            "roc_auc": 0.9465356355213724
+          },
+          "pair_recency": {
+            "average_precision": 0.041083784176327895,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.03296703296703297,
+            "roc_auc": 0.7809733847768713
+          },
+          "preferential_attachment": {
+            "average_precision": 0.033689749150088134,
+            "precision_at_k": 0.13,
+            "recall_at_k": 0.07142857142857142,
+            "roc_auc": 0.635729959422511
+          },
+          "random": {
+            "average_precision": 0.014981952381731185,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.5306646602209202
+          },
+          "recency_product": {
+            "average_precision": 0.045889195394030094,
+            "precision_at_k": 0.06,
+            "recall_at_k": 0.03296703296703297,
+            "roc_auc": 0.819392176761432
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.04451823398318887,
+            "precision_at_k": 0.13,
+            "recall_at_k": 0.07142857142857142,
+            "roc_auc": 0.733249911736441
+          },
+          "resource_allocation": {
+            "average_precision": 0.027318265419591033,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.04945054945054945,
+            "roc_auc": 0.5990530863747979
+          },
+          "temporal_triangle": {
+            "average_precision": 0.04664394884977853,
+            "precision_at_k": 0.1,
+            "recall_at_k": 0.054945054945054944,
+            "roc_auc": 0.6860552284482554
+          }
+        },
+        "positives": 182,
+        "prevalence": 0.012940841865756541,
+        "training_cutoffs": [
+          2,
+          3,
+          4
+        ],
+        "training_rows": 19871
+      },
+      "b6": {
+        "candidates": 18092,
+        "excluded_by_candidate_rule": null,
+        "known_node_positives": null,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.031140447909566372,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.07758620689655173,
+            "roc_auc": 0.7619594325000384
+          },
+          "decayed_pair_count": {
+            "average_precision": 0.0096866901429855,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.6516634247962801
+          },
+          "hgb_v2": {
+            "average_precision": 0.10399098651091715,
+            "precision_at_k": 0.17,
+            "recall_at_k": 0.14655172413793102,
+            "roc_auc": 0.9299760792167334
+          },
+          "logistic_v2": {
+            "average_precision": 0.14365328285821763,
+            "precision_at_k": 0.23,
+            "recall_at_k": 0.19827586206896552,
+            "roc_auc": 0.9443578027408192
+          },
+          "pair_recency": {
+            "average_precision": 0.022872192676335328,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.02586206896551724,
+            "roc_auc": 0.7407649854979053
+          },
+          "preferential_attachment": {
+            "average_precision": 0.020778044678770386,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.0603448275862069,
+            "roc_auc": 0.6535286991851204
+          },
+          "random": {
+            "average_precision": 0.006668233585833809,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.5063278816199377
+          },
+          "recency_product": {
+            "average_precision": 0.04302939083587369,
+            "precision_at_k": 0.08,
+            "recall_at_k": 0.06896551724137931,
+            "roc_auc": 0.820523868990071
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.023179753958682322,
+            "precision_at_k": 0.08,
+            "recall_at_k": 0.06896551724137931,
+            "roc_auc": 0.7511281804858585
+          },
+          "resource_allocation": {
+            "average_precision": 0.016172667451490912,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.0603448275862069,
+            "roc_auc": 0.605905815033071
+          },
+          "temporal_triangle": {
+            "average_precision": 0.028631239627292342,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.0603448275862069,
+            "roc_auc": 0.705579421987938
+          }
+        },
+        "positives": 116,
+        "prevalence": 0.006411673667919522,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "training_rows": 33935
+      },
+      "b7": {
+        "candidates": 19890,
+        "excluded_by_candidate_rule": null,
+        "known_node_positives": null,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.05945127771678269,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.06569343065693431,
+            "roc_auc": 0.8605204937917589
+          },
+          "decayed_pair_count": {
+            "average_precision": 0.020590515012229017,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.7708772685734515
+          },
+          "hgb_v2": {
+            "average_precision": 0.10970542829211392,
+            "precision_at_k": 0.15,
+            "recall_at_k": 0.10948905109489052,
+            "roc_auc": 0.9496061025193993
+          },
+          "logistic_v2": {
+            "average_precision": 0.20463000062812842,
+            "precision_at_k": 0.28,
+            "recall_at_k": 0.20437956204379562,
+            "roc_auc": 0.9690062786360457
+          },
+          "pair_recency": {
+            "average_precision": 0.04533412525768736,
+            "precision_at_k": 0.05,
+            "recall_at_k": 0.0364963503649635,
+            "roc_auc": 0.8287673941055244
+          },
+          "preferential_attachment": {
+            "average_precision": 0.026333729493843692,
+            "precision_at_k": 0.05,
+            "recall_at_k": 0.0364963503649635,
+            "roc_auc": 0.6982210223264618
+          },
+          "random": {
+            "average_precision": 0.007320296399573383,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.5195599966151312
+          },
+          "recency_product": {
+            "average_precision": 0.06856188316008663,
+            "precision_at_k": 0.09,
+            "recall_at_k": 0.06569343065693431,
+            "roc_auc": 0.9067686660180233
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.044344102060487695,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.051094890510948905,
+            "roc_auc": 0.818176560818074
+          },
+          "resource_allocation": {
+            "average_precision": 0.02819714678166678,
+            "precision_at_k": 0.04,
+            "recall_at_k": 0.029197080291970802,
+            "roc_auc": 0.7114061210696629
+          },
+          "temporal_triangle": {
+            "average_precision": 0.08275739459866266,
+            "precision_at_k": 0.15,
+            "recall_at_k": 0.10948905109489052,
+            "roc_auc": 0.7948366708410919
+          }
+        },
+        "positives": 137,
+        "prevalence": 0.006887883358471594,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "training_rows": 52027
+      },
+      "b8": {
+        "candidates": 20893,
+        "excluded_by_candidate_rule": null,
+        "known_node_positives": null,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.016400197257998864,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.0196078431372549,
+            "roc_auc": 0.866049135324411
+          },
+          "decayed_pair_count": {
+            "average_precision": 0.00909169893852581,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.8116510590417916
+          },
+          "hgb_v2": {
+            "average_precision": 0.045415545972472424,
+            "precision_at_k": 0.04,
+            "recall_at_k": 0.0784313725490196,
+            "roc_auc": 0.9607099917022753
+          },
+          "logistic_v2": {
+            "average_precision": 0.09324884821886473,
+            "precision_at_k": 0.14,
+            "recall_at_k": 0.27450980392156865,
+            "roc_auc": 0.9723456218683616
+          },
+          "pair_recency": {
+            "average_precision": 0.0172048933580667,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.0196078431372549,
+            "roc_auc": 0.8547785297786709
+          },
+          "preferential_attachment": {
+            "average_precision": 0.006152465192196858,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.0196078431372549,
+            "roc_auc": 0.6561105874074032
+          },
+          "random": {
+            "average_precision": 0.0036104391943194473,
+            "precision_at_k": 0.02,
+            "recall_at_k": 0.0392156862745098,
+            "roc_auc": 0.5537545792714936
+          },
+          "recency_product": {
+            "average_precision": 0.02853796254374862,
+            "precision_at_k": 0.04,
+            "recall_at_k": 0.0784313725490196,
+            "roc_auc": 0.9157004803648741
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.014345081015432947,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.8876773144724736
+          },
+          "resource_allocation": {
+            "average_precision": 0.006407634650990693,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.0196078431372549,
+            "roc_auc": 0.6777227732086981
+          },
+          "temporal_triangle": {
+            "average_precision": 0.019870650831069776,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.058823529411764705,
+            "roc_auc": 0.7949464787354343
+          }
+        },
+        "positives": 51,
+        "prevalence": 0.0024410089503661514,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "training_rows": 71917
+      },
+      "b9": {
+        "candidates": 21314,
+        "excluded_by_candidate_rule": null,
+        "known_node_positives": null,
+        "logistic_converged": true,
+        "methods": {
+          "decay_activity_product": {
+            "average_precision": 0.03013302926535843,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.07894736842105263,
+            "roc_auc": 0.9389032366590475
+          },
+          "decayed_pair_count": {
+            "average_precision": 0.009066121595878352,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.7811828994369737
+          },
+          "hgb_v2": {
+            "average_precision": 0.08059523875241567,
+            "precision_at_k": 0.12,
+            "recall_at_k": 0.3157894736842105,
+            "roc_auc": 0.9722463413186095
+          },
+          "logistic_v2": {
+            "average_precision": 0.2483218695831997,
+            "precision_at_k": 0.19,
+            "recall_at_k": 0.5,
+            "roc_auc": 0.9799675443543998
+          },
+          "pair_recency": {
+            "average_precision": 0.03192946633209917,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.07894736842105263,
+            "roc_auc": 0.8210301204223192
+          },
+          "preferential_attachment": {
+            "average_precision": 0.01422308671861909,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.07894736842105263,
+            "roc_auc": 0.814569913220728
+          },
+          "random": {
+            "average_precision": 0.0017978679498847554,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "roc_auc": 0.4920753307408397
+          },
+          "recency_product": {
+            "average_precision": 0.05836878959321904,
+            "precision_at_k": 0.08,
+            "recall_at_k": 0.21052631578947367,
+            "roc_auc": 0.9523907590465165
+          },
+          "recent_activity_product_2H": {
+            "average_precision": 0.023171214419955188,
+            "precision_at_k": 0.03,
+            "recall_at_k": 0.07894736842105263,
+            "roc_auc": 0.9149276179733032
+          },
+          "resource_allocation": {
+            "average_precision": 0.00864543236512374,
+            "precision_at_k": 0.01,
+            "recall_at_k": 0.02631578947368421,
+            "roc_auc": 0.7682964991440813
+          },
+          "temporal_triangle": {
+            "average_precision": 0.05263670977429225,
+            "precision_at_k": 0.07,
+            "recall_at_k": 0.18421052631578946,
+            "roc_auc": 0.8476885247523773
+          }
+        },
+        "positives": 38,
+        "prevalence": 0.0017828657220606175,
+        "training_cutoffs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "training_rows": 92810
+      }
+    }
+  }
+}

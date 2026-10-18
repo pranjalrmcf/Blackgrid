@@ -87,14 +87,18 @@ def fit_models(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> dict:
 
 
 def run(events: list[Event], output: Path, *, protocol_path: Path | None = None, data_sha256: str = "synthetic",
-        tasks: tuple[Task, ...] = TASKS) -> Path:
+        tasks: tuple[Task, ...] = TASKS, version: str = VERSION, primary: str = "hgb_v2",
+        active_window_bins: int | None = None,
+        note: str = "development evidence: every window was inspected under prediction-v1") -> Path:
+    """`primary`/`active_window_bins` are fixed by each frozen protocol (v2: hgb_v2, no rule; v3: logistic_v2, 1 bin)."""
     started = time.perf_counter()
     output = output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     b = boundaries(events)
     horizon = b[1] - b[0]
     tau = float(horizon)
-    _save(output / "freeze.json", {"version": VERSION, "data_sha256": data_sha256, "boundaries": b, "tau_s": tau,
+    _save(output / "freeze.json", {"version": version, "data_sha256": data_sha256, "boundaries": b, "tau_s": tau,
+                                   "primary": primary, "active_window_bins": active_window_bins,
                                    "protocol_sha256": hashlib.sha256(protocol_path.read_bytes()).hexdigest()
                                    if protocol_path else None, "origins": ORIGINS,
                                    "started_utc": datetime.now(UTC).isoformat()})
@@ -105,6 +109,8 @@ def run(events: list[Event], output: Path, *, protocol_path: Path | None = None,
         if time.perf_counter() - started > TOTAL_LIMIT_S:
             raise TimeoutError("prediction-v2 wall-time budget exhausted")
         hist = history(events, b[i])
+        if active_window_bins:
+            hist.restrict_to_active(active_window_bins * horizon)  # candidate rule (history only)
         lab = horizon_labels(events, hist, b[i + 1])
         for task in tasks:
             t0 = time.perf_counter()
@@ -112,6 +118,10 @@ def run(events: list[Event], output: Path, *, protocol_path: Path | None = None,
             attach_labels(snap, hist, lab)
             names = feature_names(task)
             entry = {"cutoff_index": i, "task": task, "candidates": snap.size, "positives": int(snap.labels.sum())}
+            if task == "new_pair":  # coverage: true new pairs among known nodes that the candidate rule excluded
+                known_new = sum(1 for q in lab.positives if q not in hist.pair_count)
+                entry["known_node_positives"] = known_new
+                entry["excluded_by_candidate_rule"] = known_new - entry["positives"]
             if i in ORIGINS:  # score with models trained on strictly earlier cutoffs only
                 p = pool[task]
                 x, y, w = np.vstack(p["x"]), np.concatenate(p["y"]), np.concatenate(p["w"])
@@ -127,6 +137,8 @@ def run(events: list[Event], output: Path, *, protocol_path: Path | None = None,
                     "prevalence": float(snap.labels.mean()) if snap.size else None,
                     "training_rows": int(len(y)), "training_cutoffs": list(p["cutoffs"]),
                     "logistic_converged": models["logistic_v2"]["converged"],
+                    "excluded_by_candidate_rule": entry.get("excluded_by_candidate_rule"),
+                    "known_node_positives": entry.get("known_node_positives"),
                     "methods": {name: rank_metrics_np(np.asarray(s, float), snap.tiebreak, snap.labels)
                                 for name, s in methods.items()}}
             # only now does this cutoff join the training pool (its labels end at b_{i+1})
@@ -144,19 +156,25 @@ def run(events: list[Event], output: Path, *, protocol_path: Path | None = None,
         windows = results[task]
         names = list(next(iter(windows.values()))["methods"])
         ref = REFERENCE[task]
-        summary[task] = {
-            "mean_ap": {m: float(np.mean([w["methods"][m]["average_precision"] for w in windows.values()]))
-                        for m in names},
-            "mean_p_at_100": {m: float(np.mean([w["methods"][m]["precision_at_k"] for w in windows.values()]))
-                              for m in names},
-            "primary": {"model": "hgb_v2", "reference": ref,
-                        "ap_differences": {k: w["methods"]["hgb_v2"]["average_precision"]
-                                           - w["methods"][ref]["average_precision"] for k, w in windows.items()}}}
-        diffs = list(summary[task]["primary"]["ap_differences"].values())
-        summary[task]["primary"] |= {"mean_difference": float(np.mean(diffs)), "origins_won": sum(d > 0 for d in diffs),
-                                     "improved": bool(np.mean(diffs) > 0 and sum(d > 0 for d in diffs) >= 4)}
-    _save(output / "evaluation.json", {"version": VERSION, "windows": results, "summary": summary, "log": log})
+
+        def mean(metric: str, m: str) -> float | None:
+            vals = [w["methods"][m][metric] for w in windows.values() if w["methods"][m][metric] is not None]
+            return float(np.mean(vals)) if vals else None
+
+        def diff(w: dict) -> float | None:  # a non-evaluable origin (no positives) counts as not won
+            a, r = w["methods"][primary]["average_precision"], w["methods"][ref]["average_precision"]
+            return None if a is None or r is None else a - r
+        diffs = {k: diff(w) for k, w in windows.items()}
+        valid = [d for d in diffs.values() if d is not None]
+        won = sum(d > 0 for d in valid)
+        summary[task] = {"mean_ap": {m: mean("average_precision", m) for m in names},
+                         "mean_p_at_100": {m: mean("precision_at_k", m) for m in names},
+                         "primary": {"model": primary, "reference": ref, "ap_differences": diffs,
+                                     "evaluable_origins": len(valid), "origins_won": won,
+                                     "mean_difference": float(np.mean(valid)) if valid else None,
+                                     "improved": bool(valid and np.mean(valid) > 0 and won >= 4)}}
+    _save(output / "evaluation.json", {"version": version, "windows": results, "summary": summary, "log": log})
     _save(output / "suite.json", {"status": "completed", "elapsed_s": time.perf_counter() - started,
                                   "peak_memory_bytes": peak_memory_bytes(), "finished_utc": datetime.now(UTC).isoformat(),
-                                  "note": "development evidence: every window was inspected under prediction-v1"})
+                                  "note": note})
     return output

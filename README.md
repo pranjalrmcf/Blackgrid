@@ -18,6 +18,8 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
   forecast, viewable in the console as **Forecast connections**.
 - prediction-v2 (`blackgrid predict-rolling`, development evidence): a logistic model on time-decayed features beat
   the v1 winners in 4/5 rolling windows; the pre-registered boosted-tree model did not (D-076).
+- prediction-v3 (`blackgrid predict-confirm`): on unseen Bitcoin OTC data the v2 logistic model beat the v1 winners
+  in 5/5 windows in both tasks; the improvement is confirmed under a frozen protocol (D-078).
 - Forecasting is integrated into the agent: ask a "who will message next" question in the console. The AI planner
   picks the forecast tools, and a forecast checker verifies every statement (D-074).
 - Recent-activity methods beat static ones in both tasks. New connections remain hard to predict (AP about 0.002 at a
