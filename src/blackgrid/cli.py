@@ -467,6 +467,22 @@ def _cmd_forecast(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_predict_rolling(args: argparse.Namespace) -> int:
+    """prediction-v2: frozen rolling-origin evaluation (local, offline, USD 0; development evidence)."""
+    from blackgrid.collegemsg import load_events
+    from blackgrid.prediction.rolling import run
+
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("prediction output must be under runs/", file=sys.stderr)
+        return EXIT_INVALID
+    config = load_config(args.config)
+    table = load_events(args.data_root / config.dataset.path, config.dataset.sha256)
+    folder = run(list(table.events), args.output, protocol_path=REPO_ROOT / "protocols" / "sprint06_prediction_v2.md",
+                 data_sha256=table.sha256)
+    print(f"prediction-v2 completed: {folder}")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -512,6 +528,11 @@ def build_parser() -> argparse.ArgumentParser:
     predict.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
     predict.add_argument("--data-root", type=Path, default=REPO_ROOT)
     predict.set_defaults(func=_cmd_predict_eval)
+    rolling_p = sub.add_parser("predict-rolling", help="prediction-v2 rolling-origin evaluation (local)")
+    rolling_p.add_argument("config", type=Path)
+    rolling_p.add_argument("--output", type=Path, required=True)
+    rolling_p.add_argument("--data-root", type=Path, default=REPO_ROOT)
+    rolling_p.set_defaults(func=_cmd_predict_rolling)
     fc = sub.add_parser("forecast", help="Sprint 6: forecast connections from a frozen prediction-v1 evaluation")
     fc.add_argument("config", type=Path)
     fc.add_argument("--evaluation", type=Path, required=True, help="completed prediction-v1 folder, e.g. runs/sprint6-v1")

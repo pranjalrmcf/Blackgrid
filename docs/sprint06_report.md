@@ -105,3 +105,22 @@ Forecasting is now part of the main agent and console:
 - Correct task choice for new and repeat questions, with every statement accepted.
 - Correctly **refused** a request for probabilities and recommendations.
 - One planner reply ignored the 12,000-token reasoning limit (40,576 tokens). The safety reservation absorbed it.
+
+## Addendum: prediction-v2 (rolling evaluation of improvements, D-076)
+
+This run is development evidence: every CollegeMsg window had already been looked at in v1. It was frozen in advance
+and run once, with five rolling test windows and models trained only on earlier windows.
+
+| Mean AP over 5 windows | New connections | Repeat messages |
+|---|---:|---:|
+| v1 winner (recent activity / pair recency) | 0.0044 | 0.270 |
+| **logistic_v2** (new features, sampled training) | **0.0076** (won 4/5) | **0.288** (won 4/5) |
+| decayed-activity product (new heuristic) | 0.0053 (won 4/5) | 0.094 |
+| hgb_v2 (boosted trees; the **pre-registered primary**) | 0.0019 (won 0/5) | 0.254 (won 2/5) |
+| random | 0.0001 | 0.011 |
+
+**Pre-registered verdict:** no reliable improvement from boosted trees.
+
+**Secondary finding:** a logistic model on time-decayed features improved on the v1 winners in 4 of 5 windows for both
+tasks (about +70% AP for new connections, +7% for repeat messages). This needs confirmation on unseen data before it
+can count as a confirmed improvement.

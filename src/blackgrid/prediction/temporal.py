@@ -57,6 +57,9 @@ class History:
     pair_times: dict[Pair, list[int]] = field(repr=False, default_factory=dict)
     events: int = 0
     self_loops_excluded: int = 0
+    sent: Counter = field(default_factory=Counter)  # node -> historical events it sent (prediction-v2)
+    received: Counter = field(default_factory=Counter)  # node -> historical events it received
+    directed: frozenset = frozenset()  # (source, target) pairs observed before the cutoff
 
     def degree(self, node: int) -> int:
         return len(self.adjacency.get(node, ()))
@@ -93,6 +96,9 @@ def history(events: Iterable[Event], cutoff: int) -> History:
     node_times: dict[int, list[int]] = defaultdict(list)
     pair_times: dict[Pair, list[int]] = defaultdict(list)
     nodes: set[int] = set()
+    sent: Counter = Counter()
+    received: Counter = Counter()
+    directed: set[tuple[int, int]] = set()
     used = loops = 0
     for u, v, t in events:
         if t >= cutoff:
@@ -104,6 +110,9 @@ def history(events: Iterable[Event], cutoff: int) -> History:
             node_times[u].append(t)
             continue
         pair = canonical(u, v)
+        sent[u] += 1
+        received[v] += 1
+        directed.add((u, v))
         adjacency[u].add(v)
         adjacency[v].add(u)
         pair_count[pair] += 1
@@ -115,7 +124,8 @@ def history(events: Iterable[Event], cutoff: int) -> History:
         times.sort()
     return History(cutoff=cutoff, nodes=frozenset(nodes), adjacency={k: frozenset(s) for k, s in adjacency.items()},
                    pair_count=pair_count, pair_last=pair_last, node_times=dict(node_times),
-                   pair_times=dict(pair_times), events=used, self_loops_excluded=loops)
+                   pair_times=dict(pair_times), events=used, self_loops_excluded=loops, sent=sent,
+                   received=received, directed=frozenset(directed))
 
 
 @dataclass(frozen=True)

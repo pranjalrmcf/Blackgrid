@@ -931,3 +931,25 @@ All four findings were reproduced as failing tests before fixing.
 - **3b. Found during the live check:** a true validation-AP claim was falsely rejected (P3), because the validation compare output did not name the metric in its paths. The output now uses `methods/<m>/mean_average_precision`, and this is tested.
 - **Spend:** live work in D-073–D-075 totals USD 0.0344, within the existing allowance (about USD 0.441 left) and the user's USD 0.75 ceiling.
 - **Status:** active.
+
+### D-076 — prediction-v2: rolling evaluation of improved features and models (2026-10-18)
+- **Request (user):** "okay do it and tell me about the performance."
+- **Protocol:** `protocols/sprint06_prediction_v2.md`, frozen before any v2 computation and run once (`runs/sprint6-v2`): 214 s, 1.09 GB peak memory, USD 0. Aggregates are in `results/sprint06-v2/summary.json`.
+  - **Disclosure:** every CollegeMsg window was already inspected under v1, so this is development evidence.
+- **Design:**
+  - Five rolling origins (b5–b9), each training only on earlier cutoffs (tested).
+  - New features: decayed activity, recency, temporal triangle, direction, and for repeats a decayed pair count and reciprocity.
+  - Sampled, reweighted `new_pair` training: all positives plus 5% of negatives with weight 20, giving 192k–516k rows, all within the cap.
+  - Fixed `logistic_v2` and `hgb_v2`; the complete universe is always used in evaluation.
+- **Primary result (pre-registered): no reliable improvement.** `hgb_v2` against the v1 reference:
+  - `new_pair`: mean AP −0.0025; 0/5 origins won. P@100 was 0 in every window.
+  - `repeat_pair`: −0.016; 2/5 won.
+- **Secondary results (not pre-registered as primary; exploratory):**
+  - `new_pair` mean AP: `logistic_v2` 0.0076, decayed-activity product 0.0053, v1 reference 0.0044, random 0.0001. The logistic model won 4/5 origins, and so did the decay heuristic (both lost b7).
+  - `repeat_pair` mean AP: `logistic_v2` 0.288 against pair recency 0.270; 4/5 won (lost b9).
+  - The temporal triangle was weak in both tasks (new 0.0016, repeat 0.048).
+- **Reading:**
+  - Simple time-decayed signals plus a linear model look better than the v1 winners in most windows. Gradient-boosted trees did worse under the fixed settings (likely affected by the heavy reweighting); they were not tuned, by design.
+  - Confirming the logistic gain would need a pre-registered primary on genuinely unseen data (a later CollegeMsg extract or another dataset).
+- **Tests:** `tests/test_prediction_v2.py` (5 tests): hand-checked formulas, no future leakage in v2 columns, seeded sampling and weights, and training cutoffs always earlier than the origin.
+- **Status:** active.
