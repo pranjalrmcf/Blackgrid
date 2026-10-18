@@ -26,11 +26,28 @@ class ValidationInput:
     record: GraphRecord
 
 
+S4_CASE_IDS = tuple(f"val-{i:03}" for i in range(101, 125))  # Sprint 4 fresh instances (s4-v1)
+
+
+def case_index(case_id: str) -> int:
+    """Neutral index 1..24 shared by Sprint 3 (val-001..024) and Sprint 4 (val-101..124) case mixes."""
+    if case_id in CASE_IDS:
+        return int(case_id[-3:])
+    if case_id in S4_CASE_IDS:
+        return int(case_id[-3:]) - 100
+    raise ValueError("unknown validation case (sealed tests are inaccessible)")
+
+
+def generator_seed(case_id: str) -> int:
+    index = case_index(case_id)
+    if case_id in S4_CASE_IDS:  # protocols/sprint04_evaluation.md §1
+        return 3001 + 100 * (index - 1) if index <= 18 else 8100 + index - 18
+    return 1001 + 100 * (index - 1) if index <= 18 else 8000 + index - 18
+
+
 def validation_input(case_id: str) -> ValidationInput:
-    if case_id not in CASE_IDS:
-        raise ValueError("unknown validation case (sealed tests are inaccessible)")
-    index = int(case_id[-3:])
-    seed = 1001 + 100 * (index - 1) if index <= 18 else 8000 + index - 18
+    index = case_index(case_id)
+    seed = generator_seed(case_id)
     assert seed_allowed(case_id, seed)
     group = (index - 1) // 3
     task = TaskType.COMMUNITY_EVIDENCE
@@ -67,20 +84,20 @@ def validation_input(case_id: str) -> ValidationInput:
 
 
 def validation_spec(case_id: str) -> ExperimentSpec:
-    if case_id not in CASE_IDS:
-        raise ValueError("unknown validation case")
+    index = case_index(case_id)
+    sprint4 = case_id in S4_CASE_IDS
     return ExperimentSpec(
-        experiment_id=f"s3-{case_id}", graph_id=case_id, status="exploratory",
+        experiment_id=f"{'s4' if sprint4 else 's3'}-{case_id}", graph_id=case_id, status="exploratory",
         hypothesis="Louvain modularity exceeds degree-preserving randomizations.",
         competing_explanations=("degree heterogeneity", "disconnection", "sparsity"),
         task="community_structure_vs_null", method="louvain", statistic="modularity",
         null_model="degree_preserving_double_edge_swap", null_replicates=99,
-        seed=30000 + int(case_id[-3:]),
+        seed=(40000 if sprint4 else 30000) + index,
         sensitivity=EdgeRemovalSensitivity(mechanism="uniform", removal_fraction=.1, replicates=3))
 
 
-def public_registry() -> dict:
+def public_registry(case_ids: tuple[str, ...] = CASE_IDS) -> dict:
     return {"version": VALIDATION_VERSION, "cases": [
         {**item.public.model_dump(mode="json"), "nodes": item.record.active_nodes,
          "edges": item.record.unique_edges, "projection_sha256": item.record.projection_sha256}
-        for item in map(validation_input, CASE_IDS)]}
+        for item in map(validation_input, case_ids)]}

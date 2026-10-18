@@ -12,15 +12,13 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`,
 
 ## Status
 
-**Sprint 4 is in progress (repairs done; review and fresh evaluation pending).**
-- The five reproduced gaps R1–R5 are fixed, each with a regression in `tests/test_sprint4.py` (D-057):
-  - a live worker keeps its lease through long tool calls, and a displaced worker cannot publish;
-  - unimplemented methods are rejected;
-  - cache entries are validated before use;
-  - interruptions leave an accurate status.
-- `critic-v3` rejects unoperationalized strength wording and one-sided comparisons. It is provisional until the
-  blinded human review in [`docs/sprint04_review_rubric.md`](docs/sprint04_review_rubric.md) is completed.
-- A fresh frozen evaluation (Session 6) has not started.
+**Sprint 4 is complete as scoped** ([report](docs/sprint04_report.md)).
+- R1–R5 are fixed, each with a regression test.
+- A fresh, frozen offline evaluation (`blackgrid sprint4 --output runs/NEW`) ran 72 of 72 runs.
+- The workflow reproduces identically in a clean locked environment.
+- critic-v3 stops the scripted mock's unsupported claims. A rule baseline still matches or beats the agent arm, because
+  one "preregistered" wording is accepted by the critic but rejected by the reviewer.
+- No human has reviewed claims: the AI review was accepted and the human gate waived by the user (D-059). USD 0 spent.
 
 **Sprint 3's offline scope is implemented and evaluated.** It adds 24 fresh
 synthetic validation cases, paired mock evaluation with independent artifact scoring,

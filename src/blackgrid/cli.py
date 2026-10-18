@@ -375,6 +375,24 @@ def _cmd_sprint3_verify(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_sprint4(args: argparse.Namespace) -> int:
+    from blackgrid.sprint4 import export_summary, run_suite
+
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("Sprint 4 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
+        return EXIT_INVALID
+    try:
+        folder = run_suite(args.output)
+        status = json.loads((folder / "suite.json").read_text(encoding="utf-8"))["status"]
+        if (folder / "evaluation.json").is_file():
+            export_summary(folder, REPO_ROOT / "results" / f"sprint04-{folder.name}")
+    except (OSError, ValueError) as exc:
+        print(f"Sprint 4 failed: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(f"Sprint 4 {status}: {folder}")
+    return EXIT_OK if status == "completed" else EXIT_RUN_FAILED
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -385,6 +403,9 @@ def build_parser() -> argparse.ArgumentParser:
     verify3 = sub.add_parser("sprint3-verify", help="verify saved Sprint 3 artifacts and independent scores")
     verify3.add_argument("output", type=Path)
     verify3.set_defaults(func=_cmd_sprint3_verify)
+    sprint4 = sub.add_parser("sprint4", help="run the frozen Sprint 4 fresh evaluation (baseline, tool_only, validated)")
+    sprint4.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    sprint4.set_defaults(func=_cmd_sprint4)
 
     ingest = sub.add_parser("ingest", help="validate and describe full CollegeMsg without running inference")
     ingest.add_argument("config", type=Path)

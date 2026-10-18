@@ -122,9 +122,9 @@ def assess_claim(claim: dict, documents: dict) -> tuple[str, str]:
     return "unassessed", "outside frozen mock-language rubric"
 
 
-def expectation(case_id: str) -> dict:
+def expectation(case_id: str, index: int | None = None) -> dict:
     """Evaluator-only generator expectations, distinct from finite-graph test evidence."""
-    index = int(case_id[-3:])
+    index = int(case_id[-3:]) if index is None else index
     group = (index - 1) // 3
     acceptable = [("supported",), ("supported", "not_supported", "inconclusive", "abstain"),
                   ("not_supported", "inconclusive"), ("not_supported", "inconclusive"),
@@ -135,17 +135,21 @@ def expectation(case_id: str) -> dict:
             "note": "Generator expectation only; not a known finite-graph significance answer."}
 
 
-def evaluate_run(run_dir: Path, case_id: str) -> tuple[dict, list[dict]]:
+def evaluate_run(run_dir: Path, case_id: str, *, index: int | None = None,
+                 assess=assess_claim) -> tuple[dict, list[dict]]:
+    """Score one saved run. `index` is the neutral case index (default: the ID's digits, as in Sprint 3);
+    `assess` is the frozen claim rubric (default: s3-eval-v1.1)."""
+    index = int(case_id[-3:]) if index is None else index
     docs = verify_artifacts(run_dir)
     manifest_status = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8")).get("status")
     inv = docs["investigation.json"]
     exp = docs.get("experiment_report.json")
     claims = inv["reported_claims"]
-    scored = [{"claim": c, "assessment": assess_claim(c, docs)} for c in claims]
+    scored = [{"claim": c, "assessment": assess(c, docs)} for c in claims]
     unsupported = sum(c["assessment"][0] == "unsupported" for c in scored)
     unassessed = sum(c["assessment"][0] == "unassessed" for c in scored)
-    key = expectation(case_id)
-    refusal = int(case_id[-3:]) > 18
+    key = expectation(case_id, index)
+    refusal = index > 18
     graph_verdict = numerical_verdict(exp) if exp else None
     expected = "rejected" if refusal else graph_verdict
     flags = set()
@@ -160,7 +164,7 @@ def evaluate_run(run_dir: Path, case_id: str) -> tuple[dict, list[dict]]:
         if exp["verdict"] != graph_verdict:
             raise ValueError("experiment verdict contradicts independent rule")
     if refusal:
-        flags.add("invalid_method" if int(case_id[-3:]) % 2 else "causal_not_identified")
+        flags.add("invalid_method" if index % 2 else "causal_not_identified")
     complete = manifest_status == "completed" and inv["status"] == "completed" and (refusal or
                 all(name in docs for name in ("experiment_report.json", "sensitivity.json")) and
                 not inv["missing_analyses"])
@@ -186,12 +190,12 @@ def evaluate_run(run_dir: Path, case_id: str) -> tuple[dict, list[dict]]:
             "run_dir": run_dir.name}, scored
 
 
-def failure_row(case_id: str, condition: str) -> dict:
+def failure_row(case_id: str, condition: str, index: int | None = None) -> dict:
     """Keep an unscorable attempt in the case denominator; unknown claim counts stay explicit."""
     return {"case": case_id, "condition": condition, "status": "evaluation_failed", "verdict": None,
             "evidence_verdict": None, "evidence_consistent": False, "generator_expectation_match": False,
             "required_flags": [], "flags_ok": False, "complete": False, "useful": False,
-            "refusal_task": int(case_id[-3:]) > 18, "claims": 0, "assessed": 0,
+            "refusal_task": (int(case_id[-3:]) if index is None else index) > 18, "claims": 0, "assessed": 0,
             "unsupported": 0, "unassessed": 0, "claim_fraction": None,
             "claim_counts_unknown": True, "discovery_opportunity": False, "discovery_recovered": False,
             "llm_calls": 0, "tokens": 0, "usage_unknown": True, "usd": 0, "missing_analyses": [],
@@ -208,9 +212,10 @@ def paired_interval(values: list[float]) -> dict:
             "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only"}
 
 
-def summarize(rows: list[dict]) -> dict:
+def summarize(rows: list[dict], conditions: tuple[str, ...] = ("tool_only", "validated"),
+              pairs_of: tuple[tuple[str, str], ...] = (("validated", "tool_only"),)) -> dict:
     output = {}
-    for condition in ("tool_only", "validated"):
+    for condition in conditions:
         group = [r for r in rows if r["condition"] == condition]
         total = lambda key: sum(r[key] for r in group)
         assessed = total("assessed")
@@ -237,10 +242,11 @@ def summarize(rows: list[dict]) -> dict:
     pairs = {}
     for r in rows:
         pairs.setdefault(r["case"], {})[r["condition"]] = r
-    matched = [p for p in pairs.values() if len(p) == 2]
-    output["paired_validated_minus_tool_only"] = {
-        "useful_fraction": paired_interval([int(p["validated"]["useful"]) - int(p["tool_only"]["useful"]) for p in matched]),
-        "macro_unsupported_fraction": paired_interval([
-            p["validated"]["claim_fraction"] - p["tool_only"]["claim_fraction"] for p in matched
-            if all(p[c]["claim_fraction"] is not None for c in ("tool_only", "validated"))])}
+    for a, b in pairs_of:
+        matched = [p for p in pairs.values() if a in p and b in p]
+        output[f"paired_{a}_minus_{b}"] = {
+            "useful_fraction": paired_interval([int(p[a]["useful"]) - int(p[b]["useful"]) for p in matched]),
+            "macro_unsupported_fraction": paired_interval([
+                p[a]["claim_fraction"] - p[b]["claim_fraction"] for p in matched
+                if all(p[c]["claim_fraction"] is not None for c in (a, b))])}
     return output

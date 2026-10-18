@@ -1,0 +1,1201 @@
+{
+  "summary": {
+    "status": "development evidence only: reviewer is an AI, critic-v3 was written knowing these claim forms",
+    "critic_version": "critic-v3",
+    "reviewers": {
+      "Codex_AI": 81
+    },
+    "claims": 81,
+    "sheet_sha256": "3d2705c523cc183b0ef84853e7e0802f4a1cf4049fd7fa816c61e63f66349af9",
+    "review_vs_critic_v3": {
+      "both_accept": 14,
+      "both_reject": 53,
+      "review_accepts_critic_rejects": 0,
+      "review_rejects_critic_accepts": 14
+    },
+    "review_vs_sprint3_evaluator": {
+      "both_accept": 14,
+      "both_reject": 53,
+      "review_accepts_evaluator_rejects": 0,
+      "review_rejects_evaluator_accepts": 14
+    },
+    "disagreements_with_critic_v3": [
+      {
+        "review_id": "review-004",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-013",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-022",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-027",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-032",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-033",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-040",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-041",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-042",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-043",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-049",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-053",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-065",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      },
+      {
+        "review_id": "review-069",
+        "condition": "validated",
+        "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+        "reviewer": "Codex_AI",
+        "review_support": "partly_supported",
+        "review_accepts": false,
+        "sprint3_evaluator": "supported",
+        "critic_v3_accepts": true,
+        "critic_v3_reasons": []
+      }
+    ]
+  },
+  "rows": [
+    {
+      "review_id": "review-001",
+      "condition": "validated",
+      "claim": "The network has strong community structure (modularity Q = 0.562).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-002",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.521 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-003",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.376 (p = 0.550).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-004",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-005",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.298 (p = 0.110).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-006",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.594).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-007",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.350).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-008",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.345).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-009",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.327).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-010",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.351 (p = 0.460).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-011",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.419 (p = 0.930).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-012",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.521).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-013",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-014",
+      "condition": "tool_only",
+      "claim": "The highest-degree nodes cause the community structure.",
+      "reviewer": "Codex_AI",
+      "review_support": "unsupported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R4: evidence level 'identified_causal' is not supported by any Sprint 1 tool",
+        "R5: causal language without an estimand or identification argument",
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'"
+      ]
+    },
+    {
+      "review_id": "review-015",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.559).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-016",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.331 (p = 0.140).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-017",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.750 versus a degree-preserving null mean of 0.488 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-018",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.274 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-019",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.303 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-020",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.489 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-021",
+      "condition": "validated",
+      "claim": "Observed modularity exceeds the null mean of 0.407 (p = 0.020).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-022",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-023",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.295 versus a degree-preserving null mean of 0.294 (p = 0.480).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-024",
+      "condition": "tool_only",
+      "claim": "The highest-degree nodes cause the community structure.",
+      "reviewer": "Codex_AI",
+      "review_support": "unsupported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R4: evidence level 'identified_causal' is not supported by any Sprint 1 tool",
+        "R5: causal language without an estimand or identification argument",
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'"
+      ]
+    },
+    {
+      "review_id": "review-025",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.352).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-026",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.324 (p = 0.450).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-027",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-028",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.292 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-029",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.373).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-030",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.344 (p = 0.340).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-031",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.352).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-032",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-033",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-034",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.496 (p = 0.020).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-035",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.581).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-036",
+      "condition": "validated",
+      "claim": "Observed modularity exceeds the null mean of 0.274 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-037",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.750 versus a degree-preserving null mean of 0.486 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-038",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.320).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-039",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.750).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-040",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-041",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-042",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-043",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-044",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.352 versus a degree-preserving null mean of 0.376 (p = 0.980).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-045",
+      "condition": "validated",
+      "claim": "Observed modularity exceeds the null mean of 0.292 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-046",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.394).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-047",
+      "condition": "tool_only",
+      "claim": "The highest-degree nodes cause the community structure.",
+      "reviewer": "Codex_AI",
+      "review_support": "unsupported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R4: evidence level 'identified_causal' is not supported by any Sprint 1 tool",
+        "R5: causal language without an estimand or identification argument",
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'"
+      ]
+    },
+    {
+      "review_id": "review-048",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.349 (p = 0.360).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-049",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-050",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.602 versus a degree-preserving null mean of 0.521 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-051",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.750).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-052",
+      "condition": "validated",
+      "claim": "The network has strong community structure (modularity Q = 0.559).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-053",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'not_supported' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-054",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.594 versus a degree-preserving null mean of 0.496 (p = 0.020).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-055",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.295).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-056",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.435).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-057",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.376 (p = 0.980).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-058",
+      "condition": "validated",
+      "claim": "The network has strong community structure (modularity Q = 0.435).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-059",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.350 versus a degree-preserving null mean of 0.344 (p = 0.340).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-060",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.750).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-061",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.562).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-062",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.443 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-063",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.320 versus a degree-preserving null mean of 0.298 (p = 0.110).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-064",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.358).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-065",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-066",
+      "condition": "validated",
+      "claim": "The network has strong community structure (modularity Q = 0.581).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-067",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.407 (p = 0.020).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-068",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.521 versus a degree-preserving null mean of 0.443 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-069",
+      "condition": "validated",
+      "claim": "Under the preregistered rule the verdict is 'inconclusive' for this graph only.",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-070",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.394 versus a degree-preserving null mean of 0.419 (p = 0.930).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-071",
+      "condition": "validated",
+      "claim": "Observed modularity exceeds the null mean of 0.303 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-072",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.350).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'not_supported'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-073",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.373 versus a degree-preserving null mean of 0.376 (p = 0.550).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-074",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.488 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-075",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.350 versus a degree-preserving null mean of 0.331 (p = 0.140).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-076",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.486 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: comparison with the null does not cite an observed value"
+      ]
+    },
+    {
+      "review_id": "review-077",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.294 (p = 0.480).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-078",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.345 versus a degree-preserving null mean of 0.371 (p = 0.900).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    },
+    {
+      "review_id": "review-079",
+      "condition": "tool_only",
+      "claim": "The network has strong community structure (modularity Q = 0.602).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R6: asserts community structure but the preregistered verdict is 'inconclusive'",
+        "R8: strength wording 'strong' has no preregistered threshold; report the numbers (Q, null mean, delta Q, p) instead"
+      ]
+    },
+    {
+      "review_id": "review-080",
+      "condition": "tool_only",
+      "claim": "Observed modularity exceeds the null mean of 0.371 (p = 0.900).",
+      "reviewer": "Codex_AI",
+      "review_support": "partly_supported",
+      "review_accepts": false,
+      "sprint3_evaluator": "unsupported",
+      "critic_v3_accepts": false,
+      "critic_v3_reasons": [
+        "R7: says observed exceeds the null, but delta_q/p do not show that"
+      ]
+    },
+    {
+      "review_id": "review-081",
+      "condition": "validated",
+      "claim": "Modularity Q = 0.750 versus a degree-preserving null mean of 0.489 (p = 0.010).",
+      "reviewer": "Codex_AI",
+      "review_support": "supported",
+      "review_accepts": true,
+      "sprint3_evaluator": "supported",
+      "critic_v3_accepts": true,
+      "critic_v3_reasons": []
+    }
+  ]
+}

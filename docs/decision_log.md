@@ -646,3 +646,41 @@ All four findings were reproduced as failing tests before fixing.
 - **Review gate:** `docs/sprint04_review_rubric.md` (`review-rubric-v1`) was frozen before any judgment, and `results/sprint04-review/review_sheet.csv` (81 blinded claims) awaits human reviewers. **Pending.**
 - **Not started:** Session 6 (fresh frozen evaluation and clean reproduction). It needs the human review first.
 - **Status:** active.
+
+### D-058 — Review sheet completed by an AI reviewer; comparison with critic-v3 (2026-10-18)
+- **Who reviewed:** all 81 rows of `results/sprint04-review/review_sheet.csv` were filled by **Codex_AI**, an AI assistant, with zero human reviewers.
+  - Its own record says the review was neither fully blind nor independent of development (`ai_review_metadata.json`, `AI_REVIEW.md`).
+  - The **human-review gate therefore stays pending.** This review is not ground truth.
+- **Comparison** (`scripts/compare_sprint4_review.py` → `results/sprint04-review/comparison.json`), counting a claim as accepted when it is `supported` and not misleading:
+  - AI review vs critic-v3: 14 both accept, 53 both reject, 0 accepted by the review but rejected by critic-v3, 14 accepted by critic-v3 but rejected by the review.
+  - AI review vs the Sprint 3 evaluator: the same split, 14 / 53 / 0 / 14.
+- **The 14 disagreements are all one claim form:** "Under the preregistered rule the verdict is X for this graph only."
+  - The verdict cites the right field, but nothing cited documents "preregistered".
+  - The AI reviewer itself flagged these for human adjudication, at medium confidence.
+  - **critic-v3 is not changed on this basis.** That decision waits for a human reviewer.
+- **Caveat:** critic-v3 was written knowing these claim forms, and the AI reviewer had seen earlier results. Agreement here is a development check, not a measure of how well the critic works.
+- **Status:** active. Next: a human review of a blank copy of the sheet without seeing the AI labels, then Session 6.
+
+### D-059 — Human-review gate waived by the user for Sprint 4 (2026-10-18)
+- **Decision (user, verbatim):** "I accept the AI review as the reviewer for now; record that the human gate is waived by me and continue to Session 6."
+- **Effect:**
+  - Session 6 may proceed using `review-rubric-v1` and the Codex_AI review (D-058) as the claim-support reference.
+  - critic-v3 stays as committed. The 14 "preregistered"-wording disagreements stay unresolved and are reported, not tuned away.
+- **What this does not change:**
+  - No human has reviewed any claim; `human_reviewers = 0`.
+  - Claim-support results from Sprint 4 are labelled *AI-reviewed*, not human-validated, and cannot support any claim of human-validated critic efficacy.
+  - The waiver is "for now". A later human review must be recorded separately and must not overwrite the AI rows.
+- **Status:** active.
+
+### D-060 — Sprint 4 Session 6: fresh evaluation s4-v1 and clean reproduction (2026-10-18)
+- **Protocol:** `protocols/sprint04_evaluation.md` was frozen before any s4 case was generated.
+  - 24 new cases, `val-101`–`val-124`. Seeds are 3001–4704 and 8101–8106; families and parameters are reused and disclosed.
+  - Arms: rule baseline, tool_only and validated. Scoring: `s4-eval-v1`, primary plus a "preregistered wording accepted" sensitivity scoring.
+- **Execution:** `runs/sprint4-v1` completed: 72/72 attempts, 0 suite errors, 0 overlaps, 333 s, USD 0. The summary is in `results/sprint04-sprint4-v1/`.
+- **Results:**
+  - Useful answers (primary): baseline 24, tool_only 0, validated 6.
+  - Useful answers (sensitivity): 24 / 0 / 24.
+  - Unsupported/assessed (primary): 0/36, 45/45, 18/36.
+  - Every validated shortfall is the "Under the preregistered rule…" claim, which critic-v3 accepts and the AI-reviewed rubric rejects. It is not tuned away; it needs a new versioned protocol.
+- **Reproduction:** in a clean copy with `uv sync --frozen --offline`, 248 passed and 1 skipped (`leidenalg` extra absent). A first-window mock run there matched the working-tree uncached and cached runs exactly (Q, null values, p, verdict, sensitivity, claims).
+- **Status:** active. Sprint 4 work is complete as scoped, with the human review waived (D-059). Report: `docs/sprint04_report.md`.

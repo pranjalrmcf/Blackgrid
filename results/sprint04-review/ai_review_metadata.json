@@ -1,0 +1,55 @@
+{
+  "reviewer": "Codex_AI",
+  "reviewer_type": "AI_assistant",
+  "review_date": "2026-10-18",
+  "rubric": "review-rubric-v1",
+  "rubric_sha256": "64b01592c1f6e000e61c1f9147d7254cfd669489b1380d292a855bd1f1e6691a",
+  "rows_reviewed": 81,
+  "human_reviewers": 0,
+  "human_review_gate": "pending",
+  "fully_blinded": false,
+  "independence": "The assistant previously authored Sprint 3 evaluation code and has seen prior summaries and condition information in this conversation. These are development judgments, not independent human ground truth.",
+  "review_inputs": "Only the review sheet and frozen rubric were used to judge these rows. No critic/evaluator scoring code, evaluator_private mapping, generator truth or scientific run-folder contents were consulted during this review.",
+  "original_sha256": "c78b848a442fe15757da50d6cefbb62f599beffb2c2ff84706b15d8a2914d31e",
+  "completed_sha256": "3d2705c523cc183b0ef84853e7e0802f4a1cf4049fd7fa816c61e63f66349af9",
+  "original_preserved_in_git": true,
+  "support_counts": {
+    "partly_supported": 64,
+    "unsupported": 3,
+    "supported": 14
+  },
+  "strength_wording_counts": {
+    "unsupported": 25,
+    "n/a": 56
+  },
+  "comparison_complete_counts": {
+    "n/a": 42,
+    "no": 25,
+    "yes": 14
+  },
+  "misleading_counts": {
+    "yes": 67,
+    "no": 14
+  },
+  "confidence_counts": {
+    "high": 67,
+    "medium": 14
+  },
+  "preregistration_qualification_rows": [
+    "review-004",
+    "review-013",
+    "review-022",
+    "review-027",
+    "review-032",
+    "review-033",
+    "review-040",
+    "review-041",
+    "review-042",
+    "review-043",
+    "review-049",
+    "review-053",
+    "review-065",
+    "review-069"
+  ],
+  "qualification": "The 14 preregistration judgments flag missing cited protocol evidence. They do not conclude that the rule was not preregistered and should be checked by an independent human reviewer."
+}
