@@ -25,8 +25,8 @@ OVERREACH = re.compile(r"\b(significan\w*|generali[sz]\w*|all (colleges|networks
 COLD_START = re.compile(r"\b(new (users?|people|students|nodes?|members?)|newcomers?|unseen (nodes?|people|users?)|"
                         r"cold[- ]start)\b", re.I)
 NEGATED = re.compile(r"\b(not|no|never|excluded|exclude[sd]?|cannot|without)\b", re.I)
-METRICS = {"average precision": "average_precision", "AP": "average_precision", "precision@": "precision_at_k",
-           "recall@": "recall_at_k", "AUC": "roc_auc"}
+METRICS = {"average precision": ("average_precision", "ap_difference"), "AP": ("average_precision", "ap_difference"),
+           "precision@": ("precision_at_k",), "recall@": ("recall_at_k",), "AUC": ("roc_auc",)}
 
 
 def check(claim: dict, evidence: dict[str, object], scope: dict) -> list[str]:
@@ -53,7 +53,7 @@ def check(claim: dict, evidence: dict[str, object], scope: dict) -> list[str]:
     for word, field in METRICS.items():
         pattern = re.escape(word) if not word.isalpha() else rf"\b{re.escape(word)}\b"
         if re.search(pattern, text, re.I if word.islower() else 0) and not any(p.endswith(field) for p in cited):
-            reasons.append(f"P3: mentions {word.strip('@')} without citing a {field} field")
+            reasons.append(f"P3: mentions {word.strip('@')} without citing a {field[0]} field")
     if PROBABILITY.search(text):
         reasons.append("P4: scores are uncalibrated rankings; no probability, chance or calibration wording")
     if CAUSAL.search(text) or INFLUENCE.search(text):

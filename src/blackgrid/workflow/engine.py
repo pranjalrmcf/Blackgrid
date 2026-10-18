@@ -505,7 +505,12 @@ def forecast_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
             from blackgrid.prediction.service import PredictionTools
 
             table = load_events(data_root / source.path, source.sha256)  # checksum-verified
-            cache["tools"] = PredictionTools(list(table.events), evaluation)
+            results = Path(__file__).resolve().parents[3] / "results"
+            cache["tools"] = PredictionTools(list(table.events), evaluation,
+                                             rolling=results / "sprint06-v2" / "summary.json",
+                                             confirmation=results / "sprint06-v3-bitcoin" / "summary.json",
+                                             model_cache=rt.run_dir.parent / "forecast_models",
+                                             data_sha256=source.sha256)
         return cache["tools"]
     return build
 
@@ -876,6 +881,24 @@ def forecast_suggestions(ctx: ToolContext) -> list[dict]:
                             f"{pred['method']} for the next {pred['horizon_days']} days; scores are uncalibrated rankings.",
                     "evidence_level": "descriptive", "scope": {"split": "prospective"},
                     "evidence": ["link_prediction.json#/candidates", "link_prediction.json#/horizon_days"]})
+    if pred and comp and comp.get("split") == "rolling":
+        m, methods, conf = pred["method"], comp.get("methods", {}), comp.get("confirmation")
+        if m in methods:
+            out.append({"text": f"Across {comp['windows']} rolling windows on this dataset (development evidence), {m} "
+                                f"had mean average precision {methods[m]['mean_average_precision']:.4f}.",
+                        "evidence_level": "descriptive", "scope": {"split": "test"},
+                        "evidence": ["prediction_compare.json#/windows",
+                                     f"prediction_compare.json#/methods/{m}/mean_average_precision"]})
+        if conf and m == "logistic_v2":
+            out.append({"text": f"On an unseen dataset ({conf['dataset']}), {m} won {conf['origins_won']} of "
+                                f"{conf['evaluable_origins']} windows against {conf['reference']}, with mean average "
+                                f"precision {conf['logistic_v2']['mean_average_precision']:.4f} versus "
+                                f"{conf['reference_method']['mean_average_precision']:.4f}.",
+                        "evidence_level": "descriptive", "scope": {"split": "test"},
+                        "evidence": ["prediction_compare.json#/confirmation/origins_won",
+                                     "prediction_compare.json#/confirmation/evaluable_origins",
+                                     "prediction_compare.json#/confirmation/logistic_v2/mean_average_precision",
+                                     "prediction_compare.json#/confirmation/reference_method/mean_average_precision"]})
     if pred and comp and comp.get("split") == "test":
         m, cut = pred["method"], comp.get("cutoffs", {})
         if all(cut.get(c, {}).get(m, {}).get("average_precision") is not None for c in ("b8", "b9")):

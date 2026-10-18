@@ -42,12 +42,12 @@ class TemporalProfileArgs(Contract):
 
 class LinkPredictionArgs(Contract):
     task: Literal["new_pair", "repeat_pair"]
-    method: str = "selected"  # "selected" = the frozen prediction-v1 temporal choice for this task
+    method: str = "selected"  # "selected" = logistic_v2 where confirmed (D-079), else the prediction-v1 choice
 
 
 class PredictionCompareArgs(Contract):
     task: Literal["new_pair", "repeat_pair"]
-    split: Literal["validation", "test"] = "validation"
+    split: Literal["validation", "test", "rolling"] = "validation"
 
 
 TOOLS = {"temporal_profile": TemporalProfileArgs, "link_prediction": LinkPredictionArgs,
@@ -69,13 +69,24 @@ def parse(request: object) -> tuple[str, Contract]:
 class PredictionTools:
     """Bound to one event table and one frozen evaluation folder (trusted inputs)."""
 
-    def __init__(self, events: list[Event], evaluation: Path) -> None:
+    def __init__(self, events: list[Event], evaluation: Path, *, rolling: Path | None = None,
+                 confirmation: Path | None = None, model_cache: Path | None = None, data_sha256: str = "unknown") -> None:
         self.events = events
         self.evaluation = evaluation
         self.b = boundaries(events)
         self.horizon = self.b[1] - self.b[0]
         self.cutoff = self.b[10]  # prospective: all validated history; fixed by the system, not the planner
         self.selection = json.loads((evaluation / "selection.json").read_text(encoding="utf-8"))["selection"]
+        load = lambda p: json.loads(p.read_text(encoding="utf-8")) if p and p.is_file() else None
+        self.rolling = load(rolling)  # prediction-v2 aggregates on this dataset (development evidence)
+        self.confirmation = load(confirmation)  # prediction-v3 aggregates on unseen data (confirmatory)
+        self.model_cache = model_cache
+        self.data_sha256 = data_sha256
+
+    def promoted(self, task: Task) -> bool:
+        """logistic_v2 becomes the default only where H1 was confirmed on unseen data (D-078/D-079)."""
+        conf = (self.confirmation or {}).get("summary", {}).get(task, {}).get("primary", {})
+        return bool(conf.get("improved") and conf.get("model") == "logistic_v2" and self.rolling)
 
     def call(self, request: object) -> dict:
         name, args = parse(request)
@@ -88,8 +99,13 @@ class PredictionTools:
                 "first_event": self.b[0], "candidates": {t: candidate_count(hist, t) for t in ("new_pair", "repeat_pair")}}
 
     def resolve_method(self, task: Task, method: str) -> str:
-        name = self.selection[task]["temporal"] if method == "selected" else method
+        if method == "selected":
+            name = "logistic_v2" if self.promoted(task) else self.selection[task]["temporal"]
+        else:
+            name = method
         allowed = {m.name for m in S.methods_for(task)} | {self.selection[task]["temporal"]}
+        if self.promoted(task):
+            allowed.add("logistic_v2")
         if name not in allowed:
             raise PredictionToolRejected(f"method {name!r} is not registered for {task}")
         return name
@@ -98,7 +114,9 @@ class PredictionTools:
         task, name = args.task, self.resolve_method(args.task, args.method)
         hist = history(self.events, self.cutoff)
         refit = None
-        if name.startswith("logistic_C"):  # frozen configuration, refitted on all labelled history (no tuning)
+        if name == "logistic_v2":
+            scores_, snap, refit = self._logistic_v2(task, hist)
+        elif name.startswith("logistic_C"):  # frozen configuration, refitted on all labelled history (no tuning)
             snaps = []
             for i in range(2, 10):
                 h = history(self.events, self.b[i])
@@ -122,7 +140,46 @@ class PredictionTools:
                 "scores": "uncalibrated ranking scores", "refit": refit,
                 "top_score_ties": int(np.sum(scores_ == scores_[order[0]])) if snap.size else 0}
 
+    def _logistic_v2(self, task: Task, hist):
+        """Train once on all labelled history (labels end by the last event), cache plain parameters as JSON."""
+        from blackgrid.prediction import rolling as R
+        from blackgrid.prediction.features_v2 import add_v2_columns
+
+        key = hashlib.sha256(f"{R.VERSION}|logistic_v2|{task}|{self.data_sha256}|{self.b}".encode()).hexdigest()[:24]
+        path = self.model_cache / f"{key}.json" if self.model_cache else None
+        from_cache = bool(path and path.is_file())
+        if from_cache:
+            params = json.loads(path.read_text(encoding="utf-8"))
+        else:
+            x, y, w, used = R.training_pool(self.events, task, 9)  # b2..b9; labels end by b10 (the last event)
+            params = R.fit_logistic_params(x, y, w) | {"training_rows": int(len(y)), "training_cutoffs": used}
+            if path:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(params), encoding="utf-8")
+        snap = add_v2_columns(build_snapshot(hist, task, self.horizon), hist, task, float(self.horizon))
+        scores_ = R.score_logistic_params(params, R.design(snap.columns, R.feature_names(task)))
+        return scores_, snap, {"rows": params["training_rows"], "converged": params["converged"],
+                               "cached_model": from_cache}
+
     def prediction_compare(self, args: PredictionCompareArgs) -> dict:
+        if args.split == "rolling" and not self.rolling:  # fall back to the frozen v1 test, and say so
+            return self.prediction_compare(PredictionCompareArgs(task=args.task, split="test")) | {
+                "requested_split": "rolling", "note": "no rolling evaluation for this dataset; showing the v1 sealed test"}
+        if args.split == "rolling":
+            mine = self.rolling["summary"][args.task]
+            conf = (self.confirmation or {}).get("summary", {}).get(args.task, {})
+            out = {"task": args.task, "split": "rolling", "windows": len(mine["primary"]["ap_differences"]),
+                   "evidence": "development (all windows inspected under prediction-v1)",
+                   "methods": {m: {"mean_average_precision": v} for m, v in mine["mean_ap"].items()}}
+            if conf:
+                prim = conf["primary"]
+                out["confirmation"] = {
+                    "dataset": (self.confirmation.get("dataset") or {}).get("dataset_id"), "verdict":
+                    "confirmed" if prim.get("improved") else "not confirmed", "origins_won": prim["origins_won"],
+                    "evaluable_origins": prim["evaluable_origins"], "reference": prim["reference"],
+                    "logistic_v2": {"mean_average_precision": conf["mean_ap"]["logistic_v2"]},
+                    "reference_method": {"mean_average_precision": conf["mean_ap"][prim["reference"]]}}
+            return out
         val = json.loads((self.evaluation / "validation.json").read_text(encoding="utf-8"))[args.task]["table"]
         if args.split == "validation":
             # Paths name the metric (".../methods/<m>/mean_average_precision") so a cited AP is checkable (D-075).
@@ -150,12 +207,13 @@ def _flatten(prefix: str, value: object, out: dict) -> dict:
 
 
 def forecast(events: list[Event], evaluation: Path, output: Path, task: Task, method: str = "selected",
-             data_sha256: str = "unknown") -> Path:
+             data_sha256: str = "unknown", **tool_kwargs) -> Path:
     """Prospective forecast (no realized labels yet) with evidence-linked, checked claims."""
     output = output.resolve()
-    tools = PredictionTools(events, evaluation)
+    tools = PredictionTools(events, evaluation, data_sha256=data_sha256, **tool_kwargs)
+    split = "rolling" if tools.resolve_method(task, method) == "logistic_v2" else "test"
     plan = [{"tool": "temporal_profile", "args": {}}, {"tool": "link_prediction", "args": {"task": task, "method": method}},
-            {"tool": "prediction_compare", "args": {"task": task, "split": "test"}}]
+            {"tool": "prediction_compare", "args": {"task": task, "split": split}}]
     for step in plan:  # validate the whole plan before any artifact is written
         name, checked = parse(step)
         if name == "link_prediction":
@@ -178,7 +236,7 @@ def forecast(events: list[Event], evaluation: Path, output: Path, task: Task, me
          "evidence": ["forecast.json#/prediction/candidates", "forecast.json#/prediction/horizon_days"],
          "scope": scope},
     ]
-    ap = {c: {k: v["average_precision"] for k, v in cut.items()} for c, cut in compare["cutoffs"].items()}
+    ap = {c: {k: v["average_precision"] for k, v in cut.items()} for c, cut in compare.get("cutoffs", {}).items()}
     if m in ap.get("b8", {}) and ap["b8"][m] is not None and ap["b9"].get(m) is not None:
         claims.append({"text": f"In the frozen prediction-v1 test, {m} had average precision {ap['b8'][m]:.4f} (b8) and "
                                f"{ap['b9'][m]:.4f} (b9), against prevalence {compare['prevalence']['b8']:.5f} and "
@@ -187,6 +245,23 @@ def forecast(events: list[Event], evaluation: Path, output: Path, task: Task, me
                                     f"forecast.json#/compare/cutoffs/b9/{m}/average_precision",
                                     "forecast.json#/compare/prevalence/b8", "forecast.json#/compare/prevalence/b9"],
                        "scope": test_scope})
+    if compare.get("split") == "rolling":
+        methods, conf = compare.get("methods", {}), compare.get("confirmation")
+        if m in methods:
+            claims.append({"text": f"Across {compare['windows']} rolling windows on this dataset (development evidence), "
+                                   f"{m} had mean average precision {methods[m]['mean_average_precision']:.4f}.",
+                           "evidence": ["forecast.json#/compare/windows",
+                                        f"forecast.json#/compare/methods/{m}/mean_average_precision"], "scope": test_scope})
+        if conf and m == "logistic_v2":
+            claims.append({"text": f"On an unseen dataset ({conf['dataset']}), {m} won {conf['origins_won']} of "
+                                   f"{conf['evaluable_origins']} windows against {conf['reference']}, with mean average "
+                                   f"precision {conf['logistic_v2']['mean_average_precision']:.4f} versus "
+                                   f"{conf['reference_method']['mean_average_precision']:.4f}.",
+                           "evidence": ["forecast.json#/compare/confirmation/origins_won",
+                                        "forecast.json#/compare/confirmation/evaluable_origins",
+                                        "forecast.json#/compare/confirmation/logistic_v2/mean_average_precision",
+                                        "forecast.json#/compare/confirmation/reference_method/mean_average_precision"],
+                           "scope": test_scope})
     claims.append({"text": "Pairs involving people first seen after the cutoff are excluded; this forecast says nothing "
                            "about them, and no realized outcome exists yet.",
                    "evidence": ["forecast.json#/prediction/candidate_policy"], "scope": scope})

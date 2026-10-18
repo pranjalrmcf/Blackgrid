@@ -457,7 +457,10 @@ def _cmd_forecast(args: argparse.Namespace) -> int:
     table = load_events(args.data_root / config.dataset.path, config.dataset.sha256)
     out = args.runs_dir / f"forecast-{args.task}-{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
     try:
-        folder = forecast(list(table.events), args.evaluation, out, args.task, args.method, data_sha256=table.sha256)
+        folder = forecast(list(table.events), args.evaluation, out, args.task, args.method, data_sha256=table.sha256,
+                          rolling=REPO_ROOT / "results" / "sprint06-v2" / "summary.json",
+                          confirmation=REPO_ROOT / "results" / "sprint06-v3-bitcoin" / "summary.json",
+                          model_cache=args.runs_dir / "forecast_models")
     except PredictionToolRejected as exc:
         print(f"forecast rejected: {exc}", file=sys.stderr)
         return EXIT_INVALID

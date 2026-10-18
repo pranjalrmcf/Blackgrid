@@ -48,6 +48,7 @@
     "model": "anthropic/claude-haiku-5.5",
     "max_tokens_per_call": 16000,
     "reasoning_max_tokens": 12000,
+    "provider_ignore": ["Wafer"],
     "request_timeout_s": 240
   }
 }

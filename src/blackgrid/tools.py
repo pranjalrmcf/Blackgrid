@@ -88,7 +88,7 @@ class _LinkPredictionArgs(Contract):
 
 class _PredictionCompareArgs(Contract):
     task: Literal["new_pair", "repeat_pair"]
-    split: Literal["validation", "test"] = "validation"
+    split: Literal["validation", "test", "rolling"] = "validation"
 
 
 TOOLS: dict[str, type[Contract]] = {
@@ -119,11 +119,13 @@ def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R
         "temporal_profile": "Forecast history summary at the fixed cutoff (last observed event): event, node, pair and "
                             "candidate counts. Args: {}.",
         "link_prediction": "Rank known-node pairs for the next fixed horizon. Args: {\"task\": \"new_pair\" (never "
-                           "messaged before) or \"repeat_pair\" (messaged before), \"method\": \"selected\" (frozen "
-                           "validation choice) or a registered heuristic}. Returns aggregates only; scores are "
+                           "messaged before) or \"repeat_pair\" (messaged before), \"method\": \"selected\" (the "
+                           "confirmed logistic_v2 model where available) or a registered heuristic}. Returns aggregates only; scores are "
                            "uncalibrated rankings. Cutoff and horizon cannot be changed.",
-        "prediction_compare": "Frozen prediction-v1 evaluation aggregates. Args: {\"task\": same task, \"split\": "
-                              "\"validation\" or \"test\"}. Test labels are never available.",
+        "prediction_compare": "Evaluation aggregates. Args: {\"task\": same task, \"split\": \"rolling\" (rolling "
+                              "windows here plus confirmation on an unseen dataset; use with the selected logistic_v2), "
+                              "\"test\" (prediction-v1 sealed test of the v1 methods) or \"validation\"}. Labels are "
+                              "never available.",
         "edge_removal_sensitivity": f"Prespecified {sens.removal_fraction:.0%} {sens.mechanism} edge-removal "
                                     f"sensitivity, {sens.replicates} replicates with {sensitivity_null_replicates} "
                                     "nulls each. Requires community_test first. Args: {}.",

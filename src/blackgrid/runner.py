@@ -97,7 +97,8 @@ def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | No
     if not key:
         raise LiveNotAuthorized("no OPEN_ROUTER_API_KEY (or OPENROUTER_API_KEY) in the environment or .env")
     return OpenRouterProvider(config.llm.model, key, timeout_s=config.llm.request_timeout_s,
-                              reasoning_max_tokens=config.llm.reasoning_max_tokens)
+                              reasoning_max_tokens=config.llm.reasoning_max_tokens,
+                              provider_ignore=config.llm.provider_ignore)
 
 
 def model_name(config: RunConfig, replay_from: Path | None) -> str:

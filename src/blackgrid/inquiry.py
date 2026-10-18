@@ -41,7 +41,7 @@ def requirements(question: str, request: dict) -> dict[str, dict]:
     kind = family(question, request)
     if kind == "forecast":
         task = forecast_task(question)
-        return {"link_prediction": {"task": task}, "prediction_compare": {"task": task, "split": "test"}}
+        return {"link_prediction": {"task": task}, "prediction_compare": {"task": task, "split": "rolling"}}
     if kind == "centrality":
         required = {"node_centrality": {}}
     elif kind == "bridge":
@@ -118,7 +118,12 @@ def validate_forecast(question: str, request: dict, plan: dict) -> tuple[bool, l
     required = requirements(question, request)
     task = checked.get("link_prediction", required["link_prediction"])["task"]
     checked.setdefault("link_prediction", {"task": task})
-    checked["prediction_compare"] = {"task": task, "split": checked.get("prediction_compare", {}).get("split", "test")}
+    method = checked["link_prediction"].get("method", "selected")
+    # The selected (promoted) model is evaluated in the rolling evidence; v1 test/validation tables describe other
+    # methods, so the controller fixes the split to match the forecast's method (D-079).
+    split = "rolling" if method in ("selected", "logistic_v2") else \
+        checked.get("prediction_compare", {}).get("split", "test")
+    checked["prediction_compare"] = {"task": task, "split": split}
     order = {"temporal_profile": 0, "link_prediction": 1, "prediction_compare": 2}
     plan_calls = [{"tool": name, "args": checked[name]} for name in sorted(checked, key=order.get)]
     return True, plan_calls, "Validated forecast plan; cutoff, horizon and candidates are fixed by the system."

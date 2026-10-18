@@ -380,7 +380,13 @@ function viewAnswer(d){
       const p=d.link_prediction, c=d.prediction_compare || {}, m=p.method, cut=c.cutoffs || {};
       const ap=k=>{ const v=((cut[k]||{})[m]||{}).average_precision; return typeof v==='number' ? (v<0.01 ? v.toExponential(2) : v.toFixed(3)) : '—'; };
       title=p.task==='repeat_pair'?'Here are the past pairs most likely to message again.':'Here are the unconnected pairs most likely to message next.';
-      explanation=p.candidates+' known-node pairs were ranked with '+m+' for the next '+p.horizon_days+' days after the last observed message. In the sealed test this method reached average precision '+ap('b8')+' and '+ap('b9')+'. Scores are rankings, not probabilities, and people first seen later are not covered.';
+      const fmt=v=>typeof v==='number' ? (v<0.01 ? v.toExponential(2) : v.toFixed(3)) : '—';
+      let evidence='In the sealed test this method reached average precision '+ap('b8')+' and '+ap('b9')+'.';
+      if(c.split==='rolling'){
+        const own=((c.methods||{})[m]||{}).mean_average_precision, conf=c.confirmation;
+        evidence='Across '+c.windows+' rolling windows here it averaged '+fmt(own)+' average precision.'+(conf?' On unseen '+conf.dataset+' data it beat '+conf.reference+' in '+conf.origins_won+' of '+conf.evaluable_origins+' windows.':'');
+      }
+      explanation=p.candidates+' known-node pairs were ranked with '+m+' for the next '+p.horizon_days+' days after the last observed message. '+evidence+' Scores are rankings, not probabilities, and people first seen later are not covered.';
     } else if(d.bridges){
       const rows=d.bridges.rows || [], top=rows.find(r=>r.bridge_rank===1);
       title='Here are the nodes connecting different groups.';

@@ -218,11 +218,12 @@ class OpenRouterProvider:
     name = "openrouter"
 
     def __init__(self, model: str, api_key: str, timeout_s: float = 60.0,
-                 reasoning_max_tokens: int | None = None) -> None:
+                 reasoning_max_tokens: int | None = None, provider_ignore: tuple[str, ...] = ()) -> None:
         self.model = model
         self._key = api_key  # never logged
         self.timeout_s = timeout_s
         self.reasoning_max_tokens = reasoning_max_tokens
+        self.provider_ignore = tuple(provider_ignore)
         self._pricing: Pricing | None = None
 
     def __repr__(self) -> str:  # keep the key out of any accidental repr
@@ -259,6 +260,8 @@ class OpenRouterProvider:
         # D-075: one upstream ignored max_tokens/reasoning limits (40,576 tokens). Only route to upstream providers
         # that support every parameter sent; if none does, OpenRouter refuses instead of silently overrunning.
         request_body["provider"] = {"require_parameters": True}
+        if self.provider_ignore:
+            request_body["provider"]["ignore"] = list(self.provider_ignore)
         body = json.dumps(request_body).encode("utf-8")
         request = urllib.request.Request(
             f"{OPENROUTER_BASE}/chat/completions", data=body, method="POST",

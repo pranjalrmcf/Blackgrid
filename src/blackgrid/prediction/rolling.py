@@ -72,6 +72,43 @@ def sample_mask(task: Task, cutoff: int, pairs: list, labels: np.ndarray) -> tup
     return keep, weights
 
 
+def fit_logistic_params(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> dict:
+    """logistic_v2 exactly as in prediction-v2/v3, returned as plain numbers (no pickle) for a JSON cache."""
+    scaler = StandardScaler().fit(x, sample_weight=w)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", ConvergenceWarning)
+        logit = LogisticRegression(C=1.0, max_iter=300).fit(scaler.transform(x), y, sample_weight=w)
+    return {"mean": scaler.mean_.tolist(), "scale": scaler.scale_.tolist(), "coef": logit.coef_[0].tolist(),
+            "intercept": float(logit.intercept_[0]),
+            "converged": not any(issubclass(c.category, ConvergenceWarning) for c in caught)}
+
+
+def score_logistic_params(params: dict, x: np.ndarray) -> np.ndarray:
+    """Same value as LogisticRegression.decision_function on the scaled design (checked in tests)."""
+    z = (x - np.asarray(params["mean"], np.float32)) / np.asarray(params["scale"], np.float32)
+    return z.astype(np.float64) @ np.asarray(params["coef"]) + params["intercept"]
+
+
+def training_pool(events: list[Event], task: Task, last_cutoff_index: int,
+                  active_window_bins: int | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[int]]:
+    """Sampled, reweighted rows from cutoffs b2..b(last) whose labels all end by b(last + 1)."""
+    b = boundaries(events)
+    horizon = b[1] - b[0]
+    xs, ys, ws, used = [], [], [], []
+    for i in range(FIRST_TRAIN, last_cutoff_index + 1):
+        hist = history(events, b[i])
+        if active_window_bins:
+            hist.restrict_to_active(active_window_bins * horizon)
+        snap = add_v2_columns(build_snapshot(hist, task, horizon), hist, task, float(horizon))
+        attach_labels(snap, hist, horizon_labels(events, hist, b[i + 1]))
+        keep, weights = sample_mask(task, b[i], list(candidates(hist, task)), snap.labels)
+        xs.append(design(snap.columns, feature_names(task), keep))
+        ys.append(snap.labels[keep])
+        ws.append(weights[keep])
+        used.append(i)
+    return np.vstack(xs), np.concatenate(ys), np.concatenate(ws), used
+
+
 def fit_models(x: np.ndarray, y: np.ndarray, w: np.ndarray) -> dict:
     models = {}
     scaler = StandardScaler().fit(x, sample_weight=w)

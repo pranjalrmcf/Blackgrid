@@ -993,3 +993,21 @@ All four findings were reproduced as failing tests before fixing.
   - No significance test.
   - Results now cover a messaging network (development evidence) and a rating network (confirmatory).
 - **Status:** active.
+
+### D-079 — logistic_v2 promoted to the default forecaster; routing follow-up (2026-10-18)
+- **Request (user):** "okay go ahead", in reply to the proposal to make the confirmed logistic model the console's default. Reddit was **not** treated as approved, because a rights decision needs an explicit answer.
+- **Promotion rule:** `method: "selected"` resolves to `logistic_v2` **only** for tasks where the confirmation file (`results/sprint06-v3-bitcoin/summary.json`) records H1 as confirmed. Otherwise it falls back to the prediction-v1 choice, and `logistic_v2` cannot even be selected. Tested both ways.
+- **Model:**
+  - Trained once on all labelled CollegeMsg history (b2–b9, labels end at the last event), with v2 features and the same sampling and weighting: 603,181 new-pair rows and 98,386 repeat rows.
+  - The model is cached as plain JSON parameters (scaler mean and scale, coefficients, intercept), not a pickle. Its scores equal scikit-learn's `decision_function` (tested).
+  - The first forecast takes about 2.3 min; cached forecasts take about 20 s, with identical rankings.
+- **Evidence:**
+  - `prediction_compare` gains `split: "rolling"`: the prediction-v2 rolling means (labelled development evidence) plus the Bitcoin confirmation. Without a rolling file it falls back to the v1 test and says so.
+  - The controller fixes the comparison split to "rolling" whenever the forecast uses the selected model, so evidence always describes the forecast's own method.
+  - The checker accepts `…ap_difference` fields as AP evidence (a live false rejection was observed).
+- **Routing follow-up (corrects D-075):** `require_parameters` was **not sufficient**. Live run `20261018T175430Z-6adc0d` again returned 40,576 planner tokens, from upstream **Wafer**.
+  - New `LLMConfig.provider_ignore`, sent as `provider.ignore`. Both live configs exclude `["Wafer"]`.
+  - The follow-up live run used DeepInfra and BaseTen, with no overrun; one run cannot prove the problem is gone. The 3× reservation remains.
+- **Live checks:** 2 runs. USD 0.0209 (the overrun run; all 4 claims shown, 1 false rejection now fixed) and USD 0.0011 (clean; 3/3 claims accepted, evidence matches the method).
+  - Live spend for D-073–D-079 totals about USD 0.056, within the allowance (about USD 0.42 left) and the user's USD 0.75 limit.
+- **Status:** active.

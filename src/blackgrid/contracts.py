@@ -373,6 +373,8 @@ class LLMConfig(Contract):
     # Explicit hidden-reasoning budget sent to OpenRouter (`reasoning.max_tokens`), so reasoning cannot
     # consume an unbounded completion (D-063). None sends no reasoning setting (provider default).
     reasoning_max_tokens: int | None = Field(default=None, ge=0, le=16_000)
+    # OpenRouter upstreams never to route to (D-079: one returned 40,576 tokens despite max_tokens/reasoning limits).
+    provider_ignore: tuple[str, ...] = ()
     request_timeout_s: float = Field(default=60.0, gt=0, le=300)
 
     @model_validator(mode="after")
