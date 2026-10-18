@@ -40,7 +40,15 @@ from blackgrid.contracts import (
     canonical_sha256,
 )
 from blackgrid.providers import PricingUnavailable
-from blackgrid.runner import REPO_ROOT, LiveNotAuthorized, capture_environment, make_provider, run_investigation, write_json
+from blackgrid.runner import (
+    REPO_ROOT,
+    LiveNotAuthorized,
+    apply_env_model,
+    capture_environment,
+    make_provider,
+    run_investigation,
+    write_json,
+)
 
 EXIT_OK = 0
 EXIT_INVALID = 1
@@ -86,6 +94,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         overrides = {k: v for k, v in (("mode", args.mode), ("condition", args.condition)) if v}
         if overrides:
             config = RunConfig.model_validate(config.model_dump(mode="json") | overrides)
+        config = apply_env_model(config, args.env_file)
     except (OSError, ValidationError, ValueError) as exc:
         print(f"invalid config: {exc}", file=sys.stderr)
         return EXIT_INVALID

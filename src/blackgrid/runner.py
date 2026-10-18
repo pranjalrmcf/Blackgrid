@@ -30,6 +30,7 @@ from blackgrid.providers import (
     ReplayProvider,
     api_key_from_env,
     load_env_file,
+    model_from_env,
 )
 from blackgrid.report import Report, build_report, check_numbers, render_markdown
 
@@ -62,6 +63,23 @@ def capture_environment() -> Environment:
         python=platform.python_version(), platform=platform.platform(), blackgrid_version=__version__,
         dependency_lock_sha256=hashlib.sha256(lock.read_bytes()).hexdigest() if lock.is_file() else None,
         source_commit=_git("rev-parse", "HEAD") or None, source_dirty=None if status is None else bool(status))
+
+
+def apply_env_model(config: RunConfig, env_file: Path) -> RunConfig:
+    """Live mode: a model set in the environment or .env (OPEN_ROUTER_MODEL) overrides the config.
+
+    The override is applied to the config itself, so the run's config.json and config hash record
+    the model that was actually used.
+    """
+    if config.mode is not ExecutionMode.LIVE:
+        return config
+    load_env_file(env_file)
+    model = model_from_env()
+    if not model or model == config.llm.model:
+        return config
+    data = config.model_dump(mode="json")
+    data["llm"]["model"] = model
+    return RunConfig.model_validate(data)
 
 
 def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | None, env_file: Path) -> Provider:

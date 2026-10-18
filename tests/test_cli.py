@@ -100,6 +100,21 @@ def test_live_mode_refused_without_explicit_authorization(tmp_path, capsys):
     assert "--allow-paid" in capsys.readouterr().err
 
 
+def test_model_name_comes_from_env_file_in_live_mode_only(tmp_path, monkeypatch):
+    from blackgrid.contracts import RunConfig
+    from blackgrid.runner import apply_env_model
+
+    for name in ("OPEN_ROUTER_MODEL", "OPENROUTER_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+    env = tmp_path / ".env"
+    env.write_text("OPEN_ROUTER_API_KEY=sk-test\nOPEN_ROUTER_MODEL=vendor/some-model\n", encoding="utf-8")
+    base = json.loads(CONFIG.read_text(encoding="utf-8"))
+    live = RunConfig.model_validate(base | {"mode": "live", "paid_execution_authorized": True})
+    assert apply_env_model(live, env).llm.model == "vendor/some-model"
+    mock = RunConfig.model_validate(base)
+    assert apply_env_model(mock, env).llm.model == mock.llm.model  # mock never reads .env
+
+
 def test_replay_reproduces_a_mock_run(tmp_path):
     config = fixture_config(tmp_path, planted_events())
     _, first_dir, first = run(tmp_path, config)

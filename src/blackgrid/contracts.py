@@ -90,6 +90,7 @@ class Outcome(StrEnum):
 
 class RunStatus(StrEnum):
     COMPLETED = "completed"
+    PARTIAL = "partial"  # finished, but a required analysis is missing: the question is only partly answered
     ABSTAINED = "abstained"
     FAILED = "failed"
     CANCELLED = "cancelled"
@@ -341,7 +342,7 @@ class LLMConfig(Contract):
     """Provider settings. The model is only contacted in live mode; pricing is fetched before any call."""
 
     model: NonEmpty = "anthropic/claude-haiku-5.5"
-    max_tokens_per_call: int = Field(default=1_200, ge=64, le=4_000)
+    max_tokens_per_call: int = Field(default=2_000, ge=64, le=4_000)
     request_timeout_s: float = Field(default=60.0, gt=0, le=120)
 
 

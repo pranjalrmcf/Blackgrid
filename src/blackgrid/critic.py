@@ -4,7 +4,9 @@ Rubric (version `critic-v1`), applied to every drafted claim:
 
   R1 schema        text present (<= 500 chars); known evidence level; evidence is a list of paths
   R2 evidence      factual claims cite >= 1 artifact path, and every cited path exists
-  R3 numbers       every number in the text equals a cited value at the displayed precision
+  R3 numbers       every number equals a cited value at the displayed precision (x100 only when written
+                   with '%'), and a labelled number (Q, p, z, null mean, sd, delta Q) matches a cited
+                   field with that meaning
   R4 level         Sprint 1 tools support only `descriptive` (or `unsupported`) claims
   R5 causal        causal language is rejected: no estimand or identification argument exists
   R6 structure     "has community structure"-type wording needs verdict == supported
@@ -21,7 +23,7 @@ from dataclasses import dataclass
 from blackgrid.contracts import Contract, EvidenceLevel, NonEmpty
 from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
 
-CRITIC_VERSION = "critic-v1"
+CRITIC_VERSION = "critic-v2"  # v2: no bare x100 matches; labelled numbers must match their field (D-038)
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -41,18 +43,44 @@ def numeric_tokens(text: str) -> list[tuple[str, bool]]:
 
 
 def number_matches(token: str, percent: bool, value: object) -> bool:
+    """A bare number must equal the value; only a number written with '%' may equal value x 100."""
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return False
     shown = float(token)
     decimals = len(token.split(".")[1]) if "." in token else 0
-    for candidate in ((value * 100,) if percent else (value, value * 100)):
-        if abs(round(candidate, decimals) - shown) < 1e-9:
-            return True
-    return False
+    candidate = value * 100 if percent else value
+    return abs(round(candidate, decimals) - shown) < 1e-9
 
 
 def unsupported_numbers(text: str, values: list[object]) -> list[str]:
     return [t + ("%" if p else "") for t, p in numeric_tokens(text) if not any(number_matches(t, p, v) for v in values)]
+
+
+# A labelled number must match a cited field with that meaning, not just any cited value.
+_NUM = r"\(?\s*(-?\d+(?:\.\d+)?)(?!\.?\d)(?![A-Za-z_%])"
+_LINK = r"\s*(?:=|:|of|is|was)?\s*"
+LABELS: tuple[tuple[str, re.Pattern, tuple[str, ...]], ...] = (
+    ("delta Q", re.compile(r"\bdelta\s*Q" + _LINK + _NUM, re.I), ("delta_q",)),
+    ("null mean", re.compile(r"\bnull mean" + _LINK + _NUM, re.I), ("null/mean",)),
+    ("null sd", re.compile(r"\b(?:null )?sd" + _LINK + _NUM, re.I), ("null/sd",)),
+    ("Q (observed modularity)", re.compile(r"(?<!delta )(?<!delta)\b(?:[Mm]odularity(?:\s+Q)?|Q)" + _LINK + _NUM),
+     ("observed_statistic", "observed_q_min", "observed_q_max", "observed_q_median")),
+    ("p-value", re.compile(r"\bp(?:-value|_value| value)?" + _LINK + _NUM, re.I), ("p_value",)),
+    ("z", re.compile(r"\bz" + _LINK + _NUM), ("/z",)),
+)
+
+
+def mislabelled_numbers(text: str, cited: dict[str, object]) -> list[str]:
+    """Numbers attached to a known label (Q, p, z, null mean, ...) that match no cited field of that meaning."""
+    cleaned = ISO_TIME.sub(" ", text.replace("−", "-"))
+    problems = []
+    for name, pattern, suffixes in LABELS:
+        for m in pattern.finditer(cleaned):
+            token = m.group(1)
+            fields = [v for path, v in cited.items() if path.endswith(suffixes)]
+            if not any(number_matches(token, False, v) for v in fields):
+                problems.append(f"{name} = {token}")
+    return problems
 
 
 @dataclass(frozen=True)
@@ -90,9 +118,13 @@ def critique(claim: object, ctx: CriticContext) -> CriticDecision:
     missing = [x for x in links if x not in ctx.evidence]
     if missing:
         reasons.append(f"R2: cited evidence not found: {missing[:3]}")
-    bad = unsupported_numbers(text, [ctx.evidence[x] for x in links if x in ctx.evidence])
+    cited = {x: ctx.evidence[x] for x in links if x in ctx.evidence}
+    bad = unsupported_numbers(text, list(cited.values()))
     if bad:
         reasons.append(f"R3: numbers not matching cited evidence: {bad[:5]}")
+    wrong_meaning = mislabelled_numbers(text, cited)
+    if wrong_meaning:
+        reasons.append(f"R3: labelled numbers do not match a cited field of that meaning: {wrong_meaning[:5]}")
     if level in {e.value for e in EvidenceLevel} and EvidenceLevel(level) not in ALLOWED_LEVELS:
         reasons.append(f"R4: evidence level '{level}' is not supported by any Sprint 1 tool")
         if level == EvidenceLevel.IDENTIFIED_CAUSAL:
@@ -122,6 +154,8 @@ class PlanDecision(Contract):
 
 
 ORDER = {"profile_graph": 0, "community_test": 1, "edge_removal_sensitivity": 2}
+# The preregistered protocol (exp-v1.1 §1-§9) answers the question with both analyses; neither is optional.
+REQUIRED_TOOLS = {"community_test": {"method": "louvain"}, "edge_removal_sensitivity": {}}
 
 
 def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
@@ -152,7 +186,10 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
         except ToolRejected as exc:
             return PlanDecision(allowed=False, refusal_flag="invalid_method", reasons=(str(exc),))
         checked.append({"tool": name, "args": args.model_dump(mode="json")})
+    planned = {c["tool"] for c in checked}
+    added = [name for name in REQUIRED_TOOLS if name not in planned]
+    checked += [{"tool": name, "args": REQUIRED_TOOLS[name]} for name in added]
     checked.sort(key=lambda c: ORDER[c["tool"]])  # enforce prerequisite order
-    reasons = () if any(c["tool"] == "community_test" for c in checked) else (
-        "plan omits the preregistered community_test; no verdict can be reached",)
+    reasons = tuple(f"added {name}: required by the preregistered protocol but omitted by the planner"
+                    for name in added)
     return PlanDecision(allowed=True, reasons=reasons, tool_calls=tuple(checked))

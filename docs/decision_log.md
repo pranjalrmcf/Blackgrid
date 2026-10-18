@@ -318,3 +318,82 @@ Append-only. Each entry: ID, date (UTC), decision, rationale, status. Never edit
 - **Model:** the default `anthropic/claude-haiku-5.5` is unverified; an attempted catalogue lookup returned no pricing fields.
 - **Test coverage:** the OpenRouter HTTP path is tested only through its refusal paths and redaction (no paid calls made). Its first real call is untested.
 - **Status:** active.
+
+### D-036 — Model ID read from `.env` (2026-10-18)
+- **Decision:** At the user's request, live mode reads the OpenRouter model ID from `OPEN_ROUTER_MODEL` (or `OPENROUTER_MODEL`) in the environment or `.env`. It overrides `llm.model` in the config.
+- **Recording:** the override is applied to the run config itself, so `config.json` and the config hash record the model actually used.
+- **Scope:** mock and replay modes ignore `.env`.
+- **Files:**
+  - `OPEN_ROUTER_MODEL=anthropic/claude-haiku-5.5` was appended to the user's `.env` (the key line is untouched; values were never printed);
+  - `.env.example` (placeholders only) is committable via a `.gitignore` exception.
+- **Status:** active. The model ID is still unverified (D-035).
+
+### D-037 — First live run failed on truncated replies; fixed (2026-10-18)
+- **Run:** `20261018T061010Z-7e90d5` (user-run, live, validated).
+  - OpenRouter resolved `anthropic/claude-haiku-5.5` at $0.10/M input and $0.50/M output tokens.
+  - 3 calls, $0.0020.
+- **Failure:** The planner succeeded. Both analyst replies hit `max_tokens_per_call` (1,200 completion tokens), were cut off mid-JSON, and the run failed with `analyst_failed: schema`. The retry resent the identical prompt.
+- **What the trace shows:** the model's draft claims were accurate and correctly cited, just too many. Completion tokens greatly exceeded the visible text, which suggests the model also spends completion tokens on internal reasoning.
+- **Fix (prompts-v2):**
+  - Read `finish_reason`; a `length` reply is never parsed and is reported as truncated.
+  - The retry carries a corrective note asking for fewer, shorter claims.
+  - The analyst is limited to at most 5 claims under 35 words each.
+  - The default per-call cap rises from 1,200 to 2,000 tokens; the per-run cap of 20,000 is unchanged.
+  - A revision that the budget cannot afford now drops the rejected claims instead of failing the run.
+- **Tests:** regression tests added. 141 tests pass.
+- **Record:** the failed run is preserved. The fix is **not yet verified live**.
+- **Status:** active.
+
+### D-038 — Number checks: no bare x100, labelled numbers must match their meaning (2026-10-18)
+- **Trigger:** an external review (Codex), confirmed against the code.
+- **Problems found:**
+  - `number_matches` accepted value × 100 even without a `%` sign, so a cited Q of 0.587 could "support" `Q = 58.7`.
+  - Any cited value could support any number, so `Q = 0.593` passed when the null mean (0.593) was cited.
+- **Fix (critic-v2, eval-v2):**
+  - ×100 applies only to numbers written with `%`.
+  - Numbers attached to a label must match a cited field of that meaning. The labels are Q/modularity, p, z, null mean, sd, and delta Q.
+  - The rule is applied in the critic, in the report number check, and in the pilot evaluator.
+- **Effect on results:** none. CollegeMsg and the pilot give identical results under v2.
+- **Status:** active.
+
+### D-039 — Spending caps made hard limits (2026-10-18)
+- **Trigger:** external review, confirmed in the live artifacts.
+- **Evidence:** in run `20261018T061637Z-89dcc9`:
+  - the first call was reserved at $0.000654;
+  - list price × tokens was $0.000650;
+  - OpenRouter **reported $0.000908** (1.39× list price), above the reservation.
+
+  Failed calls (HTTP 404) had been booked at only the estimated input cost.
+- **Fix:**
+  - **Money reservation:** uses a strict prompt bound (UTF-8 bytes + 64 tokens per message) plus the full `max_tokens`, at **2× list price**.
+  - **Failed calls:** a call with unknown billing books its whole reservation.
+  - **Breach handling:** any charge above its reservation halts all further paid calls, and the run ends `budget_exhausted` with the reason recorded.
+  - The token cap still uses the typical estimate.
+- **Guarantee and its assumptions:** the caps are hard limits provided the provider honours `max_tokens` and charges at most 2× list price. A breach of those assumptions is detected after one call and stops everything.
+- **Status:** active.
+
+### D-040 — Required analyses: no "completed" for a partial answer (2026-10-18)
+- **Trigger:** external review.
+- **Evidence:** in `20261018T061637Z-89dcc9`, the live planner chose only `community_test` and skipped `edge_removal_sensitivity`, which the question and protocol (exp-v1.1 §9) require. The run was still marked `completed`.
+- **Fix:**
+  - The plan validator adds any required analysis the planner omitted, and records that it did.
+  - In both conditions, a run missing a required analysis ends with the new status **`partial`**. It reports `missing_analyses` and states "PARTIAL ANSWER" in the report and UI.
+  - Exit code 2.
+- **Reclassification:** that run's stored status is historical and was not edited. Under these rules it is **partial**.
+- **Status:** active.
+
+### D-041 — Live run history to date (2026-10-18)
+
+All live runs were made by the user.
+
+| Run | Model | Outcome | Calls | Cost |
+|---|---|---|---|---|
+| `061010` | `anthropic/claude-haiku-5.5` | failed: truncated analyst (D-037) | 3 | $0.00195 |
+| `061353` | `anthropic/claude-haiku-5.5` | failed: HTTP 404 ×2 (the model is listed with a price, but its endpoint returned 404) | 2 | $0.00011 |
+| `061609` | `deepseek/deepseek-v4.1-flash` | failed: HTTP 404 ×2 | 2 | $0.00007 |
+| `061637` | `deepseek/deepseek-v4-flash-0731` | completed, verdict `not_supported` (planner and analyst each truncated once; retries succeeded; reviser used) | 5 | $0.00293 |
+
+- **Totals:** sprint ledger $0.0051 of $10.
+- **On `061637`:** it is *partial* under D-040, because sensitivity was skipped. Its first two truncations returned **0 visible characters**: the model spent all 2,000 output tokens on hidden reasoning.
+- **Not yet done:** no live run has used the D-038–D-040 fixes.
+- **Status:** recorded.

@@ -34,14 +34,25 @@ from blackgrid.contracts import (
     RunStatus,
     ToolCallRecord,
 )
-from blackgrid.critic import CRITIC_VERSION, CriticContext, CriticDecision, PlanDecision, critique, validate_plan
+from blackgrid.critic import (
+    CRITIC_VERSION,
+    REQUIRED_TOOLS,
+    CriticContext,
+    CriticDecision,
+    PlanDecision,
+    critique,
+    validate_plan,
+)
 from blackgrid.experiment import profile
 from blackgrid.providers import Provider, ProviderError, ReplayMismatch, prompt_sha256
-from blackgrid.tools import TOOL_DESCRIPTIONS, AnswerKeyAccess, ToolContext, ToolRejected, execute
+from blackgrid.tools import ARTIFACT_NAMES, TOOL_DESCRIPTIONS, AnswerKeyAccess, ToolContext, ToolRejected, execute
 
 Condition = Literal["validated", "tool_only"]
 VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
-PROMPT_VERSION = "prompts-v1"
+PROMPT_VERSION = "prompts-v2"  # v2: claim-count/length limits and corrective retry notes (D-037)
+RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
+                   "JSON only, at most 3 claims, each under 30 words.")
+RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
 
 SYSTEM = {
     "planner": (
@@ -57,7 +68,8 @@ SYSTEM = {
         "Every claim must cite evidence paths copied exactly from the provided evidence map, and every number "
         "in a claim must be copied from a cited value (you may round). Use evidence_level 'descriptive'. "
         "Do not make causal claims. Do not say communities exist unless the preregistered verdict is "
-        "'supported'. Mention every flag that applies. "
+        "'supported'. Mention every flag that applies. Write at most 5 claims, each under 35 words; prefer "
+        "fewer, information-dense claims. "
         'Reply with JSON only: {"verdict": one of ' + json.dumps(list(VERDICTS[:4])) + ', "flags": [str], '
         '"claims": [{"text": str, "evidence_level": str, "evidence": [path]}]}.'),
 }
@@ -94,6 +106,7 @@ class InvestigationResult(Contract):
     verdict: NonEmpty
     analyst_verdict: str | None = None
     flags: tuple[NonEmpty, ...] = ()
+    missing_analyses: tuple[NonEmpty, ...] = ()  # required by the protocol but not produced
     plan: dict | None = None
     plan_decision: PlanDecision | None = None
     drafts: tuple[dict, ...] = ()
@@ -143,7 +156,7 @@ def parse_json(text: str) -> dict:
 
 class Controller:
     def __init__(self, provider: Provider, ledger: BudgetLedger, mode: ExecutionMode, run_dir: Path | None,
-                 max_tokens_per_call: int = 1_200, deadline_s: float = 900.0) -> None:
+                 max_tokens_per_call: int = 2_000, deadline_s: float = 900.0) -> None:
         self.provider, self.ledger, self.mode = provider, ledger, mode
         self.run_dir = run_dir
         if run_dir is not None:
@@ -155,17 +168,18 @@ class Controller:
     # --- LLM calls with budget, one retry, and a local trace ---
 
     def ask(self, role: str, payload: dict) -> dict:
-        messages = [{"role": "system", "content": SYSTEM[role]},
-                    {"role": "user", "content": json.dumps(payload, sort_keys=True, default=str)}]
+        base = [{"role": "system", "content": SYSTEM[role]},
+                {"role": "user", "content": json.dumps(payload, sort_keys=True, default=str)}]
+        messages = base
         last_error = "unknown"
         for attempt in range(1 + self.ledger.limits.max_retries_per_call):
             self._check_deadline()
-            self.ledger.reserve(messages[0]["content"] + messages[1]["content"], self.max_tokens)
+            self.ledger.reserve("".join(m["content"] for m in messages), self.max_tokens, messages=len(messages))
             sha = prompt_sha256(messages)
             try:
                 completion = self.provider.complete(role, payload, messages, self.max_tokens)
             except (ProviderError, ReplayMismatch) as exc:
-                usd = self.ledger.commit(self.ledger.events[-1]["prompt_tokens_est"], 0)  # assume billed
+                usd = self.ledger.commit_unknown()  # billing unknown: book the full worst-case reservation
                 last_error = f"{type(exc).__name__}: {exc}"
                 self.calls.append(LLMCallSummary(role=role, prompt_sha256=sha, prompt_tokens=0, completion_tokens=0,
                                                  usd=usd, ok=False, error=last_error[:200]))
@@ -174,13 +188,19 @@ class Controller:
                 continue
             usd = self.ledger.commit(completion.prompt_tokens, completion.completion_tokens, completion.reported_usd)
             self._trace(role, sha, messages, completion, usd)
+            if self.ledger.halted:  # charged above the reservation: stop all paid calls now
+                raise BudgetExceeded(f"paid calls halted: {self.ledger.halted}")
             try:
+                if completion.finish_reason == "length":  # never parse a reply that was cut off
+                    raise ValueError(f"truncated: reply hit max_tokens ({self.max_tokens})")
                 parsed = parse_json(completion.text)
             except (ValueError, json.JSONDecodeError) as exc:
                 last_error = f"schema: {exc}"
                 self.calls.append(LLMCallSummary(role=role, prompt_sha256=sha, prompt_tokens=completion.prompt_tokens,
                                                  completion_tokens=completion.completion_tokens, usd=usd, ok=False,
                                                  error=last_error))
+                note = (RETRY_TRUNCATED if completion.finish_reason == "length" else RETRY_INVALID)
+                messages = base + [{"role": "user", "content": note}]
                 continue
             self.calls.append(LLMCallSummary(role=role, prompt_sha256=sha, prompt_tokens=completion.prompt_tokens,
                                              completion_tokens=completion.completion_tokens, usd=usd, ok=True))
@@ -192,7 +212,8 @@ class Controller:
             return
         entry = {"role": role, "prompt_sha256": sha, "messages": messages, "response": completion.text,
                  "prompt_tokens": completion.prompt_tokens, "completion_tokens": completion.completion_tokens,
-                 "usd": usd, "model": completion.model, "provider": completion.provider}
+                 "usd": usd, "model": completion.model, "provider": completion.provider,
+                 "finish_reason": completion.finish_reason}
         with (self.run_dir / "llm_trace.jsonl").open("ab") as fh:
             fh.write((json.dumps(entry, sort_keys=True) + "\n").encode("utf-8"))
 
@@ -206,23 +227,30 @@ class Controller:
                     ) -> tuple[InvestigationResult, ToolContext]:
         start = time.perf_counter()
         ctx = ToolContext(graph=inp.graph, record=inp.record, spec=inp.spec, cache_dir=cache_dir)
-        state: dict = {"verdict": "abstain", "flags": [], "drafts": [], "decisions": [],
+        state: dict = {"verdict": "abstain", "flags": [], "drafts": [], "decisions": [], "missing": [],
                        "reported": [], "analyst_verdict": None, "plan": None, "plan_decision": None}
         status, reason = RunStatus.COMPLETED, None
         try:
             self._run(inp, condition, ctx, state)
             if state["verdict"] == "abstain":
                 status, reason = RunStatus.ABSTAINED, state.get("abstain_reason", "insufficient evidence")
+            elif state["verdict"] != "rejected" and state["missing"]:
+                status = RunStatus.PARTIAL
+                reason = ("partial: the question is only partly answered; required analyses missing: "
+                          + ", ".join(state["missing"]))
         except _Stop as stop:
             status, reason = stop.status, stop.reason
         except BudgetExceeded as exc:
             status, reason = RunStatus.BUDGET_EXHAUSTED, f"budget_exhausted: {exc}"
         except AnswerKeyAccess:
             status, reason = RunStatus.FAILED, "answer_key_access_attempt: run stopped; no evaluator data was read"
+        if self.ledger.halted and status is not RunStatus.FAILED:  # a reservation breach is never silent
+            status, reason = RunStatus.BUDGET_EXHAUSTED, f"budget_exhausted: paid calls halted: {self.ledger.halted}"
         result = InvestigationResult(
             case_id=inp.case_id, condition=condition, status=status, failure_reason=reason,
             verdict=state["verdict"] if status is not RunStatus.FAILED else "failed",
             analyst_verdict=state["analyst_verdict"], flags=tuple(dict.fromkeys(state["flags"])),
+            missing_analyses=tuple(state["missing"]),
             plan=state["plan"], plan_decision=state["plan_decision"], drafts=tuple(state["drafts"]),
             critic_decisions=tuple(state["decisions"]), reported_claims=tuple(state["reported"]), revisions=self.ledger.revisions, llm_calls=tuple(self.calls),
             tool_calls=tuple(ctx.calls),
@@ -266,6 +294,7 @@ class Controller:
             except ToolRejected:
                 continue  # recorded in ctx.calls; the run carries on with what succeeded
 
+        state["missing"] = [name for name in REQUIRED_TOOLS if ARTIFACT_NAMES[name] not in ctx.outputs]
         report = ctx.outputs.get("experiment_report.json")
         evidence = flatten(ctx.outputs)
         flags = list(report["flags"]) if report else []
@@ -302,10 +331,13 @@ class Controller:
                 self.ledger.begin_revision()
             except BudgetExceeded:
                 break  # revision cap: drop the rejected claims instead of stopping the run
-            revised = self.ask("reviser", payload | {
-                "previous_claims": [d.claim for d in decisions],
-                "critic_feedback": [{"claim": d.claim.get("text"), "reasons": list(d.reasons)}
-                                    for d in decisions if not d.accepted]})
+            try:
+                revised = self.ask("reviser", payload | {
+                    "previous_claims": [d.claim for d in decisions],
+                    "critic_feedback": [{"claim": d.claim.get("text"), "reasons": list(d.reasons)}
+                                        for d in decisions if not d.accepted]})
+            except (BudgetExceeded, _Stop):
+                break  # cannot afford or obtain a revision: drop the rejected claims, keep the verdict
             claims = revised.get("claims") if isinstance(revised.get("claims"), list) else []
             state["drafts"] += claims
             decisions = [critique(c, critic_ctx) for c in claims[:12]]

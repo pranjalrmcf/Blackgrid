@@ -93,6 +93,53 @@ def test_sprint_total_persists_across_runs(tmp_path):
         second.reserve("x", 200)  # $0.20 more would pass $10
 
 
+PRICE = Pricing(model="m", prompt_usd_per_token=1e-7, completion_usd_per_token=3e-7, source="t", fetched_utc="t")
+
+
+def test_reservation_is_a_strict_upper_bound():
+    ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
+    prompt = "x" * 1_000
+    r = ledger.reserve(prompt, 2_000, messages=2)
+    assert r.prompt_token_bound == 1_000 + 128  # bytes + chat overhead, not the ~3 chars/token estimate
+    assert r.usd == pytest.approx(2.0 * (1_128 * 1e-7 + 2_000 * 3e-7))
+    worst_list_price = 1_128 * 1e-7 + 2_000 * 3e-7
+    assert ledger.commit(1_128, 2_000, reported_usd=1.39 * worst_list_price) <= r.usd  # observed overcharge fits
+    assert ledger.halted is None
+
+
+def test_charge_above_reservation_halts_all_paid_calls():
+    ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
+    r = ledger.reserve("hello", 100)
+    ledger.commit(10, 100, reported_usd=r.usd * 3)
+    assert ledger.halted and any(e["event"] == "reservation_exceeded" for e in ledger.events)
+    with pytest.raises(BudgetExceeded, match="halted"):
+        ledger.reserve("hello", 100)
+
+
+def test_failed_call_books_the_whole_reservation():
+    ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
+    r = ledger.reserve("hello", 500)
+    assert ledger.commit_unknown() == r.usd and ledger.actual_usd == r.usd
+    assert ledger.completion_tokens == 500  # unknown output usage counted at its maximum
+
+
+def test_provider_error_is_booked_at_worst_case(tmp_path):
+    class Broken(MockProvider):
+        def pricing(self):
+            return PRICE
+
+        def complete(self, *a, **k):
+            from blackgrid.providers import ProviderError
+            raise ProviderError("OpenRouter HTTP 404")
+
+    ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
+    result, _ = Controller(Broken(), ledger, ExecutionMode.LIVE, tmp_path).investigate(odd_id_input(), "validated")
+    assert result.status is RunStatus.FAILED and ledger.calls == 2  # one retry
+    assumed = [e for e in ledger.events if e["event"] == "assumed_charge"]
+    reserved = [e["usd"] for e in ledger.events if e["event"] == "reserve"]
+    assert [e["usd"] for e in assumed] == reserved and result.cost.actual_usd == pytest.approx(sum(reserved))
+
+
 def test_revision_cap():
     ledger = BudgetLedger(limits=BudgetLimits(max_revision_rounds=1), pricing=FREE)
     ledger.begin_revision()
@@ -106,11 +153,35 @@ def test_budget_exhaustion_is_a_recorded_outcome(tmp_path):
     assert result.cost.llm_calls == 1
 
 
+def test_unaffordable_revision_drops_rejected_claims_but_completes(tmp_path):
+    dev = dev_cases()["dev-002"]  # naive draft is rejected, so a revision is wanted
+    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request,
+                             graph=dev.graph, record=dev.record, spec=spec())
+    result, _ = controller(tmp_path, max_llm_calls=2).investigate(inp, "validated")  # planner + analyst only
+    assert result.status is RunStatus.COMPLETED and result.verdict == "not_supported"
+    assert result.reported_claims == () and any(not d.accepted for d in result.critic_decisions)
+
+
 def test_invalid_json_gets_one_retry_then_fails(tmp_path):
     provider = MockProvider(script={"planner": ["not json", "still not json"]})
     result, _ = controller(tmp_path, provider).investigate(odd_id_input(), "validated")
     assert result.status is RunStatus.FAILED and result.failure_reason.startswith("planner_failed: schema")
     assert result.cost.llm_calls == 2
+
+
+def test_truncated_reply_is_not_parsed_and_retry_asks_for_less(tmp_path):
+    """Regression for the first live run (D-037): replies cut at max_tokens were retried verbatim."""
+    plan = json.dumps({"decision": "run", "reason": "r", "tool_calls": [{"tool": "community_test",
+                                                                        "args": {"method": "louvain"}}]})
+    provider = MockProvider(script={"planner": ['<<TRUNCATED>>{"decision": "run", "tool_calls": [{"tool"', plan]})
+    result, _ = controller(tmp_path, provider).investigate(odd_id_input(), "validated")
+    first, second = result.llm_calls[0], result.llm_calls[1]
+    assert not first.ok and "truncated" in first.error and second.ok
+    assert first.prompt_sha256 != second.prompt_sha256  # the retry carried a corrective note
+    trace = [json.loads(line) for line in (tmp_path / "llm_trace.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert trace[0]["finish_reason"] == "length"
+    assert "cut off" in trace[1]["messages"][-1]["content"]
+    assert result.status is RunStatus.COMPLETED
 
 
 # --- controller and critic ----------------------------------------------------------------------
@@ -153,6 +224,44 @@ def test_critic_rules(claim, ctx_overrides, rule):
                         verdict="not_supported", delta_q=-0.007, p_value=0.718, alpha=0.05)
     decision = critique(claim, ctx)
     assert not decision.accepted and any(r.startswith(rule) for r in decision.reasons)
+
+
+@pytest.mark.parametrize("text,links,ok", [
+    ("Q = 58.7.", [E + "observed_statistic"], False),  # no silent x100 rescaling
+    ("Q = 0.593 versus a null mean of 0.587.", [E + "observed_statistic", E + "null/mean"], False),  # swapped
+    ("p = 0.587.", [E + "observed_statistic"], False),  # right number, wrong meaning
+    ("Q = 0.587 versus a null mean of 0.593.", [E + "observed_statistic", E + "null/mean"], True),
+])
+def test_numbers_must_match_their_meaning(text, links, ok):
+    ctx = CriticContext(evidence={E + "observed_statistic": 0.5865, E + "null/mean": 0.5933},
+                        verdict="not_supported", delta_q=-0.007, p_value=0.718, alpha=0.05)
+    decision = critique({"text": text, "evidence_level": "descriptive", "evidence": links}, ctx)
+    assert decision.accepted is ok, decision.reasons
+
+
+def test_percent_needs_a_percent_sign():
+    from blackgrid.critic import unsupported_numbers
+
+    assert unsupported_numbers("Removed 10% of edges.", [0.1]) == []
+    assert unsupported_numbers("Removed 10 of edges.", [0.1]) == ["10"]
+
+
+def test_validator_adds_required_analyses_the_planner_skipped():
+    plan = {"decision": "run", "tool_calls": [{"tool": "community_test", "args": {"method": "louvain"}}]}
+    decision = validate_plan("Is there structure, and is it robust to missing edges?", {"method": "auto"}, plan)
+    assert [c["tool"] for c in decision.tool_calls] == ["community_test", "edge_removal_sensitivity"]
+    assert any("added edge_removal_sensitivity" in r for r in decision.reasons)
+
+
+def test_skipped_analysis_makes_the_run_partial_not_completed(tmp_path):
+    only_test = json.dumps({"decision": "run", "reason": "r",
+                            "tool_calls": [{"tool": "community_test", "args": {"method": "louvain"}}]})
+    tool_only, _ = controller(tmp_path / "t", MockProvider(script={"planner": [only_test]})).investigate(
+        odd_id_input(), "tool_only")
+    assert tool_only.status is RunStatus.PARTIAL and tool_only.missing_analyses == ("edge_removal_sensitivity",)
+    validated, ctx = controller(tmp_path / "v", MockProvider(script={"planner": [only_test]})).investigate(
+        odd_id_input(), "validated")
+    assert validated.status is RunStatus.COMPLETED and "sensitivity.json" in ctx.outputs
 
 
 def test_critic_accepts_negated_comparison_and_matched_numbers():

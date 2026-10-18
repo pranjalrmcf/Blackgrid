@@ -13,7 +13,7 @@ from typing import Literal
 
 from blackgrid.agent import InvestigationResult
 from blackgrid.contracts import Contract, DataOrigin, GraphRecord, NonEmpty
-from blackgrid.critic import unsupported_numbers
+from blackgrid.critic import mislabelled_numbers, unsupported_numbers
 
 ItemKind = Literal["result", "claim", "text", "reference"]
 
@@ -61,6 +61,10 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
         status_items.append(ReportItem(kind="text", text=f"Analyst-stated verdict (not validated): {result.verdict}."))
     else:
         status_items.append(ReportItem(kind="text", text=f"Outcome: {result.verdict}."))
+    if result.missing_analyses and result.verdict != "rejected":
+        status_items.append(ReportItem(kind="text", text=(
+            "PARTIAL ANSWER: the required analyses " + ", ".join(result.missing_analyses) + " did not run, so this "
+            "report answers only part of the question.")))
     if result.failure_reason:
         status_items.append(ReportItem(kind="reference", text=f"Reason: {result.failure_reason}"))
     if result.plan_decision and not result.plan_decision.allowed:
@@ -207,8 +211,8 @@ def check_numbers(report: Report, evidence: dict[str, object]) -> list[str]:
         for item in section.items:
             if item.kind == "reference":
                 continue
-            values = [evidence[p] for p in item.evidence if p in evidence]
-            bad = unsupported_numbers(item.text, values)
+            cited = {p: evidence[p] for p in item.evidence if p in evidence}
+            bad = unsupported_numbers(item.text, list(cited.values())) + mislabelled_numbers(item.text, cited)
             if bad:
                 problems.append(f"[{section.title}] {bad} in: {item.text[:120]}")
     return problems

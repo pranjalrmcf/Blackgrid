@@ -6,7 +6,16 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, and `AGENTS.md`. The study rule
 
 ## Status
 
-Sprint 1 is implemented (Days 1–14). The mock pipeline is reproduced from a clean environment. **No live LLM run has been made yet.** See `docs/sprint01_report.md` for acceptance criteria, results, and limitations.
+Sprint 1 is implemented (Days 1–14). The mock pipeline is reproduced from a clean environment.
+
+Five exploratory live runs have been made, costing $0.0051 in total. One completed, with verdict `not_supported`, but it skipped the required missing-edge analysis, so it counts as partial (D-041).
+
+Fixes from an external review are in, but none has been exercised live yet:
+- meaning-aware number checks (D-038);
+- hard spending caps (D-039);
+- a `partial` status for incomplete answers (D-040).
+
+See `docs/sprint01_report.md` for acceptance criteria, results, and limitations.
 
 ## 1. Setup (once)
 
@@ -80,15 +89,24 @@ The console shows:
 
 Live mode sends **only aggregate statistics and the task text** to the model. It never sends raw events or user IDs. It needs three things:
 
-1. Your key in `.env`, as `OPEN_ROUTER_API_KEY=...` (also accepted: `OPENROUTER_API_KEY`). `.env` is git-ignored.
-2. `configs/collegemsg_live.json` (`mode: live`, `paid_execution_authorized: true`). Check `llm.model`; the default `anthropic/claude-haiku-5.5` was **not verified** against OpenRouter's catalogue. If the ID is wrong, the run stops before spending anything and lists similar model IDs.
+1. Your key and model in `.env`, which is git-ignored. `.env.example` is the template:
+   ```
+   OPEN_ROUTER_API_KEY=...
+   OPEN_ROUTER_MODEL=anthropic/claude-haiku-5.5
+   ```
+   - `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` are also accepted.
+   - The model in `.env` overrides `llm.model` in the config. The run's saved `config.json` records the model actually used.
+   - The default `anthropic/claude-haiku-5.5` is listed and priced on OpenRouter, but its endpoint returned HTTP 404 (D-041). `deepseek/deepseek-v4-flash-0731` has completed a run. Pick any ID from https://openrouter.ai/models. A model ID that isn't listed stops the run before any spending. A listed model whose endpoint fails costs at most the booked reservation of two attempts.
+2. `configs/collegemsg_live.json` (`mode: live`, `paid_execution_authorized: true`).
 3. The `--allow-paid` flag on the command line:
 
 ```bash
 uv run --frozen blackgrid run configs/collegemsg_live.json --allow-paid
 ```
 
-Before any call, BLACKGRID fetches the model's current price from OpenRouter; if it cannot, it refuses to run. Every call is reserved at its worst case (full `max_tokens`) against these caps:
+Before any call, BLACKGRID fetches the model's current price from OpenRouter; if it cannot, it refuses to run.
+
+Every call is reserved at its worst case before it is sent: a strict bound on the input, the full `max_tokens` output, at 2× list price. A failed call is booked at its whole reservation. A charge above its reservation stops all further paid calls. The reservation is checked against these caps:
 
 - 8 calls, 20,000 tokens, and USD 0.50 per run;
 - USD 10 for the whole sprint, tracked in `runs/spend_ledger.json`;
@@ -108,7 +126,7 @@ uv run --frozen blackgrid run configs/collegemsg_sprint01.json --mode replay --r
 |---|---|
 | `0` | completed |
 | `1` | invalid config, or live mode not authorized or not priced |
-| `2` | the run did not complete (abstained, failed, or budget exhausted); see `manifest.json` |
+| `2` | the run did not fully complete (partial, abstained, failed, or budget exhausted); see `manifest.json` |
 
 ## Layout
 

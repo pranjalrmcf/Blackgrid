@@ -16,11 +16,11 @@ from pathlib import Path
 from blackgrid.agent import InvestigationInput, flatten
 from blackgrid.benchmark import BENCHMARK_VERSION, DevCase, TaskType, dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, RunConfig
-from blackgrid.critic import CAUSAL, STRUCTURE, unsupported_numbers
+from blackgrid.critic import CAUSAL, STRUCTURE, mislabelled_numbers, unsupported_numbers
 from blackgrid.providers import MockProvider
 from blackgrid.runner import RunOutput, run_investigation, write_json
 
-EVAL_VERSION = "eval-v1"
+EVAL_VERSION = "eval-v2"  # v2: meaning-aware number check, partial-run accounting (D-038, D-039)
 CONDITIONS = ("tool_only", "validated")
 DEV_REPLICATES = 499
 
@@ -42,8 +42,9 @@ def score_claim(claim: dict, evidence: dict, case: DevCase) -> tuple[bool, str]:
     links = [p for p in claim.get("evidence", []) if isinstance(p, str)]
     if not links or any(p not in evidence for p in links):
         return False, "missing or unresolvable evidence"
-    if unsupported_numbers(text, [evidence[p] for p in links]):
-        return False, "number not in cited evidence"
+    cited = {p: evidence[p] for p in links}
+    if unsupported_numbers(text, list(cited.values())) or mislabelled_numbers(text, cited):
+        return False, "number not in cited evidence, or labelled with the wrong meaning"
     if CAUSAL.search(text) or claim.get("evidence_level") in ("identified_causal", "simulated_intervention"):
         return False, "causal claim without identification"
     if STRUCTURE.search(text) and "supported" not in case.key.acceptable_verdicts:

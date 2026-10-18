@@ -37,7 +37,7 @@ def _load(run_dir: Path, name: str) -> dict | None:
 
 
 VERDICT_TONE = {"supported": "ok", "not_supported": "neutral", "inconclusive": "warn", "abstain": "warn",
-                "rejected": "bad", "failed": "bad"}
+                "rejected": "bad", "failed": "bad", "partial": "warn"}
 
 
 def badge(verdict: str) -> str:
@@ -301,6 +301,10 @@ def write_run_page(run_dir: Path, graph: nx.Graph | None = None) -> Path:
     right = (f'{badge(verdict)} <span class="muted mono" style="margin-left:10px">'
              f'<span class="pulse"></span> {esc(status)} · {esc(mode)} · {esc(inv.get("condition"))}</span>')
     blocks = []
+    if inv.get("missing_analyses") and inv.get("verdict") != "rejected":
+        blocks.append('<section class="panel"><div class="notice">PARTIAL ANSWER — required analyses did not run: '
+                      f'{esc(", ".join(inv["missing_analyses"]))}. The question is only partly answered.</div>'
+                      "</section>")
     if mode == "mock":
         blocks.append('<section class="panel"><div class="notice">MOCK MODE — the planner and analyst are scripted '
                       'stand-ins. Statistics are real; the "agent" text is not a model\'s output.</div></section>')

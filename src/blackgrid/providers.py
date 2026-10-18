@@ -21,6 +21,7 @@ from blackgrid.budget import FREE, Pricing
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 KEY_NAMES = ("OPEN_ROUTER_API_KEY", "OPENROUTER_API_KEY")
+MODEL_NAMES = ("OPEN_ROUTER_MODEL", "OPENROUTER_MODEL")
 
 
 class ProviderError(RuntimeError):
@@ -39,6 +40,7 @@ class Completion:
     reported_usd: float | None
     model: str
     provider: str
+    finish_reason: str = "stop"  # "length" means the reply hit max_tokens and is cut off
 
 
 class Provider(Protocol):
@@ -79,6 +81,15 @@ def api_key_from_env() -> str | None:
     return None
 
 
+def model_from_env() -> str | None:
+    """OpenRouter model ID from the environment / .env (e.g. OPEN_ROUTER_MODEL=anthropic/claude-haiku-5.5)."""
+    for name in MODEL_NAMES:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return value
+    return None
+
+
 # --- Mock ---------------------------------------------------------------------------------------
 
 
@@ -110,8 +121,11 @@ class MockProvider:
         return FREE
 
     def complete(self, role: str, payload: dict, messages: list[dict], max_tokens: int) -> Completion:
+        finish = "stop"
         if self.script.get(role):
             text = self.script[role].pop(0)
+            if text.startswith("<<TRUNCATED>>"):  # test hook: simulate a reply cut off at max_tokens
+                text, finish = text.removeprefix("<<TRUNCATED>>"), "length"
         elif role == "planner":
             text = json.dumps(self._plan(payload))
         elif role == "analyst":
@@ -122,7 +136,7 @@ class MockProvider:
             raise ProviderError(f"mock has no behaviour for role {role!r}")
         prompt_chars = sum(len(m["content"]) for m in messages)
         return Completion(text=text, prompt_tokens=prompt_chars // 4 + 1, completion_tokens=len(text) // 4 + 1,
-                          reported_usd=0.0, model=self.model, provider=self.name)
+                          reported_usd=0.0, model=self.model, provider=self.name, finish_reason=finish)
 
     @staticmethod
     def _plan(payload: dict) -> dict:
@@ -224,12 +238,14 @@ class OpenRouterProvider:
         except (urllib.error.URLError, TimeoutError, ValueError) as exc:
             raise ProviderError(f"OpenRouter request failed: {type(exc).__name__}") from None
         try:
-            text = data["choices"][0]["message"]["content"] or ""
+            choice = data["choices"][0]
+            text = choice["message"]["content"] or ""
             usage = data.get("usage", {})
             return Completion(text=text, prompt_tokens=int(usage.get("prompt_tokens", 0)),
                               completion_tokens=int(usage.get("completion_tokens", 0)),
                               reported_usd=float(usage["cost"]) if usage.get("cost") is not None else None,
-                              model=str(data.get("model", self.model)), provider=self.name)
+                              model=str(data.get("model", self.model)), provider=self.name,
+                              finish_reason=str(choice.get("finish_reason") or "stop"))
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise ProviderError("OpenRouter returned a malformed response") from exc
 
@@ -263,4 +279,5 @@ class ReplayProvider:
             raise ReplayMismatch(f"call {self._next}: recorded {entry['role']} prompt differs from this run")
         return Completion(text=entry["response"], prompt_tokens=entry["prompt_tokens"],
                           completion_tokens=entry["completion_tokens"], reported_usd=0.0,
-                          model=entry["model"], provider=self.name)
+                          model=entry["model"], provider=self.name,
+                          finish_reason=entry.get("finish_reason", "stop"))
