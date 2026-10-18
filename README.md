@@ -2,9 +2,17 @@
 
 Bounded, evidence-grounded network-science investigations. Sprint 1 delivers one offline, reproducible vertical slice. It runs a preregistered community-vs-null experiment on a bounded CollegeMsg window, plus synthetic known-truth checks. The work is driven by a constrained planner/analyst, an allowlisted tool executor, and a rule-based critic. It produces an evidence-linked report or abstains.
 
-Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, and `AGENTS.md`. The study rules are in `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`. Every decision is in `docs/decision_log.md`, and the sprint outcome is in `docs/sprint01_report.md`.
+Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, and `AGENTS.md`.
+
+- Study rules: `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`.
+- Workflow contract: `protocols/sprint02_workflow.md`.
+- How a run works, in plain English: `docs/workflow_guide.md`.
+- Every decision: `docs/decision_log.md`.
+- Sprint outcomes: `docs/sprint01_report.md` and `docs/sprint02_report.md`.
 
 ## Status
+
+**Sprint 2 is implemented.** Investigations now run as a resumable LangGraph workflow with durable operations, persisted budgets, authorization pauses, cancellation, and crash recovery, plus an interactive console. 182 tests pass. The frozen science is identical to Sprint 1's reference, recomputed in a clean offline environment. No paid call was made in Sprint 2 (D-047).
 
 Sprint 1 is implemented (Days 1–14). The mock pipeline is reproduced from a clean environment.
 
@@ -58,21 +66,32 @@ uv run --frozen blackgrid run configs/collegemsg_sprint01.json --condition tool_
 uv run --frozen blackgrid pilot
 ```
 
-## 5. Open the UI
+## 5. Open the console
 
-Each run writes a self-contained HTML console page; `runs/index.html` lists every run and pilot. Rebuild all pages:
+The interactive console runs locally:
+
+```bash
+uv run --frozen blackgrid console
+```
+
+Then open http://127.0.0.1:8765.
+
+- **It updates live while runs progress.** You can browse every run and pilot.
+- **It can act on runs:** start **mock** runs and the pilot, and resume, cancel, deny, or reconcile runs.
+- **It never starts or approves paid calls.** Those stay on the command line.
+- **It is local only.** It listens on 127.0.0.1 and protects actions with a per-session token.
+
+Every finished run also saves the same console as an **interactive offline snapshot**:
+
+- `runs/<run>/report.html` for each run;
+- `runs/<pilot>/pilot.html` for each pilot;
+- `runs/index.html` listing every run.
+
+Double-clicking a snapshot works. Rebuild all snapshots with:
 
 ```bash
 uv run --frozen blackgrid ui
 ```
-
-Then open `runs/index.html` in your browser. Double-clicking it works, because the pages are fully offline. Or serve the folder:
-
-```bash
-uv run --frozen python -m http.server 8765 --bind 127.0.0.1 --directory runs
-```
-
-and visit http://localhost:8765/index.html.
 
 The console shows:
 
@@ -98,7 +117,7 @@ Live mode sends **only aggregate statistics and the task text** to the model. It
    - The model in `.env` overrides `llm.model` in the config. The run's saved `config.json` records the model actually used.
    - The default `anthropic/claude-haiku-5.5` is listed and priced on OpenRouter, but its endpoint returned HTTP 404 (D-041). `deepseek/deepseek-v4-flash-0731` has completed a run. Pick any ID from https://openrouter.ai/models. A model ID that isn't listed stops the run before any spending. A listed model whose endpoint fails costs at most the booked reservation of two attempts.
 2. `configs/collegemsg_live.json` (`mode: live`, `paid_execution_authorized: true`).
-3. The `--allow-paid` flag on the command line:
+3. The `--allow-paid` flag on the command line. Without it, a live run **pauses** before its first paid call, and you can approve later with `blackgrid resume RUN_ID --allow-paid`.
 
 ```bash
 uv run --frozen blackgrid run configs/collegemsg_live.json --allow-paid
@@ -120,13 +139,27 @@ To re-run a live investigation for free, replay its recorded responses:
 uv run --frozen blackgrid run configs/collegemsg_sprint01.json --mode replay --replay-from runs/<live_run_id>
 ```
 
+## Pause, resume, and recovery
+
+Every step of a run is saved, so an interrupted run continues where it stopped without repeating finished work or charges. See `docs/workflow_guide.md` for a restart example.
+
+| Command | What it does |
+|---|---|
+| `blackgrid status` | List runs |
+| `blackgrid status RUN_ID` | Stage, required/completed/missing analyses, remaining limits, pause reason |
+| `blackgrid resume RUN_ID` | Continue. Add `--allow-paid` to approve a paused live run. Add `--force-unlock` only after a crash. |
+| `blackgrid cancel RUN_ID` | Stop at the next safe step |
+| `blackgrid deny RUN_ID` | Refuse paid execution |
+| `blackgrid reconcile RUN_ID --retry` or `--stop` | Resolve a paid call whose outcome is unknown. It is never resent automatically. |
+
 ## Exit codes
 
 | Code | Meaning |
 |---|---|
 | `0` | completed |
 | `1` | invalid config, or live mode not authorized or not priced |
-| `2` | the run did not fully complete (partial, abstained, failed, or budget exhausted); see `manifest.json` |
+| `2` | the run did not fully complete (partial, abstained, failed, cancelled, denied, or budget exhausted); see `manifest.json` |
+| `3` | paused: waiting for authorization or reconciliation (`blackgrid resume`) |
 
 ## Layout
 

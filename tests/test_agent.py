@@ -89,7 +89,7 @@ def test_sprint_total_persists_across_runs(tmp_path):
     first.commit(10, 9_900)  # $9.90 spent
     first.persist_sprint_total()
     second = BudgetLedger(limits=BudgetLimits(), pricing=price, sprint_ledger=path)
-    with pytest.raises(BudgetExceeded, match="sprint USD cap"):
+    with pytest.raises(BudgetExceeded, match="project USD cap"):
         second.reserve("x", 200)  # $0.20 more would pass $10
 
 
@@ -123,21 +123,32 @@ def test_failed_call_books_the_whole_reservation():
     assert ledger.completion_tokens == 500  # unknown output usage counted at its maximum
 
 
-def test_provider_error_is_booked_at_worst_case(tmp_path):
-    class Broken(MockProvider):
-        def pricing(self):
-            return PRICE
+class Broken(MockProvider):
+    """A live-priced provider that always fails with a given error category."""
 
-        def complete(self, *a, **k):
-            from blackgrid.providers import ProviderError
-            raise ProviderError("OpenRouter HTTP 404")
+    def __init__(self, category: str) -> None:
+        super().__init__()
+        self.category, self.calls = category, 0
 
+    def pricing(self):
+        return PRICE
+
+    def complete(self, *a, **k):
+        from blackgrid.providers import ProviderError
+        self.calls += 1
+        raise ProviderError(f"simulated {self.category} failure", self.category)
+
+
+@pytest.mark.parametrize("category,calls", [("permanent", 1), ("transient", 2)])
+def test_provider_errors_are_booked_at_worst_case(tmp_path, category, calls):
     ledger = BudgetLedger(limits=BudgetLimits(), pricing=PRICE)
-    result, _ = Controller(Broken(), ledger, ExecutionMode.LIVE, tmp_path).investigate(odd_id_input(), "validated")
-    assert result.status is RunStatus.FAILED and ledger.calls == 2  # one retry
-    assumed = [e for e in ledger.events if e["event"] == "assumed_charge"]
+    provider = Broken(category)
+    result, _ = Controller(provider, ledger, ExecutionMode.LIVE, tmp_path, authorized=True).investigate(
+        odd_id_input(), "validated")
+    assert result.status is RunStatus.FAILED and ledger.calls == calls == provider.calls  # 404 not retried
+    assumed = [e["usd"] for e in ledger.events if e["event"] == "assumed_charge"]
     reserved = [e["usd"] for e in ledger.events if e["event"] == "reserve"]
-    assert [e["usd"] for e in assumed] == reserved and result.cost.actual_usd == pytest.approx(sum(reserved))
+    assert assumed == reserved and result.cost.actual_usd == pytest.approx(sum(reserved))
 
 
 def test_revision_cap():

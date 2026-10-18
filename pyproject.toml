@@ -5,6 +5,8 @@ description = "Bounded, evidence-grounded network-science investigations (Sprint
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    "langgraph>=0.6",
+    "langgraph-checkpoint-sqlite>=2",
     "networkx>=3.3",
     "pydantic>=2.7",
 ]

@@ -46,6 +46,14 @@ def test_run_page_escapes_untrusted_text(tmp_path):
            "critic_decisions": [], "llm_calls": [], "tool_calls": []}
     (run_dir / "investigation.json").write_text(json.dumps(inv), encoding="utf-8")
     html = write_run_page(run_dir).read_text(encoding="utf-8")
-    assert "<script" not in html and "onerror=alert" not in html.replace("onerror=alert(1)&gt;", "")
-    assert esc(hostile) in html
+    # The snapshot embeds data as JSON with <, >, & escaped, so untrusted text cannot close the data
+    # block or inject markup; the browser inserts it with textContent only.
+    assert "<script>alert" not in html and "<img src=x" not in html and "</script><" not in html
+    import re
+
+    boot = re.search(r'<script type="application/json" id="bg-boot">(.*?)</script>', html, re.S).group(1)
+    data = json.loads(boot)
+    assert data["payload"]["investigation"]["reported_claims"][0]["text"] == hostile  # round-trips intact
+    assert "innerHTML" not in html  # the template never parses data as HTML
     assert (tmp_path / "runs" / "index.html").is_file()
+    assert esc("<b>") == "&lt;b&gt;"

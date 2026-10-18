@@ -1,4 +1,4 @@
-"""Run one investigation end to end and write every artifact into a run directory."""
+"""Run, resume, and finalize durable investigations (Sprint 2: through the LangGraph workflow)."""
 
 from __future__ import annotations
 
@@ -12,8 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from blackgrid import __version__
-from blackgrid.agent import Controller, InvestigationInput, InvestigationResult, flatten, to_claims
-from blackgrid.budget import BudgetLedger
+from blackgrid.agent import InvestigationInput, InvestigationResult, flatten, to_claims
 from blackgrid.contracts import (
     DataOrigin,
     Environment,
@@ -33,6 +32,9 @@ from blackgrid.providers import (
     model_from_env,
 )
 from blackgrid.report import Report, build_report, check_numbers, render_markdown
+from blackgrid.workflow.api import Outcome, RunSpec, approval_scope, identity_of, open_services, resume, start
+from blackgrid.workflow.engine import atomic_write
+from blackgrid.workflow.engine import write_json as _atomic_json
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -42,9 +44,7 @@ class LiveNotAuthorized(RuntimeError):
 
 
 def write_json(path: Path, payload: object) -> str:
-    data = json.dumps(payload, indent=2, sort_keys=True, default=str).encode("utf-8")
-    path.write_bytes(data)
-    return hashlib.sha256(data).hexdigest()
+    return _atomic_json(path, payload)
 
 
 def _git(*args: str) -> str | None:
@@ -83,14 +83,15 @@ def apply_env_model(config: RunConfig, env_file: Path) -> RunConfig:
 
 
 def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | None, env_file: Path) -> Provider:
+    """Provider for a run. Live needs the config flag; per-run authorization is checked by the workflow."""
     if config.mode is ExecutionMode.MOCK:
         return MockProvider()
     if config.mode is ExecutionMode.REPLAY:
         if replay_from is None:
             raise LiveNotAuthorized("replay mode needs --replay-from RUN_DIR")
         return ReplayProvider(replay_from / "llm_trace.jsonl")
-    if not (config.paid_execution_authorized and allow_paid):
-        raise LiveNotAuthorized("live mode needs paid_execution_authorized=true in the config AND --allow-paid")
+    if not config.paid_execution_authorized:
+        raise LiveNotAuthorized("live mode needs paid_execution_authorized=true in the config")
     load_env_file(env_file)
     key = api_key_from_env()
     if not key:
@@ -98,68 +99,191 @@ def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | No
     return OpenRouterProvider(config.llm.model, key, timeout_s=config.llm.request_timeout_s)
 
 
+def model_name(config: RunConfig, replay_from: Path | None) -> str:
+    """The model identity, known without contacting any provider."""
+    if config.mode is ExecutionMode.MOCK:
+        return MockProvider.model
+    if config.mode is ExecutionMode.REPLAY:
+        return ReplayProvider(replay_from / "llm_trace.jsonl").model if replay_from else "replay"
+    return config.llm.model
+
+
+# --- input references (how a resumed run reloads its graph) -------------------------------------
+
+
+def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
+    """Rebuild the scientific input from its approved local source (never from the checkpoint)."""
+    kind = input_ref.get("kind")
+    if kind == "collegemsg":
+        from blackgrid.collegemsg import BoundedGraph, build_bounded_graph
+
+        config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
+        built = build_bounded_graph(Path(input_ref["data_root"]), config.dataset, config.window)
+        if not isinstance(built, BoundedGraph):
+            raise ValueError("the window rule no longer selects a graph")
+        return InvestigationInput(case_id=built.record.graph_id, question=config.question,
+                                  request={"method": "auto"}, graph=built.graph, record=built.record,
+                                  spec=config.experiment)
+    if kind == "dev":
+        from blackgrid.benchmark import dev_cases
+        from blackgrid.pilot import dev_spec
+
+        case = dev_cases()[input_ref["case_id"]]
+        public, graph, record = case.planner_view()  # never the answer key
+        return InvestigationInput(case_id=public.case_id, question=public.question, request=public.request,
+                                  graph=graph, record=record, spec=dev_spec(case))
+    raise ValueError(f"run input {kind!r} cannot be reloaded")
+
+
+# --- finalization: report, manifest, UI (idempotent) ------------------------------------------------
+
+
+KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json",
+                   "graph_profile.json", "experiment_report.json", "sensitivity.json", "investigation.json",
+                   "budget.json", "llm_trace.jsonl", "report.json", "report.md")
+
+
+def finalizer(config: RunConfig, reproduce: str):
+    def on_finalize(rt, state, result: InvestigationResult, ctx) -> tuple[str, str] | None:
+        inp = rt.inputs(state)
+        run_dir = rt.run_dir
+        write_json(run_dir / "investigation.json", result.model_dump(mode="json"))
+        write_json(run_dir / "budget.json", {"pricing": rt.pricing().model_dump(mode="json")
+                                             if rt._provider is not None else None,
+                                             "limits": config.budget.model_dump(mode="json"),
+                                             "events": rt.store.events(rt.run_id)})
+        evidence = flatten({**ctx.outputs, "graph_record.json": inp.record.model_dump(mode="json"),
+                            "investigation.json": result.model_dump(mode="json")})
+        report = build_report(result, evidence, inp.record, inp.question, rt.run_id, reproduce)
+        violations = check_numbers(report, evidence) if result.condition == "validated" else []
+        write_json(run_dir / "report.json", report.model_dump(mode="json"))
+        atomic_write(run_dir / "report.md", render_markdown(report).encode("utf-8"))
+        rt.fault("during_finalize")
+        status, reason = result.status, result.failure_reason
+        if violations:  # an unsupported number reached the report: never present it as a clean result
+            status, reason = RunStatus.FAILED, f"report_number_check_failed: {violations[0][:200]}"
+        artifacts = {name: hashlib.sha256((run_dir / name).read_bytes()).hexdigest()
+                     for name in KNOWN_ARTIFACTS if (run_dir / name).is_file()}
+        manifest = RunManifest(
+            run_id=rt.run_id, created_utc=datetime.fromisoformat(rt.store.run(rt.run_id)["created_utc"]),
+            finished_utc=datetime.now(UTC), status=status,
+            failure_reason=reason if status is not RunStatus.COMPLETED else None,
+            config_sha256=canonical_sha256(config), environment=capture_environment(),
+            seeds={"experiment_master": inp.spec.seed},
+            input_hashes={"graph_projection": inp.record.projection_sha256}
+            | ({inp.record.source.dataset_id: inp.record.source.sha256} if inp.record.source else {}),
+            tool_calls=result.tool_calls, cost=result.cost, artifacts=artifacts,
+            claims=to_claims(result, artifacts, DataOrigin(inp.record.origin.value)))
+        atomic_write(run_dir / "manifest.json", manifest.model_dump_json(indent=2).encode("utf-8"))
+        return (status.value, reason) if violations else None
+    return on_finalize
+
+
+def renderer(rt, state) -> None:
+    from blackgrid.ui import write_run_page  # presentation only
+
+    write_run_page(rt.run_dir, graph=rt.inputs(state).graph)
+
+
 @dataclass
 class RunOutput:
     run_dir: Path
-    manifest: RunManifest
-    result: InvestigationResult
-    report: Report
-    number_violations: list[str]
+    outcome: Outcome
+    manifest: RunManifest | None
+    result: InvestigationResult | None
+    report: Report | None
 
 
-def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Provider, runs_dir: Path, *,
-                      cache_dir: Path | None, run_prefix: str = "", reproduce: str = "",
-                      sprint_ledger: Path | None = None, extra_artifacts: dict[str, object] | None = None
-                      ) -> RunOutput:
+def _output(outcome: Outcome) -> RunOutput:
+    def load(name: str, model):
+        path = outcome.run_dir / name
+        return model.model_validate_json(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+    finished = outcome.status != "paused"
+    return RunOutput(run_dir=outcome.run_dir, outcome=outcome,
+                     manifest=load("manifest.json", RunManifest) if finished else None,
+                     result=load("investigation.json", InvestigationResult) if finished else outcome.result,
+                     report=load("report.json", Report) if finished else None)
+
+
+def run_spec(config: RunConfig, run_dir: Path, *, provider_factory, model: str, cache_dir: Path | None,
+             reproduce: str) -> RunSpec:
+    return RunSpec(limits=config.budget, mode=config.mode, condition=config.condition,
+                   max_tokens=config.llm.max_tokens_per_call, model=model, config_sha256=canonical_sha256(config),
+                   provider_factory=provider_factory, loader=lambda ref: load_input(ref, run_dir),
+                   cache_dir=cache_dir, on_finalize=finalizer(config, reproduce), on_render=renderer)
+
+
+def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Provider | None, runs_dir: Path, *,
+                      cache_dir: Path | None, input_ref: dict, run_prefix: str = "", reproduce: str = "",
+                      extra_artifacts: dict[str, object] | None = None, allow_paid: bool = False,
+                      replay_from: Path | None = None, env_file: Path | None = None,
+                      faults: set[str] | None = None, parent_run: str | None = None) -> RunOutput:
+    """Start a durable workflow run. Live runs without --allow-paid pause before the first paid call."""
     started = datetime.now(UTC)
     run_id = f"{run_prefix}{started:%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:6]}"
     run_dir = runs_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
-    artifacts = {"config.json": write_json(run_dir / "config.json", config.model_dump(mode="json")),
-                 "graph_record.json": write_json(run_dir / "graph_record.json", inp.record.model_dump(mode="json"))}
+    write_json(run_dir / "config.json", config.model_dump(mode="json"))
+    write_json(run_dir / "graph_record.json", inp.record.model_dump(mode="json"))
     for name, payload in (extra_artifacts or {}).items():
-        artifacts[name] = write_json(run_dir / name, payload)
+        write_json(run_dir / name, payload)
+    write_json(run_dir / "run_source.json", {"input_ref": input_ref, "reproduce": reproduce,
+                                             "replay_from": str(replay_from) if replay_from else None})
 
-    pricing = provider.pricing()  # live: fetched now; raises PricingUnavailable before any spend
-    ledger = BudgetLedger(limits=config.budget, pricing=pricing,
-                          sprint_ledger=sprint_ledger if config.mode is ExecutionMode.LIVE else None)
-    controller = Controller(provider, ledger, config.mode, run_dir, config.llm.max_tokens_per_call)
-    result, ctx = controller.investigate(inp, config.condition, cache_dir=cache_dir)
-    ledger.persist_sprint_total()
+    if provider is None:
+        def factory() -> Provider:
+            return make_provider(config, allow_paid=True, replay_from=replay_from,
+                                 env_file=env_file or REPO_ROOT / ".env")
+        model = model_name(config, replay_from)
+    else:
+        def factory() -> Provider:
+            return provider
+        model = getattr(provider, "model", "unknown")
+    spec = run_spec(config, run_dir, provider_factory=factory, model=model, cache_dir=cache_dir, reproduce=reproduce)
+    services = open_services(runs_dir)
+    try:
+        scope = None
+        if config.mode is ExecutionMode.LIVE and allow_paid and config.paid_execution_authorized:
+            scope = approval_scope(spec, identity_of(inp, spec.config_sha256, model, config.condition, config.mode,
+                                                     input_ref))
+        outcome = start(inp, input_ref, spec, services, run_dir, run_id=run_id, authorization=scope,
+                        parent_run=parent_run, faults=faults)
+    finally:
+        services.close()
+    return _output(outcome)
 
-    for name, payload in ctx.outputs.items():
-        artifacts[name] = write_json(run_dir / name, payload)
-    artifacts["investigation.json"] = write_json(run_dir / "investigation.json", result.model_dump(mode="json"))
-    artifacts["budget.json"] = write_json(run_dir / "budget.json", {
-        "pricing": pricing.model_dump(mode="json"), "limits": config.budget.model_dump(mode="json"),
-        "events": ledger.events})
-    if (run_dir / "llm_trace.jsonl").is_file():
-        artifacts["llm_trace.jsonl"] = hashlib.sha256((run_dir / "llm_trace.jsonl").read_bytes()).hexdigest()
 
-    evidence = flatten({**ctx.outputs, "graph_record.json": inp.record.model_dump(mode="json"),
-                        "investigation.json": result.model_dump(mode="json")})
-    report = build_report(result, evidence, inp.record, inp.question, run_id, reproduce)
-    violations = check_numbers(report, evidence) if result.condition == "validated" else []
-    artifacts["report.json"] = write_json(run_dir / "report.json", report.model_dump(mode="json"))
-    md = render_markdown(report).encode("utf-8")
-    (run_dir / "report.md").write_bytes(md)
-    artifacts["report.md"] = hashlib.sha256(md).hexdigest()
-
-    status, reason = result.status, result.failure_reason
-    if violations:  # an unsupported number reached the report: never present it as a clean result
-        status, reason = RunStatus.FAILED, f"report_number_check_failed: {violations[0][:200]}"
-    manifest = RunManifest(
-        run_id=run_id, created_utc=started, finished_utc=datetime.now(UTC), status=status,
-        failure_reason=reason if status is not RunStatus.COMPLETED else None,
-        config_sha256=canonical_sha256(config), environment=capture_environment(),
-        seeds={"experiment_master": inp.spec.seed},
-        input_hashes={"graph_projection": inp.record.projection_sha256}
-        | ({inp.record.source.dataset_id: inp.record.source.sha256} if inp.record.source else {}),
-        tool_calls=result.tool_calls, cost=result.cost, artifacts=artifacts,
-        claims=to_claims(result, artifacts, DataOrigin(inp.record.origin.value)),
-    )
-    (run_dir / "manifest.json").write_bytes(manifest.model_dump_json(indent=2).encode("utf-8"))
-    from blackgrid.ui import write_run_page  # local import: UI is optional presentation
-
-    write_run_page(run_dir, graph=inp.graph)
-    return RunOutput(run_dir=run_dir, manifest=manifest, result=result, report=report, number_violations=violations)
+def resume_investigation(run_id: str, runs_dir: Path, *, decision: dict | None = None, allow_paid: bool = False,
+                         force_unlock: bool = False, cache_dir: Path | None = None, env_file: Path | None = None,
+                         provider: Provider | None = None, faults: set[str] | None = None) -> RunOutput:
+    """Resume a paused or interrupted run exactly where its durable records say it stopped."""
+    services = open_services(runs_dir)
+    try:
+        row = services.store.run(run_id)
+        run_dir = Path(row["run_dir"])
+        config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
+        source = json.loads((run_dir / "run_source.json").read_text(encoding="utf-8"))
+        replay_from = Path(source["replay_from"]) if source.get("replay_from") else None
+        if provider is None:
+            def factory() -> Provider:
+                return make_provider(config, allow_paid=True, replay_from=replay_from,
+                                     env_file=env_file or REPO_ROOT / ".env")
+            model = model_name(config, replay_from)
+        else:
+            def factory() -> Provider:
+                return provider
+            model = getattr(provider, "model", "unknown")
+        spec = run_spec(config, run_dir, provider_factory=factory, model=model, cache_dir=cache_dir,
+                        reproduce=source.get("reproduce", ""))
+        if allow_paid and config.mode is ExecutionMode.LIVE:
+            # --allow-paid grants a fresh, scoped authorization; it answers an authorization pause only.
+            scope = approval_scope(spec, json.loads(row["identity_json"]))
+            services.store.set_authorization(run_id, scope)
+            pause = json.loads(row["pause_json"]) if row["pause_json"] else {}
+            if decision is None and pause.get("kind") == "authorization":
+                decision = {"decision": "approve", "scope": scope}
+        outcome = resume(run_id, spec, services, decision=decision, force_unlock=force_unlock, faults=faults)
+    finally:
+        services.close()
+    return _output(outcome)

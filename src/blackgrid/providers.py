@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import socket
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -25,7 +26,16 @@ MODEL_NAMES = ("OPEN_ROUTER_MODEL", "OPENROUTER_MODEL")
 
 
 class ProviderError(RuntimeError):
-    """The provider call failed (network, HTTP, or malformed response)."""
+    """The provider call failed. `category` drives retry policy (protocols/sprint02_workflow.md §3):
+
+    transient  failed before any request was accepted, or the provider answered 429/5xx: one retry
+    permanent  authentication, unknown model, or invalid request (HTTP 400/401/403/404): no retry
+    uncertain  the request may have been processed but no response arrived: reconcile, never resend
+    """
+
+    def __init__(self, message: str, category: str = "uncertain") -> None:
+        super().__init__(message)
+        self.category = category
 
 
 class PricingUnavailable(RuntimeError):
@@ -233,10 +243,17 @@ class OpenRouterProvider:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_s) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            raise ProviderError(f"OpenRouter HTTP {exc.code}") from None  # body may echo request; not kept
-        except (urllib.error.URLError, TimeoutError, ValueError) as exc:
-            raise ProviderError(f"OpenRouter request failed: {type(exc).__name__}") from None
+        except urllib.error.HTTPError as exc:  # body may echo the request; not kept
+            category = "permanent" if exc.code in (400, 401, 403, 404) else "transient"
+            raise ProviderError(f"OpenRouter HTTP {exc.code}", category) from None
+        except (TimeoutError, OSError) as exc:
+            # A timeout or reset after sending may still have been processed and billed.
+            reason = getattr(exc, "reason", exc)
+            not_sent = isinstance(reason, (ConnectionRefusedError, socket.gaierror))
+            raise ProviderError(f"OpenRouter request failed: {type(reason).__name__}",
+                                "transient" if not_sent else "uncertain") from None
+        except ValueError:
+            raise ProviderError("OpenRouter returned a non-JSON response", "uncertain") from None
         try:
             choice = data["choices"][0]
             text = choice["message"]["content"] or ""
@@ -247,7 +264,7 @@ class OpenRouterProvider:
                               model=str(data.get("model", self.model)), provider=self.name,
                               finish_reason=str(choice.get("finish_reason") or "stop"))
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise ProviderError("OpenRouter returned a malformed response") from exc
+            raise ProviderError("OpenRouter returned a malformed response", "uncertain") from exc
 
 
 # --- Replay -------------------------------------------------------------------------------------
@@ -258,25 +275,34 @@ class ReplayMismatch(RuntimeError):
 
 
 class ReplayProvider:
-    """Replays the recorded responses of an earlier run, in order, verifying each prompt hash."""
+    """Replays recorded responses, matched by role and exact prompt hash. Never calls a live model.
+
+    Matching by hash (not position) lets a resumed run continue replaying where it stopped.
+    """
 
     name = "replay"
 
     def __init__(self, trace_path: Path) -> None:
         self.entries = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines() if line]
         self.model = self.entries[0]["model"] if self.entries else "replay"
-        self._next = 0
+        self._queues: dict[tuple[str, str], list[dict]] = {}
+        for entry in self.entries:
+            self._queues.setdefault((entry["role"], entry["prompt_sha256"]), []).append(entry)
 
     def pricing(self) -> Pricing:
         return FREE  # replay spends nothing
 
+    def skip(self, role: str, sha: str) -> None:
+        """Mark a recorded response as already used (a resumed run reuses its own durable receipt)."""
+        queue = self._queues.get((role, sha))
+        if queue:
+            queue.pop(0)
+
     def complete(self, role: str, payload: dict, messages: list[dict], max_tokens: int) -> Completion:
-        if self._next >= len(self.entries):
-            raise ReplayMismatch("the recorded trace has no further responses")
-        entry = self.entries[self._next]
-        self._next += 1
-        if entry["role"] != role or entry["prompt_sha256"] != prompt_sha256(messages):
-            raise ReplayMismatch(f"call {self._next}: recorded {entry['role']} prompt differs from this run")
+        queue = self._queues.get((role, prompt_sha256(messages)))
+        if not queue:
+            raise ReplayMismatch(f"no recorded {role} response matches this prompt")
+        entry = queue.pop(0)
         return Completion(text=entry["response"], prompt_tokens=entry["prompt_tokens"],
                           completion_tokens=entry["completion_tokens"], reported_usd=0.0,
                           model=entry["model"], provider=self.name,

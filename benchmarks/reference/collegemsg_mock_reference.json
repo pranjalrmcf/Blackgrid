@@ -1,0 +1,36 @@
+{
+  "condition": "validated",
+  "config": "configs/collegemsg_sprint01.json",
+  "fingerprint": {
+    "accepted_claims": [
+      "Modularity Q = 0.587 versus a degree-preserving null mean of 0.593 (p = 0.718).",
+      "Under the preregistered rule the verdict is 'not_supported' for this graph only."
+    ],
+    "actual_usd": 0.0,
+    "exceedances": 358,
+    "experiment_sha256": "e7d426a066cd0a63f6dc11d70087f18cce6b2bc9bd6a9db6553bedf9c7bdd416",
+    "flags": [
+      "degree_confound",
+      "disconnected"
+    ],
+    "llm_calls": 3,
+    "missing_analyses": [],
+    "null_mean": 0.5932968286191437,
+    "observed_q": 0.5865256540039427,
+    "p_value": 0.718,
+    "projection_sha256": "ae2aec6c97322d04430764b5d6a690d72e482259b15ef5cd4aa30c522ec17fd4",
+    "rejected_claims": [
+      "Observed modularity exceeds the null mean of 0.593 (p = 0.718).",
+      "The network has strong community structure (modularity Q = 0.587)."
+    ],
+    "sensitivity_agreement": 20,
+    "sensitivity_sha256": "c2e11619900c5f6e653d273d857ac2382f9107214162a44f11d5e9050e2df67e",
+    "status": "completed",
+    "tokens_in": 3771,
+    "tokens_out": 322,
+    "verdict": "not_supported"
+  },
+  "mode": "mock",
+  "note": "Sprint 2 parity reference (Session 1). Aggregates only; no identifiers.",
+  "reference_run": "20261018T064334Z-09af60"
+}

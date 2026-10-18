@@ -1,19 +1,27 @@
 """Command-line entry point.
 
     blackgrid validate CONFIG                 validate a run configuration and print its hash
-    blackgrid run CONFIG [options]            full CollegeMsg investigation (mock mode by default)
+    blackgrid run CONFIG [options]            start a CollegeMsg investigation (mock mode by default)
+    blackgrid status [RUN_ID]                 list runs, or show one run's stage, analyses, limits, pause
+    blackgrid resume RUN_ID [--allow-paid]    continue a paused or interrupted run where it stopped
+    blackgrid cancel RUN_ID                   stop a run at its next safe boundary
+    blackgrid deny RUN_ID                     refuse a pending paid-execution authorization
+    blackgrid reconcile RUN_ID --retry|--stop resolve an uncertain paid call (never auto-resent)
     blackgrid pilot                           mock pilot: tool_only vs validated on 8 dev cases
     blackgrid ui                              rebuild the HTML console pages and runs/index.html
 
 `run` options:
     --mode mock|live|replay    override the config's mode
     --condition validated|tool_only
-    --allow-paid               required (with paid_execution_authorized=true) for live mode
+    --allow-paid               authorize paid calls for this run (live mode also needs
+                               paid_execution_authorized=true); without it a live run pauses
+                               before its first paid call
     --replay-from RUN_DIR      replay the recorded LLM responses of an earlier run
+    --parent RUN_ID            record that this run deliberately changes an earlier one
     --no-cache                 recompute every tool result
 
 Exit codes: 0 completed, 1 invalid input or not authorized, 2 run did not complete
-(abstained, failed, or budget exhausted; see the manifest).
+(partial, abstained, failed, cancelled, denied, or budget exhausted), 3 paused (resumable).
 """
 
 from __future__ import annotations
@@ -46,13 +54,19 @@ from blackgrid.runner import (
     apply_env_model,
     capture_environment,
     make_provider,
+    resume_investigation,
     run_investigation,
     write_json,
 )
+from blackgrid.workflow.api import open_services
+from blackgrid.workflow.api import status as workflow_status
+from blackgrid.workflow.engine import ResumeBlocked
+from blackgrid.workflow.store import RunLocked, StoreError
 
 EXIT_OK = 0
 EXIT_INVALID = 1
 EXIT_RUN_FAILED = 2
+EXIT_PAUSED = 3
 
 
 def load_config(path: Path) -> RunConfig:
@@ -102,19 +116,23 @@ def _cmd_run(args: argparse.Namespace) -> int:
         print("invalid config: no frozen experiment specification", file=sys.stderr)
         return EXIT_INVALID
 
+    provider = None  # created lazily by the workflow, after authorization
     try:
-        provider = make_provider(config, allow_paid=args.allow_paid, replay_from=args.replay_from,
-                                 env_file=args.env_file)
-        pricing = provider.pricing()  # live: confirm current pricing before anything else
+        if config.mode.value == "live" and not config.paid_execution_authorized:
+            raise LiveNotAuthorized("live mode needs paid_execution_authorized=true in the config")
+        if config.mode.value == "replay" and args.replay_from is None:
+            raise LiveNotAuthorized("replay mode needs --replay-from RUN_DIR")
+        if config.mode.value == "live" and args.allow_paid:
+            provider = make_provider(config, allow_paid=True, replay_from=None, env_file=args.env_file)
+            pricing = provider.pricing()  # confirm current pricing before anything else
+            print(f"live mode: {pricing.model} at ${pricing.prompt_usd_per_token * 1e6:.4f}/M input, "
+                  f"${pricing.completion_usd_per_token * 1e6:.4f}/M output tokens; caps: "
+                  f"{config.budget.max_llm_calls} calls, {config.budget.max_tokens} tokens, "
+                  f"${config.budget.max_usd_per_investigation} per run, ${config.budget.max_usd_current_sprint} "
+                  f"this sprint, ${config.budget.max_usd_total} project", file=sys.stderr)
     except (LiveNotAuthorized, PricingUnavailable, OSError) as exc:
         print(f"not started: {exc}", file=sys.stderr)
         return EXIT_INVALID
-    if config.mode.value == "live":
-        print(f"live mode: {pricing.model} at ${pricing.prompt_usd_per_token * 1e6:.4f}/M input, "
-              f"${pricing.completion_usd_per_token * 1e6:.4f}/M output tokens; caps: "
-              f"{config.budget.max_llm_calls} calls, {config.budget.max_tokens} tokens, "
-              f"${config.budget.max_usd_per_investigation} per run, ${config.budget.max_usd_total} sprint",
-              file=sys.stderr)
 
     clock = time.perf_counter()
     try:
@@ -139,11 +157,37 @@ def _cmd_run(args: argparse.Namespace) -> int:
     reproduce = f"uv run --frozen blackgrid run {args.config.as_posix()} --mode {config.mode.value}"
     print(f"running {config.condition} investigation in {config.mode.value} mode "
           "(experiment + 20 sensitivity replicates; first run takes about 2 minutes)...", file=sys.stderr)
-    out = run_investigation(inp, config, provider, args.runs_dir, cache_dir=None if args.no_cache else args.cache_dir,
-                            reproduce=reproduce, sprint_ledger=args.runs_dir / "spend_ledger.json",
-                            extra_artifacts={"input_profile.json": built.table.summary(),
-                                             "window_selection.json": built.selection.summary()})
+    try:
+        out = run_investigation(
+            inp, config, provider, args.runs_dir, cache_dir=None if args.no_cache else args.cache_dir,
+            input_ref={"kind": "collegemsg", "data_root": str(args.data_root.resolve())}, reproduce=reproduce,
+            extra_artifacts={"input_profile.json": built.table.summary(),
+                             "window_selection.json": built.selection.summary()},
+            allow_paid=args.allow_paid, replay_from=args.replay_from, env_file=args.env_file, parent_run=args.parent)
+    except RunLocked as exc:
+        print(f"not started: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    return _report(out)
+
+
+def _report(out) -> int:
+    """Print a run's outcome and choose the exit code."""
+    o = out.outcome
+    if o.status == "paused":
+        print(f"run {o.run_id}: PAUSED · {o.reason}", file=sys.stderr)
+        print(f"  resume:  uv run --frozen blackgrid resume {o.run_id}"
+              + (" --allow-paid" if (o.pause or {}).get("kind") == "authorization" else ""), file=sys.stderr)
+        if (o.pause or {}).get("kind") == "authorization":
+            print(f"  deny:    uv run --frozen blackgrid deny {o.run_id}", file=sys.stderr)
+        if (o.pause or {}).get("kind") == "reconciliation":
+            print(f"  reconcile: uv run --frozen blackgrid reconcile {o.run_id} --retry   (or --stop)", file=sys.stderr)
+        print(out.run_dir)
+        return EXIT_PAUSED
     m = out.manifest
+    if m is None:  # finished without a manifest (e.g. failed before finalization could load inputs)
+        print(f"run {o.run_id}: {o.status} · {o.reason}", file=sys.stderr)
+        print(out.run_dir)
+        return EXIT_RUN_FAILED
     print(f"run {m.run_id}: {m.status.value} · verdict {out.result.verdict} · "
           f"LLM calls {m.cost.llm_calls} · cost ${m.cost.actual_usd:.4f}"
           + (f" · {m.failure_reason}" if m.failure_reason else ""), file=sys.stderr)
@@ -151,6 +195,101 @@ def _cmd_run(args: argparse.Namespace) -> int:
     print(f"console: {out.run_dir / 'report.html'}", file=sys.stderr)
     print(out.run_dir)
     return EXIT_OK if m.status is RunStatus.COMPLETED else EXIT_RUN_FAILED
+
+
+def _cmd_resume(args: argparse.Namespace) -> int:
+    decision = None
+    if getattr(args, "decision", None):
+        decision = {"decision": args.decision}
+    try:
+        out = resume_investigation(args.run_id, args.runs_dir, decision=decision, allow_paid=args.allow_paid,
+                                   force_unlock=args.force_unlock,
+                                   cache_dir=None if args.no_cache else args.cache_dir, env_file=args.env_file)
+    except (RunLocked, ResumeBlocked, StoreError, OSError) as exc:
+        print(f"cannot resume: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    return _report(out)
+
+
+def _cmd_cancel(args: argparse.Namespace) -> int:
+    services = open_services(args.runs_dir)
+    try:
+        services.store.request_cancel(args.run_id)
+        row = services.store.run(args.run_id)
+        locked, paused = bool(row["lock_owner"]), row["status"] == "paused"
+    except StoreError as exc:
+        print(f"cannot cancel: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    finally:
+        services.close()
+    if locked:
+        print(f"cancellation requested; the running worker stops at its next safe boundary", file=sys.stderr)
+        return EXIT_OK
+    args.decision = "cancel" if paused else None
+    args.allow_paid, args.force_unlock = False, False
+    return _cmd_resume(args)  # finalizes as cancelled at the next node boundary
+
+
+def _cmd_deny(args: argparse.Namespace) -> int:
+    args.decision, args.allow_paid, args.force_unlock = "deny", False, False
+    return _cmd_resume(args)
+
+
+def _cmd_reconcile(args: argparse.Namespace) -> int:
+    args.decision = "retry" if args.retry else "stop"
+    args.allow_paid, args.force_unlock = False, False
+    return _cmd_resume(args)
+
+
+def _cmd_console(args: argparse.Namespace) -> int:
+    from blackgrid.console.server import Console, serve
+
+    args.runs_dir.mkdir(parents=True, exist_ok=True)
+    console = Console(args.runs_dir, args.cache_dir, args.config, args.data_root, args.port)
+    try:
+        httpd = serve(console)
+    except OSError as exc:
+        print(f"cannot start the console on 127.0.0.1:{args.port}: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(f"BLACKGRID console: http://127.0.0.1:{args.port}/  (local only; Ctrl+C to stop)", file=sys.stderr)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        httpd.server_close()
+    return EXIT_OK
+
+
+def _cmd_status(args: argparse.Namespace) -> int:
+    services = open_services(args.runs_dir)
+    try:
+        if not args.run_id:
+            rows = services.store.runs()
+            for row in rows[: args.limit]:
+                print(f"{row['run_id']:42} {row['status']:16} stage={row['stage'] or '-':15} "
+                      f"{(row['status_reason'] or '')[:70]}")
+            return EXIT_OK
+        info = workflow_status(services, args.run_id)
+    except StoreError as exc:
+        print(f"unknown run: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    finally:
+        services.close()
+    if args.json:
+        print(json.dumps(info, indent=2))
+        return EXIT_OK
+    remaining = info.get("remaining") or {}
+    print(f"run       {info['run_id']}\nstatus    {info['status']}" + (f"  ({info['reason']})" if info.get("reason")
+                                                                       else "")
+          + f"\nstage     {info.get('stage')}\nrequired  {', '.join(info.get('required') or []) or '-'}"
+          f"\ncompleted {', '.join(info.get('completed') or []) or '-'}"
+          f"\nmissing   {', '.join(info.get('missing') or []) or '-'}"
+          f"\nremaining calls={remaining.get('llm_calls')} tokens={remaining.get('tokens')} "
+          f"usd_this_run={remaining.get('usd_this_run')} revisions={remaining.get('revisions')}"
+          + (f"\npause     {info['pause'].get('kind')}: {info['pause'].get('reason')}" if info.get("pause") else "")
+          + ("\nlocked    yes (a worker is active)" if info.get("locked") else ""))
+    return EXIT_OK
 
 
 def _cmd_pilot(args: argparse.Namespace) -> int:
@@ -206,6 +345,39 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--allow-paid", action="store_true", help="authorize paid LLM calls for this invocation")
     run.add_argument("--replay-from", type=Path, help="run directory whose llm_trace.jsonl to replay")
     run.add_argument("--env-file", type=Path, default=REPO_ROOT / ".env")
+    run.add_argument("--parent", help="run ID this run deliberately changes (recorded, never resumed into)")
+
+    def run_id_command(name: str, func, help_text: str) -> argparse.ArgumentParser:
+        p = sub.add_parser(name, parents=[common], help=help_text)
+        p.add_argument("run_id")
+        p.add_argument("--env-file", type=Path, default=REPO_ROOT / ".env")
+        p.set_defaults(func=func, decision=None, allow_paid=False, force_unlock=False)
+        return p
+
+    res = run_id_command("resume", _cmd_resume, "continue a paused or interrupted run")
+    res.add_argument("--allow-paid", action="store_true", help="grant scoped paid-execution authorization")
+    res.add_argument("--force-unlock", action="store_true",
+                     help="take over a run whose previous worker crashed (only if it has really stopped)")
+    run_id_command("cancel", _cmd_cancel, "cancel a run at its next safe boundary")
+    run_id_command("deny", _cmd_deny, "refuse a pending paid-execution authorization")
+    rec = run_id_command("reconcile", _cmd_reconcile, "resolve an uncertain paid call")
+    choice = rec.add_mutually_exclusive_group(required=True)
+    choice.add_argument("--retry", action="store_true",
+                        help="keep the uncertain charge and retry once within the caps")
+    choice.add_argument("--stop", action="store_true", help="keep the uncertain charge and stop the run")
+
+    con = sub.add_parser("console", parents=[common], help="serve the interactive console on 127.0.0.1")
+    con.add_argument("--port", type=int, default=8765)
+    con.add_argument("--config", type=Path, default=REPO_ROOT / "configs" / "collegemsg_sprint01.json",
+                     help="config used by the console's 'Start mock run' action (always run in mock mode)")
+    con.add_argument("--data-root", type=Path, default=REPO_ROOT)
+    con.set_defaults(func=_cmd_console)
+
+    st = sub.add_parser("status", parents=[common], help="list runs or show one run's progress")
+    st.add_argument("run_id", nargs="?")
+    st.add_argument("--json", action="store_true")
+    st.add_argument("--limit", type=int, default=20)
+    st.set_defaults(func=_cmd_status)
     run.set_defaults(func=_cmd_run)
 
     pilot = sub.add_parser("pilot", parents=[common], help="mock pilot on the dev benchmark")

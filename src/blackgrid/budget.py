@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -70,12 +71,24 @@ class BudgetLedger:
     halted: str | None = None  # set when a charge exceeded its reservation: no further paid calls
     pending: Reservation | None = None
     events: list[dict] = field(default_factory=list)
+    # Durable mode (Sprint 2): spend outside this run comes from the operation store, not a JSON file.
+    other_runs_usd: float | None = None  # project-wide spend by every other run (incl. imported Sprint 1)
+    current_sprint_other_usd: float = 0.0  # this sprint's spend by every other run
+    listener: Callable[[dict], None] | None = None  # persists each event as it happens
 
     @property
     def tokens(self) -> int:
         return self.prompt_tokens + self.completion_tokens
 
+    def _event(self, event: dict) -> None:
+        self.events.append(event)
+        if self.listener:
+            self.listener(event)
+
     def sprint_spent(self) -> float:
+        """Project-wide spend outside this investigation."""
+        if self.other_runs_usd is not None:
+            return self.other_runs_usd
         if self.sprint_ledger is None or not self.sprint_ledger.is_file():
             return 0.0
         return float(json.loads(self.sprint_ledger.read_text(encoding="utf-8")).get("total_usd", 0.0))
@@ -98,16 +111,18 @@ class BudgetLedger:
             (self.actual_usd + usd > self.limits.max_usd_per_investigation,
              f"per-investigation USD cap ({self.limits.max_usd_per_investigation}) would be exceeded"),
             (self.sprint_spent() + self.actual_usd + usd > self.limits.max_usd_total,
-             f"sprint USD cap ({self.limits.max_usd_total}) would be exceeded"),
+             f"project USD cap ({self.limits.max_usd_total}) would be exceeded"),
+            (self.current_sprint_other_usd + self.actual_usd + usd > self.limits.max_usd_current_sprint,
+             f"current-sprint USD cap ({self.limits.max_usd_current_sprint}) would be exceeded"),
         ]
         for broken, reason in checks:
             if broken:
-                self.events.append({"event": "stop", "reason": reason, "reserved_usd": usd})
+                self._event({"event": "stop", "reason": reason, "reserved_usd": usd})
                 raise BudgetExceeded(reason)
         self.calls += 1
         self.estimated_usd += usd
-        self.events.append({"event": "reserve", "prompt_tokens_est": est, "prompt_token_bound": bound,
-                            "max_completion": max_completion_tokens, "usd": usd})
+        self._event({"event": "reserve", "prompt_tokens_est": est, "prompt_token_bound": bound,
+                     "max_completion": max_completion_tokens, "usd": usd})
         self.pending = Reservation(prompt_tokens=est, prompt_token_bound=bound,
                                    max_completion_tokens=max_completion_tokens, usd=usd)
         return self.pending
@@ -120,13 +135,13 @@ class BudgetLedger:
         self.prompt_tokens += prompt_tokens
         self.completion_tokens += completion_tokens
         self.actual_usd += usd
-        self.events.append({"event": "commit", "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens, "usd": usd})
+        self._event({"event": "commit", "prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
+                     "usd": usd})
         reserved = self.pending.usd if self.pending else 0.0
         self.pending = None
         if usd > reserved + 1e-12:
             self.halted = f"a call was charged ${usd:.6f}, above its ${reserved:.6f} reservation"
-            self.events.append({"event": "reservation_exceeded", "charged_usd": usd, "reserved_usd": reserved})
+            self._event({"event": "reservation_exceeded", "charged_usd": usd, "reserved_usd": reserved})
         return usd
 
     def commit_unknown(self) -> float:
@@ -138,13 +153,13 @@ class BudgetLedger:
         self.prompt_tokens += r.prompt_tokens
         self.completion_tokens += r.max_completion_tokens
         self.actual_usd += r.usd
-        self.events.append({"event": "assumed_charge", "reason": "failed call; billing unknown", "usd": r.usd,
-                            "prompt_tokens": r.prompt_tokens, "completion_tokens": r.max_completion_tokens})
+        self._event({"event": "assumed_charge", "reason": "failed call; billing unknown", "usd": r.usd,
+                     "prompt_tokens": r.prompt_tokens, "completion_tokens": r.max_completion_tokens})
         return r.usd
 
     def begin_revision(self) -> None:
         if self.revisions + 1 > self.limits.max_revision_rounds:
-            self.events.append({"event": "stop", "reason": "revision cap reached"})
+            self._event({"event": "stop", "reason": "revision cap reached"})
             raise BudgetExceeded(f"revision cap ({self.limits.max_revision_rounds}) reached")
         self.revisions += 1
 

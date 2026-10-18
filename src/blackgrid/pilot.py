@@ -118,6 +118,7 @@ def run_pilot(runs_dir: Path, cache_dir: Path | None) -> Path:
             inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request,
                                      graph=graph, record=record, spec=dev_spec(case))
             out = run_investigation(inp, config, MockProvider(), pilot_dir, cache_dir=cache_dir,
+                                    input_ref={"kind": "dev", "case_id": public.case_id},
                                     run_prefix=f"{public.case_id}-{condition}-")
             rows.append(evaluate(case, out))  # evaluator step: reads the key only after the run
             print(f"  {public.case_id} {condition:9} -> {rows[-1]['verdict']:13} useful={rows[-1]['useful']}")

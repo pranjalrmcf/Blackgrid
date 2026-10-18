@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACKGRID · Investigation Console</title>
+<style>
+:root{--bg:#04060c;--panel:#0a1020d9;--line:#1d2a44;--text:#d8e4ff;--muted:#8090b5;--cyan:#3ef0ff;--magenta:#ff3ecf;
+--lime:#7dff9a;--amber:#ffc43e;--red:#ff5470;--node:#4d7cff;--hub:#3ef0ff;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:14px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding:0 16px 48px;
+background-image:linear-gradient(rgba(62,240,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,255,.045) 1px,transparent 1px);background-size:36px 36px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% -10%,rgba(62,240,255,.14),transparent 55%),radial-gradient(ellipse at 110% 10%,rgba(255,62,207,.10),transparent 50%)}
+.wrap{max-width:1280px;margin:0 auto;position:relative}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;padding:20px 0 14px;border-bottom:1px solid var(--line)}
+.brand{font:700 13px/1 ui-monospace,"Cascadia Code",Consolas,monospace;letter-spacing:.32em;color:var(--cyan);text-shadow:0 0 14px rgba(62,240,255,.6);cursor:pointer;text-decoration:none}
+.brand small{display:block;margin-top:6px;letter-spacing:.18em;color:var(--muted);font-weight:400}
+.mode{margin-left:auto;font:600 11px ui-monospace,Consolas,monospace;letter-spacing:.16em;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:p 2s infinite}
+.dot.off{background:var(--muted);box-shadow:none;animation:none}
+@keyframes p{50%{opacity:.3}}@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+h1{font-size:21px;margin:0;font-weight:600;overflow-wrap:anywhere}
+h2{font:600 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0 0 14px;display:flex;gap:10px;align-items:center}
+h2:before{content:"";width:8px;height:8px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.grid{display:grid;gap:16px;margin-top:16px;grid-template-columns:repeat(12,minmax(0,1fr))}
+.panel{grid-column:span 12;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.panel:after{content:"";position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);border-radius:6px 0 0 0}
+@media(min-width:900px){.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}}
+.badge{display:inline-block;padding:3px 11px;border-radius:999px;font:600 11px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;border:1px solid;white-space:nowrap}
+.ok{color:var(--lime);border-color:var(--lime)}.warn{color:var(--amber);border-color:var(--amber)}.bad{color:var(--red);border-color:var(--red)}.neutral{color:var(--cyan);border-color:var(--cyan)}
+.badge.ok{box-shadow:0 0 10px rgba(125,255,154,.3)}.badge.warn{box-shadow:0 0 10px rgba(255,196,62,.25)}.badge.bad{box-shadow:0 0 10px rgba(255,84,112,.3)}.badge.neutral{box-shadow:0 0 10px rgba(62,240,255,.25)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:rgba(62,240,255,.03)}
+.stat b{display:block;font:600 22px/1.15 ui-monospace,Consolas,monospace;color:#fff;margin-top:3px}
+.stat span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mono,code,td.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace}.muted{color:var(--muted)}.small{font-size:12px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}.kv dt{color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere;font-family:ui-monospace,Consolas,monospace}
+svg{width:100%;height:auto;display:block;user-select:none}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:1px solid transparent;border-bottom:none;color:var(--muted);padding:8px 14px;font:600 12px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:6px 6px 0 0}
+.tab:hover{color:var(--text)}.tab.on{color:var(--cyan);border-color:var(--line);background:var(--panel);box-shadow:0 -2px 0 var(--cyan) inset}
+.btn{background:rgba(62,240,255,.08);border:1px solid var(--cyan);color:var(--cyan);padding:7px 14px;border-radius:5px;font:600 12px ui-monospace,Consolas,monospace;letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+.btn:hover{background:rgba(62,240,255,.18)}.btn:disabled{opacity:.4;cursor:not-allowed}.btn.danger{border-color:var(--red);color:var(--red);background:rgba(255,84,112,.08)}.btn.warnb{border-color:var(--amber);color:var(--amber);background:rgba(255,196,62,.08)}
+select,input[type=text],input[type=search]{background:#0b1222;border:1px solid var(--line);color:var(--text);padding:7px 10px;border-radius:5px;font:13px ui-monospace,Consolas,monospace}
+input[type=range]{accent-color:var(--cyan)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font:600 11px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none}
+tr.click{cursor:pointer}tr.click:hover td{background:rgba(62,240,255,.05)}
+.tablewrap{overflow-x:auto}
+.stepper{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.step{flex:1 1 90px;padding:7px 6px;border:1px solid var(--line);border-radius:4px;font:600 10px ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:var(--muted)}
+.step.done{border-color:rgba(125,255,154,.5);color:var(--lime)}.step.now{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 12px rgba(62,240,255,.35)}.step.stop{border-color:var(--amber);color:var(--amber)}
+.notice{border:1px dashed var(--amber);color:var(--amber);padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:10px}
+.notice.info{border-color:var(--cyan);color:var(--cyan)}
+.claim{border-left:3px solid var(--lime);padding:8px 12px;margin:8px 0;background:rgba(125,255,154,.04);border-radius:0 6px 6px 0}
+.claim.rej{border-color:var(--red);background:rgba(255,84,112,.05)}.claim .why{color:var(--red);font-size:12px;margin-top:4px}.claim .ev{color:var(--muted);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
+.meter{margin:10px 0}.meter-head{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.meter-track{height:6px;background:#111a2e;border-radius:6px;overflow:hidden;margin-top:4px}.meter-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 10px var(--cyan);transition:width .6s}
+.timeline{list-style:none;margin:0;padding:0 0 0 18px;border-left:1px dashed var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 12px}.timeline li:before{content:"";position:absolute;left:-24px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan)}
+.timeline li.fail:before{border-color:var(--red)}.timeline li.warn:before{border-color:var(--amber)}
+.timeline .t{font:600 12px ui-monospace,Consolas,monospace;color:var(--cyan);letter-spacing:.08em;cursor:pointer}
+.timeline .detail{display:none;margin-top:6px}.timeline li.open .detail{display:block}
+.tip{position:fixed;pointer-events:none;background:#0b1222;border:1px solid var(--cyan);color:var(--text);padding:6px 9px;border-radius:4px;font:12px ui-monospace,Consolas,monospace;z-index:9;box-shadow:0 0 14px rgba(62,240,255,.3);display:none;max-width:320px}
+.hist rect.bar{fill:rgba(62,240,255,.55)}.hist rect.bar:hover{fill:var(--cyan)}.hist .band{fill:rgba(62,240,255,.07)}
+.obs{stroke:var(--magenta);stroke-width:2.5}.obs-label{fill:var(--magenta);font:12px ui-monospace,Consolas,monospace}
+.axis{stroke:var(--line)}.tick{fill:var(--muted);font:11px ui-monospace,Consolas,monospace}
+.net line{stroke:rgba(140,170,255,.28);stroke-width:1}.net circle{cursor:pointer}.net circle.dim{opacity:.15}
+.strip circle{fill:var(--cyan);opacity:.85;cursor:pointer}.strip circle.v-supported{fill:var(--lime)}.strip circle.v-abstain,.strip circle.v-inconclusive{fill:var(--amber)}
+.toast{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:10}
+.toast div{background:#0b1222;border:1px solid var(--cyan);padding:10px 14px;border-radius:6px;font:12px ui-monospace,Consolas,monospace;max-width:360px;box-shadow:0 0 16px rgba(62,240,255,.25)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{cursor:pointer;opacity:.5}.chip.on{opacity:1}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+a{color:var(--cyan)}a:hover{color:#fff}
+footer{margin-top:28px;color:var(--muted);font-size:12px;text-align:center}
+.bars .bar{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 8px rgba(62,240,255,.4)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" id="home">BLACKGRID<small>// INVESTIGATION CONSOLE</small></a>
+    <div id="title"></div>
+    <div class="mode"><span class="dot" id="dot"></span><span id="modelabel"></span></div>
+  </header>
+  <main id="app"></main>
+  <footer>Local console. Data comes only from saved run artifacts. Mock outputs validate plumbing only. No identifiers, no external assets.</footer>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<script type="application/json" id="bg-boot">__BOOT__</script>
+<script>
+"use strict";
+const BOOT = JSON.parse(document.getElementById("bg-boot").textContent);
+const LIVE = BOOT.mode === "live";
+const STAGES = ["initialize","authorize","plan","validate","execute","check_evidence","analyst","critic","reviser","finalize"];
+const TONE = {supported:"ok",completed:"ok",not_supported:"neutral",running:"neutral",inconclusive:"warn",abstain:"warn",abstained:"warn",partial:"warn",paused:"warn",rejected:"bad",failed:"bad",cancelled:"bad",denied:"bad",budget_exhausted:"bad",mock:"neutral"};
+const app = document.getElementById("app");
+let timer = null, current = null, tab = "overview";
+
+// ---- tiny safe DOM helpers (all untrusted text goes through textContent) ----
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "on") for (const [ev, fn] of Object.entries(v)) el.addEventListener(ev, fn);
+    else if (k === "cls") el.className = v;
+    else if (k === "style") el.setAttribute("style", v);
+    else el.setAttribute(k, v === true ? "" : String(v));
+  }
+  for (const kid of kids.flat(Infinity)) if (kid !== null && kid !== undefined && kid !== false)
+    el.appendChild(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const NS = "http://www.w3.org/2000/svg";
+function s(tag, attrs, ...kids){
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "on") for (const [ev, fn] of Object.entries(v)) el.addEventListener(ev, fn);
+    else if (v !== null && v !== undefined) el.setAttribute(k, String(v));
+  }
+  for (const kid of kids.flat(Infinity)) if (kid !== null && kid !== undefined)
+    el.appendChild(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const f3 = v => (typeof v === "number" ? v.toFixed(3) : (v ?? "—"));
+const f2 = v => (typeof v === "number" ? v.toFixed(2) : (v ?? "—"));
+const badge = v => h("span", {cls: "badge " + (TONE[v] || "neutral")}, String(v ?? "—").replace(/_/g, " "));
+const tip = document.getElementById("tip");
+function showTip(e, text){ tip.textContent = text; tip.style.display = "block"; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; }
+function hideTip(){ tip.style.display = "none"; }
+function toast(text, cls){ const d = h("div", {cls: cls || ""}, text); document.getElementById("toast").appendChild(d); setTimeout(() => d.remove(), 6000); }
+function panel(title, cls, ...body){ return h("section", {cls: "panel " + (cls || "")}, h("h2", {}, title), ...body); }
+function kv(rows){ return h("dl", {cls: "kv"}, rows.map(([k, v]) => [h("dt", {}, k), h("dd", {}, v ?? "—")])); }
+function meter(label, used, cap, unit){
+  const frac = cap > 0 ? Math.min(used / cap, 1) : 0;
+  return h("div", {cls: "meter"}, h("div", {cls: "meter-head"}, h("span", {}, label), h("span", {cls: "mono"}, `${unit === "USD" ? Number(used).toFixed(4) : used} / ${cap} ${unit || ""}`)),
+           h("div", {cls: "meter-track"}, h("div", {cls: "meter-fill", style: `width:${(frac * 100).toFixed(1)}%`})));
+}
+
+// ---- data access: live API or the embedded snapshot ----
+async function api(path, body){
+  const opts = body ? {method: "POST", headers: {"Content-Type": "application/json", "X-Blackgrid-Token": BOOT.token}, body: JSON.stringify(body)} : {};
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || ("HTTP " + r.status));
+  return data;
+}
+function href(kind, id){
+  if (LIVE) return kind === "index" ? "#/" : `#/${kind}/${encodeURIComponent(id)}`;
+  if (kind === "index") return BOOT.base + "index.html";
+  return BOOT.base + id + (kind === "pilot" ? "/pilot.html" : "/report.html");
+}
+async function load(kind, id){
+  if (!LIVE) return BOOT.payload;
+  if (kind === "index") return api("/api/index");
+  return api(`/api/${kind}?id=${encodeURIComponent(id)}`);
+}
+
+// ---- views ----
+async function route(){
+  clearTimeout(timer);
+  let kind = "index", id = null;
+  if (LIVE) { const m = location.hash.match(/^#\/(run|pilot)\/(.+)$/); if (m) { kind = m[1]; id = decodeURIComponent(m[2]); } }
+  else { kind = BOOT.view; id = BOOT.payload && BOOT.payload.id; }
+  try {
+    const data = await load(kind, id);
+    current = {kind, id};
+    if (kind === "index") renderIndex(data); else if (kind === "pilot") renderPilot(data); else renderRun(data);
+  } catch (err) { app.replaceChildren(panel("Error", "", h("p", {}, String(err.message || err)))); }
+}
+
+let filterText = "", filterStatus = new Set();
+function renderIndex(data){
+  document.getElementById("title").replaceChildren(h("h1", {}, "Runs"));
+  const runs = data.runs || [];
+  const statuses = [...new Set(runs.map(r => r.status))];
+  const body = h("tbody");
+  const draw = () => {
+    body.replaceChildren(...runs.filter(r => (!filterStatus.size || filterStatus.has(r.status)) &&
+      (!filterText || JSON.stringify([r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
+      const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
+        h("td", {cls: "mono"}, r.id), h("td", {}, r.kind === "pilot" ? "pilot" : (r.case || "—")),
+        h("td", {}, badge(r.status)), h("td", {}, r.verdict ? badge(r.verdict) : "—"),
+        h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
+          ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
+          : [r.mode, r.condition, r.stage && ("stage " + r.stage)].filter(Boolean).join(" · ")),
+        h("td", {cls: "small muted"}, r.reason || ""));
+      return tr;
+    }));
+  };
+  const chips = h("div", {cls: "chips"}, statuses.map(st => {
+    const c = h("span", {cls: "badge chip " + (TONE[st] || "neutral") + (filterStatus.has(st) ? " on" : "")}, st.replace(/_/g, " "));
+    c.addEventListener("click", () => { filterStatus.has(st) ? filterStatus.delete(st) : filterStatus.add(st); c.classList.toggle("on"); draw(); });
+    return c;
+  }));
+  const search = h("input", {type: "search", placeholder: "filter runs…", value: filterText, on: {input: e => { filterText = e.target.value.toLowerCase(); draw(); }}});
+  const counts = statuses.map(st => h("div", {cls: "stat"}, h("span", {}, st.replace(/_/g, " ")), h("b", {}, runs.filter(r => r.status === st).length)));
+  const blocks = [];
+  if (LIVE) blocks.push(actionsPanel());
+  blocks.push(panel("Overview", "", h("div", {cls: "stats"}, h("div", {cls: "stat"}, h("span", {}, "runs"), h("b", {}, runs.length)), counts)));
+  blocks.push(panel("All runs", "", h("div", {cls: "row", style: "margin-bottom:12px"}, search, chips),
+    h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["run", "case", "status", "verdict", "details", "reason"].map(t => h("th", {}, t)))), body))));
+  app.replaceChildren(h("div", {cls: "grid"}, blocks));
+  draw();
+  if (LIVE && runs.some(r => r.status === "running")) timer = setTimeout(route, 3000);
+}
+
+function actionsPanel(){
+  const cond = h("select", {}, h("option", {value: "validated"}, "validated (critic on)"), h("option", {value: "tool_only"}, "tool_only (critic off)"));
+  const start = h("button", {cls: "btn", on: {click: () => act({action: "start", condition: cond.value})}}, "Start mock run");
+  const pilot = h("button", {cls: "btn", on: {click: () => act({action: "pilot"})}}, "Run mock pilot");
+  return panel("Actions", "", h("div", {cls: "row"}, h("span", {cls: "muted"}, "CollegeMsg investigation:"), cond, start, pilot),
+    h("p", {cls: "small muted"}, "Mock mode only: the browser can never start or authorize paid calls. Live runs are started and approved from the command line (", h("code", {}, "--allow-paid"), ")."));
+}
+
+async function act(body){
+  try {
+    const job = await api("/api/action", body);
+    toast(`${body.action}: started (job ${job.job_id})`);
+    const poll = async () => {
+      const j = await api(`/api/job?id=${encodeURIComponent(job.job_id)}`);
+      if (j.state === "running") { setTimeout(poll, 1500); if (current && current.kind === "index") route(); return; }
+      toast(`${body.action}: ${j.state}${j.message ? " · " + j.message : ""}`, j.state === "done" ? "" : "bad");
+      route();
+    };
+    setTimeout(poll, 800);
+  } catch (err) { toast(`${body.action}: ${err.message}`, "bad"); }
+}
+
+function stepper(ws, status){
+  const stage = ws && ws.stage;
+  const at = STAGES.indexOf(stage);
+  const final = ["completed", "partial", "abstained", "failed", "cancelled", "denied", "budget_exhausted"].includes(status);
+  return h("div", {cls: "stepper"}, STAGES.map((st, i) => {
+    let cls = "step";
+    if (final) cls += i <= at ? " done" : "";
+    else if (i < at) cls += " done"; else if (i === at) cls += status === "paused" ? " stop" : " now";
+    return h("div", {cls}, st.replace("_", " "));
+  }));
+}
+
+function renderRun(d){
+  const inv = d.investigation || {}, ws = d.workflow || {}, sum = d.summary || {};
+  const status = sum.status;
+  document.getElementById("title").replaceChildren(h("h1", {}, (inv.case_id || sum.case || "run"), " ", h("span", {cls: "muted mono small"}, d.id)));
+  const head = h("div", {cls: "row", style: "margin-top:14px"}, badge(status), inv.verdict ? badge(inv.verdict) : null,
+    h("span", {cls: "muted mono small"}, [inv.cost && inv.cost.mode, inv.condition].filter(Boolean).join(" · ")),
+    h("a", {href: href("index"), cls: "small", style: "margin-left:auto"}, "← all runs"));
+  const tabs = [["overview", "Overview"], ["experiment", "Experiment"], ["network", "Network"], ["sensitivity", "Sensitivity"],
+                ["agent", "Agent trace"], ["claims", "Claims"], ["report", "Report"], ["budget", "Budget"]];
+  const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); }}}, label)));
+  const views = {overview: viewOverview, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
+                 agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget};
+  app.replaceChildren(head, stepper(ws, status), bar, h("div", {cls: "grid"}, views[tab](d)));
+  if (LIVE && (status === "running" || status === "paused")) timer = setTimeout(route, 2500);
+}
+
+function runActions(d){
+  if (!LIVE) return null;
+  const ws = d.workflow || {}, st = d.summary.status, id = d.id, pause = ws.pause || {};
+  const btns = [];
+  if (st === "paused" && pause.kind === "authorization") {
+    btns.push(h("button", {cls: "btn danger", on: {click: () => act({action: "deny", run_id: id})}}, "Deny paid execution"));
+    btns.push(h("span", {cls: "small muted"}, "Approve only from the command line: ", h("code", {}, `blackgrid resume ${id} --allow-paid`)));
+  }
+  if (st === "paused" && pause.kind === "reconciliation") {
+    btns.push(h("button", {cls: "btn warnb", on: {click: () => act({action: "reconcile", run_id: id, choice: "retry"})}}, "Reconcile: retry once"));
+    btns.push(h("button", {cls: "btn danger", on: {click: () => act({action: "reconcile", run_id: id, choice: "stop"})}}, "Reconcile: stop"));
+  }
+  if (st === "running" && !d.locked) btns.push(h("button", {cls: "btn", on: {click: () => act({action: "resume", run_id: id})}}, "Resume"));
+  if (st === "running" || st === "paused") btns.push(h("button", {cls: "btn danger", on: {click: () => act({action: "cancel", run_id: id})}}, "Cancel"));
+  return btns.length ? h("div", {cls: "row", style: "margin-top:12px"}, btns) : null;
+}
+
+function chips(items, cls){ return items && items.length ? h("div", {cls: "chips"}, items.map(x => h("span", {cls: "badge " + cls, style: "font-size:10px"}, x))) : h("span", {cls: "muted"}, "—"); }
+
+function viewOverview(d){
+  const inv = d.investigation || {}, ws = d.workflow || {}, rem = ws.remaining || {}, pause = ws.pause;
+  const out = [];
+  if (pause) out.push(h("section", {cls: "panel"}, h("div", {cls: "notice"}, `PAUSED · ${pause.kind}: ${pause.reason}`), runActions(d)));
+  if ((inv.missing_analyses || []).length && inv.verdict !== "rejected")
+    out.push(h("section", {cls: "panel"}, h("div", {cls: "notice"}, "PARTIAL ANSWER — required analyses did not run: " + inv.missing_analyses.join(", "))));
+  if (inv.cost && inv.cost.mode === "mock") out.push(h("section", {cls: "panel"}, h("div", {cls: "notice info"}, "MOCK MODE — planner and analyst are scripted stand-ins. Statistics are real; the agent text is not a model's output.")));
+  out.push(panel("Workflow", "s6", kv([["Run", d.id], ["Stage", ws.stage], ["Status", d.summary.status], ["Reason", ws.reason || inv.failure_reason || "—"], ["Verdict", inv.verdict || "—"], ["Updated", ws.updated_utc]]), pause ? null : runActions(d)));
+  out.push(panel("Obligations", "s6", h("p", {cls: "muted small"}, "Required"), chips(ws.required, "neutral"),
+    h("p", {cls: "muted small"}, "Completed"), chips(ws.completed, "ok"), h("p", {cls: "muted small"}, "Missing"), chips(ws.missing, "warn"),
+    h("p", {cls: "muted small"}, "Remaining limits"),
+    h("div", {cls: "stats"}, [["calls", rem.llm_calls], ["tokens", rem.tokens], ["usd", rem.usd_this_run], ["revisions", rem.revisions]].map(([k, v]) => h("div", {cls: "stat"}, h("span", {}, k), h("b", {}, v ?? "—"))))));
+  const rec = d.record || {}, prof = (d.experiment && d.experiment.profile) || d.profile || {};
+  out.push(panel("Provenance", "", kv([["Graph", rec.graph_id], ["Origin", rec.origin], ["Dataset", rec.source && rec.source.dataset_id],
+    ["Active nodes", rec.active_nodes], ["Unique edges", rec.unique_edges], ["Components", prof.components], ["Max / median degree", `${prof.degree_max ?? "—"} / ${prof.degree_median ?? "—"}`],
+    ["Window events", rec.window_events], ["Projection SHA-256", rec.projection_sha256]])));
+  return out;
+}
+
+function histogram(values, observed, q05, q95){
+  if (!values || !values.length) return h("p", {cls: "muted"}, "No null distribution (the analysis abstained or did not run).");
+  const W = 640, H = 240, L = 40, B = 34;
+  const all = values.concat(observed == null ? [] : [observed]);
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.08 || 0.01; lo -= pad; hi += pad;
+  const bins = 32, counts = new Array(bins).fill(0);
+  values.forEach(v => counts[Math.min(Math.floor((v - lo) / (hi - lo) * bins), bins - 1)]++);
+  const top = Math.max(...counts) || 1, bw = (W - L - 10) / bins, x = v => L + (v - lo) / (hi - lo) * (W - L - 10);
+  const svg = s("svg", {viewBox: `0 0 ${W} ${H}`, class: "hist"});
+  if (q05 != null && q95 != null) svg.appendChild(s("rect", {class: "band", x: x(q05), y: 8, width: x(q95) - x(q05), height: H - B - 8}));
+  counts.forEach((c, i) => {
+    const bh = c / top * (H - B - 18), a = lo + (hi - lo) * i / bins, b = lo + (hi - lo) * (i + 1) / bins;
+    svg.appendChild(s("rect", {class: "bar", x: L + i * bw + 1, y: H - B - bh, width: Math.max(bw - 2, 1), height: bh,
+      on: {mousemove: e => showTip(e, `${a.toFixed(3)} – ${b.toFixed(3)}: ${c} shuffled copies`), mouseleave: hideTip}}));
+  });
+  if (observed != null) {
+    const ge = values.filter(v => v >= observed).length;
+    svg.appendChild(s("line", {class: "obs", x1: x(observed), y1: 6, x2: x(observed), y2: H - B}));
+    const label = `observed ${observed.toFixed(3)} · ${ge}/${values.length} nulls ≥ it`;
+    const lx = x(observed) + 6 + label.length * 7.2 > W ? x(observed) - 6 : x(observed) + 6;
+    svg.appendChild(s("text", {class: "obs-label", x: lx, y: 18, "text-anchor": lx < x(observed) ? "end" : "start"}, label));
+  }
+  svg.appendChild(s("line", {class: "axis", x1: L, y1: H - B, x2: W - 10, y2: H - B}));
+  [0.1, 0.5, 0.9].forEach(t => svg.appendChild(s("text", {class: "tick", x: x(lo + (hi - lo) * t), y: H - 12, "text-anchor": "middle"}, (lo + (hi - lo) * t).toFixed(3))));
+  return svg;
+}
+
+function viewExperiment(d){
+  const exp = d.experiment;
+  if (!exp) return [panel("Experiment", "", h("p", {cls: "muted"}, "No experiment result."))];
+  const scopes = [["primary", "whole graph"]].concat(exp.secondary && exp.secondary.null_values && exp.secondary.null_values.length ? [["secondary", "largest component"]] : []);
+  let which = "primary";
+  const host = h("div");
+  const draw = () => {
+    const a = exp[which] || {}, r = a.result || {}, n = r.null || {};
+    host.replaceChildren(
+      h("div", {cls: "stats"}, [["Observed Q", f3(r.observed_statistic)], ["Null mean", f3(n.mean)], ["ΔQ", f3(a.delta_q)], ["z", f2(a.z)], ["p-value", f3(r.p_value)], ["Nulls", r.null_replicates ?? "—"]].map(([k, v]) => h("div", {cls: "stat"}, h("span", {}, k), h("b", {}, v)))),
+      h("div", {style: "margin-top:14px"}, histogram(a.null_values, r.observed_statistic, n.q05, n.q95)),
+      h("p", {cls: "small muted"}, "Hover a bar for its range and count. Shaded band = 5th–95th percentile of the shuffled copies; magenta line = the observed graph."),
+      a.suitable === false ? h("div", {cls: "notice"}, "Abstained: " + (a.unsuitable_reasons || []).join("; ")) : null);
+  };
+  const toggle = scopes.length > 1 ? h("div", {cls: "row", style: "margin-bottom:12px"}, scopes.map(([k, label]) => h("button", {cls: "btn", on: {click: () => { which = k; draw(); }}}, label))) : null;
+  draw();
+  return [panel("Experiment · modularity vs degree-preserving null", "s8", toggle, host),
+          panel("Verdict", "s4", h("div", {cls: "row"}, badge(exp.verdict), exp.raw_verdict !== exp.verdict ? h("span", {cls: "small muted"}, "raw: " + exp.raw_verdict) : null),
+                h("p", {cls: "muted small"}, "Flags"), chips(exp.flags, "warn"), h("p", {cls: "small muted"}, "Verdict rule and settings were frozen before the run (exp-v1.1)."))];
+}
+
+function viewNetwork(d){
+  const lay = d.layout;
+  if (!lay) return [panel("Network", "", h("p", {cls: "muted"}, "No layout (graph too large or not yet built)."))];
+  const W = 640, H = 480, P = 22, maxDeg = Math.max(...lay.degree) || 1;
+  const pts = lay.points.map(([x, y]) => [P + x * (W - 2 * P), P + y * (H - 2 * P)]);
+  const g = s("g");
+  lay.edges.forEach(([a, b]) => g.appendChild(s("line", {x1: pts[a][0], y1: pts[a][1], x2: pts[b][0], y2: pts[b][1]})));
+  const dots = pts.map(([x, y], i) => {
+    const dg = lay.degree[i], hub = dg / maxDeg > 0.45;
+    return s("circle", {cx: x, cy: y, r: (2.3 + 5 * Math.sqrt(dg / maxDeg)).toFixed(1), fill: hub ? "var(--hub)" : "var(--node)",
+      on: {mousemove: e => showTip(e, `degree ${dg}`), mouseleave: hideTip}});
+  });
+  dots.forEach(c => g.appendChild(c));
+  const svg = s("svg", {viewBox: `0 0 ${W} ${H}`, class: "net", style: "cursor:grab;touch-action:none"}, g);
+  let k = 1, tx = 0, ty = 0, drag = null;
+  const apply = () => g.setAttribute("transform", `translate(${tx} ${ty}) scale(${k})`);
+  svg.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.15 : 1 / 1.15; k = Math.min(Math.max(k * f, 0.5), 8); apply(); }, {passive: false});
+  svg.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY, tx, ty]; });
+  window.addEventListener("pointerup", () => { drag = null; });
+  svg.addEventListener("pointermove", e => { if (!drag) return; const r = svg.getBoundingClientRect(), sc = W / r.width; tx = drag[2] + (e.clientX - drag[0]) * sc; ty = drag[3] + (e.clientY - drag[1]) * sc; apply(); });
+  const label = h("span", {cls: "mono small"}, "highlight degree ≥ 1");
+  const slider = h("input", {type: "range", min: 1, max: maxDeg, value: 1, on: {input: e => {
+    const t = Number(e.target.value); label.textContent = `highlight degree ≥ ${t}`;
+    dots.forEach((c, i) => c.setAttribute("class", lay.degree[i] >= t ? "" : "dim"));
+  }}});
+  const reset = h("button", {cls: "btn", on: {click: () => { k = 1; tx = 0; ty = 0; apply(); }}}, "Reset view");
+  return [panel("Network · projected graph", "", h("div", {cls: "row", style: "margin-bottom:10px"}, slider, label, reset), svg,
+    h("p", {cls: "small muted"}, "Scroll to zoom, drag to pan, hover a dot for its degree. Dot size and colour show degree only — colours are not communities. No identifiers are shown."))];
+}
+
+function viewSensitivity(d){
+  const sen = d.sensitivity;
+  if (!sen) return [panel("Missing-edge sensitivity", "", h("p", {cls: "muted"}, "Not run (the plan did not include it, it failed, or the run stopped earlier)."))];
+  const runs = sen.runs || [], main = d.experiment && d.experiment.primary && d.experiment.primary.result ? d.experiment.primary.result.observed_statistic : null;
+  const qs = runs.map(r => r.observed_q).filter(v => v != null).concat(main == null ? [] : [main]);
+  const W = 640, H = 130, P = 40; let lo = Math.min(...qs), hi = Math.max(...qs); const pad = (hi - lo) * 0.1 || 0.01; lo -= pad; hi += pad;
+  const x = v => P + (v - lo) / (hi - lo) * (W - 2 * P);
+  const svg = s("svg", {viewBox: `0 0 ${W} ${H}`, class: "strip"});
+  if (main != null) svg.appendChild(s("line", {class: "obs", x1: x(main), y1: 10, x2: x(main), y2: H - 30}));
+  runs.forEach((r, i) => { if (r.observed_q == null) return;
+    svg.appendChild(s("circle", {cx: x(r.observed_q), cy: 50 + (i % 5) * 9 - 18, r: 5, class: r.raw_verdict === sen.main_raw_verdict ? "" : "v-" + r.raw_verdict,
+      on: {mousemove: e => showTip(e, `replicate ${r.index}: Q ${f3(r.observed_q)}, p ${f3(r.p_value)}, ${r.raw_verdict}`), mouseleave: hideTip}})); });
+  svg.appendChild(s("line", {class: "axis", x1: P, y1: H - 26, x2: W - P, y2: H - 26}));
+  [0.1, 0.5, 0.9].forEach(t => svg.appendChild(s("text", {class: "tick", x: x(lo + (hi - lo) * t), y: H - 8, "text-anchor": "middle"}, (lo + (hi - lo) * t).toFixed(3))));
+  let key = "index", asc = true;
+  const body = h("tbody");
+  const draw = () => {
+    const rows = [...runs].sort((a, b) => ((a[key] ?? 0) > (b[key] ?? 0) ? 1 : -1) * (asc ? 1 : -1));
+    body.replaceChildren(...rows.map(r => h("tr", {}, h("td", {cls: "mono"}, r.index), h("td", {cls: "mono"}, r.removed_edges), h("td", {cls: "mono"}, f3(r.observed_q)), h("td", {cls: "mono"}, f3(r.delta_q)), h("td", {cls: "mono"}, f3(r.p_value)), h("td", {}, badge(r.raw_verdict)))));
+  };
+  const cols = [["index", "#"], ["removed_edges", "removed"], ["observed_q", "Q"], ["delta_q", "ΔQ"], ["p_value", "p"], ["raw_verdict", "verdict"]];
+  const head = h("tr", {}, cols.map(([k, t]) => h("th", {on: {click: () => { asc = key === k ? !asc : true; key = k; draw(); }}}, t)));
+  draw();
+  return [panel("Missing-edge sensitivity", "", h("div", {cls: "stats"}, [["Removed", `${Math.round((sen.removal_fraction || 0) * 100)}%`], ["Replicates", sen.replicates], ["Agreement", `${sen.agreement}/${sen.replicates}`], ["Main raw verdict", sen.main_raw_verdict]].map(([k, v]) => h("div", {cls: "stat"}, h("span", {}, k), h("b", {}, v)))),
+            h("div", {style: "margin-top:12px"}, svg), h("p", {cls: "small muted"}, (sen.label || "") + " · hover a dot; magenta line = full graph · click a column to sort"),
+            h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, head), body)))];
+}
+
+function viewAgent(d){
+  const inv = d.investigation || {};
+  const items = [];
+  const plan = inv.plan || {};
+  (inv.llm_calls || []).forEach((c, i) => {
+    items.push({t: c.role, cls: c.ok ? "" : "fail", text: `${c.ok ? "ok" : "failed"} · ${c.prompt_tokens}+${c.completion_tokens} tokens · $${Number(c.usd).toFixed(6)}`,
+      detail: [["prompt sha-256", c.prompt_sha256], ["error", c.error || "—"]].concat(c.role === "planner" && i === 0 ? [["plan", (plan.tool_calls || []).map(t => t && t.tool).join(", ") || "—"], ["reason", plan.reason || "—"]] : [])});
+  });
+  if (inv.plan_decision) items.splice(1, 0, {t: "validator", cls: inv.plan_decision.allowed ? "" : "warn", text: (inv.plan_decision.allowed ? "allowed" : "REFUSED") + (inv.plan_decision.reasons && inv.plan_decision.reasons.length ? " · " + inv.plan_decision.reasons.join("; ") : ""), detail: []});
+  const tools = (inv.tool_calls || []).filter(t => !t.tool.includes("["));
+  const reps = (inv.tool_calls || []).filter(t => t.tool.includes("["));
+  tools.forEach(t => items.push({t: t.tool, cls: t.outcome === "failed" ? "fail" : "", text: `${t.outcome} · ${Number(t.elapsed_s).toFixed(2)}s${t.cached ? " · cached" : ""}`, detail: [["error", t.error || "—"], ["args sha-256", t.args_sha256]]}));
+  if (reps.length) items.push({t: "sensitivity replicates", cls: "", text: `${reps.length} bounded calls · ${reps.reduce((a, r) => a + r.elapsed_s, 0).toFixed(1)}s`, detail: []});
+  const dec = inv.critic_decisions || [];
+  if (dec.length) items.push({t: "critic", cls: dec.some(x => !x.accepted) ? "warn" : "", text: `${dec.filter(x => x.accepted).length} accepted · ${dec.filter(x => !x.accepted).length} rejected · ${inv.revisions || 0} revision round(s)`, detail: []});
+  items.push({t: "outcome", cls: inv.status === "failed" ? "fail" : "", text: `${inv.status || d.summary.status} · verdict ${inv.verdict || "—"}${inv.failure_reason ? " · " + inv.failure_reason : ""}`, detail: []});
+  const ul = h("ul", {cls: "timeline"}, items.map(it => {
+    const li = h("li", {cls: it.cls}, h("div", {cls: "t"}, it.t.toUpperCase() + (it.detail.length ? "  ▸" : "")), h("div", {}, it.text),
+      it.detail.length ? h("div", {cls: "detail"}, kv(it.detail)) : null);
+    li.querySelector(".t").addEventListener("click", () => li.classList.toggle("open"));
+    return li;
+  }));
+  return [panel("Agent trace", "", h("p", {cls: "small muted"}, "Click a step to expand it. Prompts and raw replies stay in the run folder and are not shown here."), ul)];
+}
+
+function viewClaims(d){
+  const inv = d.investigation || {};
+  let showRejected = true;
+  const host = h("div");
+  const shown = new Set((inv.reported_claims || []).map(c => JSON.stringify(c)));
+  const draw = () => {
+    const out = [];
+    if (inv.condition === "tool_only" && (inv.reported_claims || []).length) out.push(h("div", {cls: "notice"}, "tool_only condition: these claims were NOT reviewed by the critic."));
+    (inv.reported_claims || []).forEach(c => out.push(h("div", {cls: "claim"}, h("b", {}, `[${c.evidence_level}] `), c.text, h("div", {cls: "ev"}, "evidence: " + (c.evidence || []).join(", ")))));
+    if (showRejected) (inv.critic_decisions || []).filter(x => !x.accepted && !shown.has(JSON.stringify(x.claim))).forEach(x =>
+      out.push(h("div", {cls: "claim rej"}, h("b", {}, "REJECTED "), (x.claim || {}).text || "", h("div", {cls: "why"}, (x.reasons || []).join("; ")))));
+    host.replaceChildren(...(out.length ? out : [h("p", {cls: "muted"}, "No claims were drafted.")]));
+  };
+  draw();
+  const toggle = h("label", {cls: "small"}, h("input", {type: "checkbox", checked: true, on: {change: e => { showRejected = e.target.checked; draw(); }}}), " show rejected drafts");
+  return [panel("Claims · critic review", "", toggle, host)];
+}
+
+function viewReport(d){
+  const rep = d.report;
+  if (!rep) return [panel("Report", "", h("p", {cls: "muted"}, "No report yet (the run has not finished)."))];
+  return [panel("Report", "", (rep.sections || []).map(sec => [h("h3", {style: "color:var(--cyan);font-size:13px;margin:16px 0 6px"}, sec.title),
+    h("ul", {}, (sec.items || []).map(it => h("li", {}, it.kind === "claim" && it.label ? h("b", {}, `[${it.label}] `) : null, String(it.text || "").replace(/^> /, ""),
+      it.evidence && it.evidence.length ? h("div", {cls: "ev small muted"}, "evidence: " + it.evidence.join(", ")) : null)))]))];
+}
+
+function viewBudget(d){
+  const inv = d.investigation || {}, b = d.budget || {}, lim = b.limits || {}, cost = inv.cost || {}, pr = b.pricing || {};
+  const events = b.events || [];
+  return [panel("Budget", "s6", meter("LLM calls", cost.llm_calls || 0, lim.max_llm_calls || 8), meter("Tokens", (cost.input_tokens || 0) + (cost.output_tokens || 0), lim.max_tokens || 20000),
+            meter("Spend (this run)", Number(cost.actual_usd || 0), lim.max_usd_per_investigation || 0.5, "USD"),
+            kv([["Provider pricing", pr.source], ["Model", pr.model], ["Sprint cap", lim.max_usd_current_sprint != null ? "$" + lim.max_usd_current_sprint : "—"], ["Project cap", lim.max_usd_total != null ? "$" + lim.max_usd_total : "—"]])),
+          panel("Budget events", "s6", events.length ? h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, ["event", "usd", "detail"].map(t => h("th", {}, t)))),
+            h("tbody", {}, events.map(e => h("tr", {}, h("td", {}, badge(e.event)), h("td", {cls: "mono"}, e.usd != null ? Number(e.usd).toFixed(6) : "—"), h("td", {cls: "small muted"}, e.reason || ""))))))
+            : h("p", {cls: "muted"}, "No budget events.")),
+          panel("Prediction", "", h("p", {cls: "muted"}, "No predictive model exists in Sprint 1–2 — graph prediction is gated to Phase 3. Nothing in this console is a prediction."))];
+}
+
+function renderPilot(p){
+  document.getElementById("title").replaceChildren(h("h1", {}, "Mock pilot ", h("span", {cls: "muted mono small"}, p.id)));
+  const sum = p.summary || {}, conds = Object.keys(sum);
+  const metrics = conds.length ? Object.keys(sum[conds[0]]) : [];
+  const frac = s => { const m = String(s).match(/^(\d+)\/(\d+)/); return m ? Number(m[1]) / Math.max(Number(m[2]), 1) : null; };
+  const bars = ["useful_coverage", "unsupported_claim_rate"].map(m => h("div", {style: "margin:12px 0"}, h("div", {cls: "muted small"}, m.replace(/_/g, " ")),
+    conds.map(c => { const v = frac(sum[c][m]); return h("div", {cls: "row bars", style: "margin:4px 0"}, h("span", {cls: "mono small", style: "width:90px"}, c),
+      h("div", {style: "flex:1;background:#111a2e;border-radius:5px"}, h("div", {cls: "bar", style: `width:${((v || 0) * 100).toFixed(1)}%`})), h("span", {cls: "mono small"}, String(sum[c][m]))); })));
+  let cond = "all", key = "case", asc = true;
+  const body = h("tbody");
+  const draw = () => {
+    const rows = (p.rows || []).filter(r => cond === "all" || r.condition === cond).sort((a, b) => (String(a[key]) > String(b[key]) ? 1 : -1) * (asc ? 1 : -1));
+    body.replaceChildren(...rows.map(r => h("tr", {cls: "click", on: {click: () => { location.href = href("run", r.run_id); }}},
+      h("td", {cls: "mono"}, r.case), h("td", {}, r.task), h("td", {}, r.condition), h("td", {}, badge(r.status)), h("td", {}, badge(r.verdict)),
+      h("td", {cls: r.verdict_ok ? "ok" : "bad"}, String(r.verdict_ok)), h("td", {cls: r.flags_ok ? "ok" : "bad"}, String(r.flags_ok)), h("td", {cls: "mono"}, `${r.unsupported_claims}/${r.claims}`))));
+  };
+  const sel = h("select", {on: {change: e => { cond = e.target.value; draw(); }}}, ["all"].concat(conds).map(c => h("option", {value: c}, c)));
+  const cols = [["case", "case"], ["task", "task"], ["condition", "condition"], ["status", "status"], ["verdict", "verdict"], ["verdict_ok", "verdict ok"], ["flags_ok", "flags ok"], ["unsupported_claims", "unsupported"]];
+  draw();
+  app.replaceChildren(h("div", {cls: "row", style: "margin-top:14px"}, h("span", {cls: "badge neutral"}, p.evaluator || "eval"), h("a", {href: href("index"), cls: "small", style: "margin-left:auto"}, "← all runs")),
+    h("div", {cls: "grid"}, h("section", {cls: "panel"}, h("div", {cls: "notice"}, p.label || "")),
+      panel("Condition summary", "s6", h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "metric"), conds.map(c => h("th", {}, c)))),
+        h("tbody", {}, metrics.map(m => h("tr", {}, h("td", {}, m.replace(/_/g, " ")), conds.map(c => h("td", {cls: "mono"}, typeof sum[c][m] === "number" ? Number(sum[c][m].toFixed(4)) : sum[c][m])))))))),
+      panel("Comparison", "s6", bars),
+      panel("Per case", "", h("div", {cls: "row", style: "margin-bottom:10px"}, h("span", {cls: "muted small"}, "condition"), sel, h("span", {cls: "muted small"}, "click a column to sort · click a row to open its run")),
+        h("div", {cls: "tablewrap"}, h("table", {}, h("thead", {}, h("tr", {}, cols.map(([k, t]) => h("th", {on: {click: () => { asc = key === k ? !asc : true; key = k; draw(); }}}, t)))), body)))));
+}
+
+// ---- boot ----
+document.getElementById("modelabel").textContent = LIVE ? "LIVE CONSOLE" : "SNAPSHOT · " + (BOOT.generated || "");
+if (!LIVE) document.getElementById("dot").classList.add("off");
+document.getElementById("home").setAttribute("href", href("index"));
+if (LIVE) window.addEventListener("hashchange", () => { tab = "overview"; route(); });
+route();
+</script>
+</body>
+</html>

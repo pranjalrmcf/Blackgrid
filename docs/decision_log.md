@@ -397,3 +397,97 @@ All live runs were made by the user.
 - **On `061637`:** it is *partial* under D-040, because sensitivity was skipped. Its first two truncations returned **0 visible characters**: the model spent all 2,000 output tokens on hidden reasoning.
 - **Not yet done:** no live run has used the D-038–D-040 fixes.
 - **Status:** recorded.
+
+## Sprint 2
+
+### D-042 — Sprint 2 implementation authorized; Session 1 handoff (2026-10-18)
+- **Authorization:** The user added `SPRINT_02.md` and asked to start implementing it. Its header says "plan only"; the user's request supersedes that for implementation. `AGENTS.md`, earlier protocols, and historical decisions are not rewritten.
+- **Scope:**
+  - six sessions: a LangGraph workflow, a deterministic supervisor, durable operations, authorization, recovery, and visibility;
+  - **all checks offline**;
+  - **no paid call is authorized by this entry.** The optional live acceptance test needs separate approval, under a USD 1 Sprint 2 ceiling.
+- **Regression baseline:** 152 tests pass, including the 12 D-038–D-040 regressions.
+- **Reference run:** mock run `20261018T064334Z-09af60` (validated, critic-v2). Its fingerprint is in `benchmarks/reference/collegemsg_mock_reference.json`, made with `blackgrid.parity` (timings and IDs excluded).
+- **Contract:** `protocols/sprint02_workflow.md` (wf-v1) defines run outcomes (adding `paused` and `denied`), completion obligations, operation states, retry categories, state contents, budget durability, and authorization.
+- **Status:** active.
+
+### D-043 — Dependencies: LangGraph 1.2.12 with the SQLite checkpointer (2026-10-18)
+- **Resolved under `exclude-newer = 2026-10-03`:**
+  - `langgraph` 1.2.12 (MIT);
+  - `langgraph-checkpoint` 4.2.0 and `langgraph-checkpoint-sqlite` 3.1.1 (MIT);
+  - `langchain-core` 1.6.6 (MIT).
+- **Transitive packages:** MIT, BSD, or Apache, plus `orjson` (MPL-2.0 AND Apache-2.0/MIT).
+- **API check:** before use, the installed API was verified to support `interrupt`, `Command(resume=...)`, `SqliteSaver` across fresh connections, and `durability="sync"`.
+- **Tracing:** the install pulls in the `langsmith` client. External tracing is forced off (`LANGSMITH_TRACING=false`) when `blackgrid.workflow` is imported, and a test checks it.
+- **Not installed:** no agent server, LangChain agent suite, or hosted service.
+- **Status:** active.
+
+### D-044 — Workflow implementation and its behaviour changes (2026-10-18)
+- **The workflow:**
+  - `blackgrid.workflow` implements wf-v1 as one LangGraph state graph: initialize, authorize, plan, validate, execute, check_evidence, analyst, critic/reviser, finalize.
+  - A deterministic supervisor decides routing and completion; it is code, not an LLM.
+  - Every LLM and tool call is a durable operation (`workflow/store.py`).
+  - Pauses use LangGraph interrupts.
+- **One implementation:** the old `Controller` now runs this same graph with in-memory services, so there is no second, divergent implementation. All Sprint 1 tests run through the graph.
+- **Intended behaviour changes**, as required by `SPRINT_02.md`:
+  1. When required evidence is incomplete, the run finalizes as `partial` (or `failed` if no required analysis completed) **without calling the analyst**. Previously tool_only still drafted claims.
+  2. Provider errors are classified (D-045):
+     - permanent errors (HTTP 400/401/403/404) are not retried;
+     - an uncertain error after dispatch pauses for reconciliation instead of retrying.
+  3. Live runs without authorization **pause** before the first paid call instead of refusing to start. The config flag is still required at start.
+  4. A revision round counts only if its call was actually reserved.
+  5. Money caps: the project cap keeps all prior spend (Sprint 1's $0.0051 is imported from `spend_ledger.json`), and a separate **Sprint 2 cap of USD 1** applies.
+- **Status:** active.
+
+### D-045 — Retry and reconciliation policy (2026-10-18)
+- **Policy, by error category:**
+  - `transient` (connection refused before sending, DNS failure, HTTP 429 or 5xx): one retry.
+  - `malformed` (a reply that was received but truncated or unparseable): billed, one retry with a corrective note.
+  - `permanent`: no retry.
+  - `uncertain` (a timeout or reset after sending, or a crash between dispatch and the saved receipt): the run pauses. A person chooses `reconcile --retry` (retry once, within the caps) or `--stop`.
+- **Billing:** in every unknown case the full reservation stays charged.
+- **Limits:** exactly-once execution is not claimed.
+- **Status:** active.
+
+### D-046 — Interactive console (user-requested deviation) (2026-10-18)
+- **Request:** mid-Sprint 2, the user asked for "an interactive dynamic UI instead of static UIs", with each run saved as a static template. `SPRINT_02.md` §12.9 said "no new frontend framework or web service"; the user's request overrides that.
+- **Smallest form that meets it:** one self-contained template (`console/template.html`, plain JavaScript, no framework, no external assets) used in two modes:
+  1. **Live:** `blackgrid console` is a standard-library HTTP server on **127.0.0.1 only**, with:
+     - Host-header checks against DNS rebinding;
+     - a per-session token on every action;
+     - strict CSP and framing headers;
+     - a fixed action allowlist routed through the CLI's own code and gates: mock start, pilot, resume, cancel, deny, reconcile;
+     - **no paid start or approval from the browser**;
+     - one background job at a time.
+  2. **Static:** every finished run, pilot, and the index saves the same console with its data embedded (`report.html`, `pilot.html`, `index.html`), interactive offline.
+- **Data safety:** data is embedded as JSON with `<`, `>`, and `&` escaped, and the page inserts text only with `textContent` (no `innerHTML`). LLM prompts and receipts are never sent to the browser.
+- **Replaces:** the old static HTML builder in `ui.py`.
+- **Status:** active.
+
+### D-047 — Sprint 2 verification results (2026-10-18)
+- **Tests:** 182 pass. They include:
+  - 20 workflow failure tests: crashes before dispatch, after dispatch, after the receipt, after a tool, and during finalize;
+  - restart recovery with no repeated calls;
+  - reconciliation pause, then retry or stop;
+  - caps across restarts;
+  - concurrent-resume rejection;
+  - authorization pause, approve, expire, mismatch, and deny;
+  - cancellation;
+  - tampered artifacts;
+  - changed config or unknown checkpoint version;
+  - checkpoint hygiene;
+  - replay with no live fallback;
+  - partial on a failed sensitivity;
+  - 6 console safety tests.
+- **Parity:**
+  - The CollegeMsg run through the workflow is **identical** to the Sprint 1 reference fingerprint.
+  - It stays identical when recomputed with no cache in a clean, offline environment: 171 passed and 1 skipped there (no data in the clean copy).
+  - Mock pilot: **15/16 case-conditions identical**. The exception is dev-007 tool_only, now `failed` with 1 call instead of `abstained` with 2; that is D-044 change 1. Pilot scores are unchanged.
+- **Cost:** USD 0 in Sprint 2. No paid call was made.
+- **Bugs found and fixed during verification:**
+  - a revision counted without a call;
+  - a stale stage/status in the console (finalize rendered before publishing);
+  - a crash when pricing was missing on a denied run;
+  - nested DOM children in the console;
+  - the console server rejecting POSTs before reading their body. On Windows this aborted the connection and turned a clean 403 or 415 into a connection error. It was intermittent; the fix was confirmed by three repeated runs.
+- **Status:** recorded.

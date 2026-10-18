@@ -95,6 +95,8 @@ class RunStatus(StrEnum):
     FAILED = "failed"
     CANCELLED = "cancelled"
     BUDGET_EXHAUSTED = "budget_exhausted"
+    PAUSED = "paused"  # waiting for a person (authorization or reconciliation); resumable
+    DENIED = "denied"  # a person refused paid execution
 
 
 # --- Data and graph contracts -------------------------------------------------------------------
@@ -336,6 +338,8 @@ class BudgetLimits(Contract):
     max_tokens: int = Field(default=CEILING_TOKENS, ge=0, le=CEILING_TOKENS)
     max_retries_per_call: int = Field(default=CEILING_RETRIES_PER_CALL, ge=0, le=CEILING_RETRIES_PER_CALL)
     max_revision_rounds: int = Field(default=CEILING_REVISION_ROUNDS, ge=0, le=CEILING_REVISION_ROUNDS)
+    # Sprint 2 ceiling (SPRINT_02.md §13), checked in addition to the project-wide max_usd_total.
+    max_usd_current_sprint: float = Field(default=1.0, ge=0, le=CEILING_USD_TOTAL)
 
 
 class LLMConfig(Contract):

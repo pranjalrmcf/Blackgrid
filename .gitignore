@@ -8,7 +8,11 @@ data/*
 !data/manifests/
 
 # Run artifacts may contain derived data from raw records; publish only reviewed aggregates.
+# Workflow checkpoints, operation receipts, and spend records are sensitive local artifacts.
 runs/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
 
 # Sealed test instances and answer keys never enter version control or agent-visible paths.
 benchmarks/sealed/
