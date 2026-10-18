@@ -12,7 +12,7 @@ import networkx as nx
 from pydantic import Field
 
 from blackgrid.contracts import Contract
-from blackgrid.experiment import DeadlineExceeded
+from blackgrid.analysis.experiment import DeadlineExceeded
 
 STRUCTURAL_VERSION = "structural-v1"
 

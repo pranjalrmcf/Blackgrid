@@ -11,9 +11,9 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Literal
 
-from blackgrid.agent import InvestigationResult
+from blackgrid.agent.roles import InvestigationResult
 from blackgrid.contracts import Contract, DataOrigin, GraphRecord, NonEmpty
-from blackgrid.critic import mislabelled_numbers, unsupported_numbers
+from blackgrid.agent.critic import mislabelled_numbers, unsupported_numbers
 
 ItemKind = Literal["result", "claim", "text", "reference"]
 

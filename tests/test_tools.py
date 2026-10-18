@@ -9,11 +9,11 @@ import urllib.request
 import networkx as nx
 import pytest
 
-from blackgrid import experiment
-from blackgrid.benchmark import dev_cases
+from blackgrid.analysis import experiment
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec
-from blackgrid.experiment import DeadlineExceeded
-from blackgrid.tools import AnswerKeyAccess, NetworkDenied, ToolContext, ToolRejected, execute, network_denied
+from blackgrid.analysis.experiment import DeadlineExceeded
+from blackgrid.agent.tools import AnswerKeyAccess, NetworkDenied, ToolContext, ToolRejected, execute, network_denied
 
 
 def spec(**overrides) -> ExperimentSpec:

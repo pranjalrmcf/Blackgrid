@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from blackgrid.budget import Pricing
-from blackgrid.providers import MockProvider
-from blackgrid.sprint4_live import MODEL, claim_diagnostics, run_pilot
-from blackgrid.validation import S4LIVE_CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, CASE_IDS, generator_seed
+from blackgrid.agent.budget import Pricing
+from blackgrid.agent.providers import MockProvider
+from blackgrid.evaluation.sprint4_live import MODEL, claim_diagnostics, run_pilot
+from blackgrid.evaluation.validation import S4LIVE_CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, CASE_IDS, generator_seed
 
 
 class FakePaid(MockProvider):

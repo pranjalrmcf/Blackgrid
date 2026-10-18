@@ -12,8 +12,8 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from blackgrid.agent import flatten
-from blackgrid.critic import CRITIC_VERSION, CriticContext, critique
+from blackgrid.agent.roles import flatten
+from blackgrid.agent.critic import CRITIC_VERSION, CriticContext, critique
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITE = ROOT / "runs" / "sprint3-v1.1"

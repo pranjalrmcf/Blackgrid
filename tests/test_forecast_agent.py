@@ -7,15 +7,15 @@ import json
 import pytest
 
 import blackgrid.workflow.engine as engine
-from blackgrid.agent import InvestigationInput
-from blackgrid.benchmark import dev_cases
-from blackgrid.inquiry import family, forecast_task
-from blackgrid.pilot import dev_spec
+from blackgrid.agent.roles import InvestigationInput
+from blackgrid.evaluation.benchmark import dev_cases
+from blackgrid.agent.inquiry import family, forecast_task
+from blackgrid.evaluation.pilot import dev_spec
 from blackgrid.prediction import suite as suite_mod
 from blackgrid.prediction.service import PredictionTools
 from blackgrid.prediction.synthetic import triadic_stream
-from blackgrid.providers import MockProvider
-from blackgrid.runner import run_investigation
+from blackgrid.agent.providers import MockProvider
+from blackgrid.workflow.runner import run_investigation
 
 from tests.test_workflow import dev_config
 
@@ -132,7 +132,7 @@ def test_suggested_and_varied_wording_routes_correctly(question, expected, task)
 
 
 def test_clarify_messages_say_what_actually_happened():
-    from blackgrid.inquiry import validate_structural
+    from blackgrid.agent.inquiry import validate_structural
 
     unmatched = validate_structural("Tell me something interesting.", {"family": "auto"}, {})[2]
     causal = validate_structural("Why do people message?", {"family": "auto"}, {})[2]
@@ -142,7 +142,7 @@ def test_clarify_messages_say_what_actually_happened():
 
 def test_inapplicable_extra_tool_is_dropped_not_fatal():
     """The exact live plan from D-081: a sound forecast plus ranking_sensitivity for 'how reliable'."""
-    from blackgrid.inquiry import validate_forecast
+    from blackgrid.agent.inquiry import validate_forecast
 
     q = ("Which pairs who have been messaging recently are most likely to keep talking over the next few weeks, and how "
          "reliable has this ranking been in past windows?")

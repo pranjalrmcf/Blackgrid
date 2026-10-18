@@ -16,12 +16,12 @@ from pathlib import Path
 
 import pytest
 
-from blackgrid.benchmark import dev_cases
-from blackgrid.budget import Pricing
+from blackgrid.evaluation.benchmark import dev_cases
+from blackgrid.agent.budget import Pricing
 from blackgrid.contracts import BudgetLimits, ExecutionMode, RunConfig, RunStatus
-from blackgrid.pilot import dev_spec
-from blackgrid.providers import MockProvider, ProviderError
-from blackgrid.runner import resume_investigation, run_investigation
+from blackgrid.evaluation.pilot import dev_spec
+from blackgrid.agent.providers import MockProvider, ProviderError
+from blackgrid.workflow.runner import resume_investigation, run_investigation
 from blackgrid.workflow.api import open_services
 from blackgrid.workflow.engine import ResumeBlocked, SimulatedCrash
 from blackgrid.workflow.store import RunLocked
@@ -69,7 +69,7 @@ def dev_config(mode: str = "mock", **budget) -> RunConfig:
 def start(runs: Path, provider, cache_dir, case="dev-002", config=None, **kw):
     dev = dev_cases()[case]
     public, graph, record = dev.planner_view()
-    from blackgrid.agent import InvestigationInput
+    from blackgrid.agent.roles import InvestigationInput
 
     inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request, graph=graph,
                              record=record, spec=dev_spec(dev))
@@ -207,17 +207,17 @@ def test_tampered_llm_receipt_is_never_reused(tmp_path, cache_dir, fault, role):
 
 def test_expired_deadline_still_finalizes_and_persists_the_failure(tmp_path, cache_dir):
     """Regression (review 3, item 3): finalize must run even after the wall-clock deadline."""
-    from blackgrid.agent import Controller
-    from blackgrid.budget import BudgetLedger
+    from blackgrid.agent.roles import Controller
+    from blackgrid.agent.budget import BudgetLedger
     from blackgrid.contracts import BudgetLimits
 
     dev = dev_cases()["dev-002"]
     public, graph, record = dev.planner_view()
-    from blackgrid.agent import InvestigationInput
+    from blackgrid.agent.roles import InvestigationInput
 
     inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request, graph=graph,
                              record=record, spec=dev_spec(dev))
-    from blackgrid.budget import FREE
+    from blackgrid.agent.budget import FREE
 
     ledger = BudgetLedger(limits=BudgetLimits(), pricing=FREE)
     result, _ = Controller(Counting(), ledger, ExecutionMode.MOCK, tmp_path, deadline_s=0).investigate(inp, "validated")
@@ -375,7 +375,7 @@ def test_checkpoints_and_prompts_hold_no_secrets_identifiers_or_answer_keys(tmp_
 
 def test_replay_never_falls_back_to_a_live_call(tmp_path, cache_dir):
     done = start(tmp_path / "rec", Counting(), cache_dir)
-    from blackgrid.providers import ReplayProvider
+    from blackgrid.agent.providers import ReplayProvider
 
     replay = ReplayProvider(done.run_dir / "llm_trace.jsonl")
     out = start(tmp_path / "rep", replay, cache_dir, case="dev-001")  # different case: prompts won't match
@@ -383,8 +383,8 @@ def test_replay_never_falls_back_to_a_live_call(tmp_path, cache_dir):
 
 
 def test_failed_required_sensitivity_is_partial_not_completed(tmp_path, monkeypatch):
-    from blackgrid import tools
-    from blackgrid.experiment import DeadlineExceeded
+    from blackgrid.agent import tools
+    from blackgrid.analysis.experiment import DeadlineExceeded
 
     def slow(*_a, **_k):
         raise DeadlineExceeded("experiment exceeded its tool timeout")

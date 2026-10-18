@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 import networkx as nx
 
-from blackgrid.collegemsg import graph_sha256
+from blackgrid.data.collegemsg import graph_sha256
 from blackgrid.contracts import (
     Contract,
     DataOrigin,

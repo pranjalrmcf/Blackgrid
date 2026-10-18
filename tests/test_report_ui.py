@@ -6,8 +6,8 @@ import json
 
 import networkx as nx
 
-from blackgrid.report import Report, ReportItem, ReportSection, check_numbers
-from blackgrid.ui import compute_layout, esc, write_run_page
+from blackgrid.agent.report import Report, ReportItem, ReportSection, check_numbers
+from blackgrid.console.ui import compute_layout, esc, write_run_page
 
 E = "experiment_report.json#/primary/result/"
 

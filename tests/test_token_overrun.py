@@ -9,10 +9,10 @@ from dataclasses import replace
 import pytest
 from pydantic import ValidationError
 
-from blackgrid import providers
-from blackgrid.budget import COMPLETION_OVERSHOOT, BudgetLedger, Pricing
+from blackgrid.agent import providers
+from blackgrid.agent.budget import COMPLETION_OVERSHOOT, BudgetLedger, Pricing
 from blackgrid.contracts import BudgetLimits, LLMConfig
-from blackgrid.providers import OpenRouterProvider
+from blackgrid.agent.providers import OpenRouterProvider
 
 from tests.test_workflow import Counting, dev_config, start
 

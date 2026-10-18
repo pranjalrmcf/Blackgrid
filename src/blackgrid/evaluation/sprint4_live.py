@@ -14,15 +14,15 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from blackgrid.agent import PROMPT_VERSION, InvestigationInput
-from blackgrid.benchmark import dev_cases
+from blackgrid.agent.roles import PROMPT_VERSION, InvestigationInput
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import RunConfig, canonical_sha256
-from blackgrid.critic import CRITIC_VERSION
-from blackgrid.evaluation import evaluate_run, expectation, failure_row, resolve, summarize, verify_artifacts
-from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation
-from blackgrid.sprint3 import append, save, sha
-from blackgrid.sprint4 import EVALUATOR_VERSION, RuleBaselineProvider, assess_claim_s4
-from blackgrid.validation import (CASE_IDS, S4_CASE_IDS, S4LIVE_CASE_IDS, S4V2_CASE_IDS, case_index,
+from blackgrid.agent.critic import CRITIC_VERSION
+from blackgrid.evaluation.scoring import evaluate_run, expectation, failure_row, resolve, summarize, verify_artifacts
+from blackgrid.workflow.runner import REPO_ROOT, capture_environment, run_investigation
+from blackgrid.evaluation.sprint3 import append, save, sha
+from blackgrid.evaluation.sprint4 import EVALUATOR_VERSION, RuleBaselineProvider, assess_claim_s4
+from blackgrid.evaluation.validation import (CASE_IDS, S4_CASE_IDS, S4LIVE_CASE_IDS, S4V2_CASE_IDS, case_index,
                                   public_registry, validation_input, validation_spec)
 from blackgrid.workflow.api import open_services
 

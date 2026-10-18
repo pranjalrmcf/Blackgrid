@@ -17,7 +17,7 @@ import networkx as nx
 from pydantic import Field
 
 from blackgrid.contracts import Contract, EdgeStatus, ExperimentSpec, NonEmpty, canonical_sha256
-from blackgrid.experiment import CommunityTestReport, derive_seed, run_community_test
+from blackgrid.analysis.experiment import CommunityTestReport, derive_seed, run_community_test
 
 R_SENS = 99  # exp-v1.1 §11 C
 

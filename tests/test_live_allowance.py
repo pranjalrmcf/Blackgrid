@@ -3,10 +3,10 @@ import json
 
 import pytest
 
-from blackgrid.budget import BudgetExceeded, BudgetLedger, Pricing
+from blackgrid.agent.budget import BudgetExceeded, BudgetLedger, Pricing
 from blackgrid.contracts import RunConfig
 from blackgrid.console.server import Console
-from blackgrid.live_allowance import constrain, ensure_allowance, project_spend, read_allowance
+from blackgrid.agent.live_allowance import constrain, ensure_allowance, project_spend, read_allowance
 from blackgrid.workflow.api import open_services
 
 
@@ -73,13 +73,13 @@ def test_mismatched_or_tampered_allowance_is_not_renewed(tmp_path):
 
 
 def test_pilot_requires_explicit_paid_authorization(tmp_path):
-    from blackgrid.sprint5_live import run_pilot
+    from blackgrid.evaluation.sprint5_live import run_pilot
     with pytest.raises(PermissionError): run_pilot(tmp_path/"trial")
     assert not (tmp_path/"trial").exists()
 
 
 def test_bridge_plan_can_include_supplementary_centrality():
-    from blackgrid.inquiry import validate_structural
+    from blackgrid.agent.inquiry import validate_structural
     ok, calls, _ = validate_structural("Which nodes connect groups and are rankings stable?", {"family":"bridge"},
         {"decision":"run","tool_calls":[{"tool":"community_partition","args":{}},{"tool":"node_centrality","args":{}}]})
     assert ok and {c["tool"] for c in calls}=={"community_partition","node_centrality","community_bridge","ranking_sensitivity"}

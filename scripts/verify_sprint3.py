@@ -11,10 +11,10 @@ from pathlib import Path
 
 import networkx as nx
 
-from blackgrid.evaluation import evaluate_run, summarize
-from blackgrid.methods import validate_partition
-from blackgrid.sprint3 import verify_suite
-from blackgrid.validation import validation_input
+from blackgrid.evaluation.scoring import evaluate_run, summarize
+from blackgrid.analysis.methods import validate_partition
+from blackgrid.evaluation.sprint3 import verify_suite
+from blackgrid.evaluation.validation import validation_input
 
 
 def main(folder: Path) -> dict:

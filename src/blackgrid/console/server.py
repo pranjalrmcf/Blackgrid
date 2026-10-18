@@ -69,7 +69,7 @@ class Console:
                 raise ValueError("scope must be first_window or full_dataset")
             config = self.full_config if scope == "full_dataset" else self.config
             if mode == "live":
-                from blackgrid.live_allowance import read_allowance
+                from blackgrid.agent.live_allowance import read_allowance
                 remaining = read_allowance(self.live_allowance, self.runs_dir)["remaining_usd"]
                 if remaining <= .000001:
                     raise ValueError("live allowance exhausted")
@@ -200,7 +200,7 @@ def make_handler(console: Console):
                     data = index_payload(console.runs_dir)
                     data["live"] = {"enabled": False}
                     if console.live_allowance:
-                        from blackgrid.live_allowance import read_allowance
+                        from blackgrid.agent.live_allowance import read_allowance
                         try:
                             allowance = read_allowance(console.live_allowance, console.runs_dir)
                             data["live"] = {key: allowance[key] for key in ("model", "cap_usd", "spent_usd", "remaining_usd")}

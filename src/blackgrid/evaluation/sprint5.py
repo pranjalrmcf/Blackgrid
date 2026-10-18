@@ -8,11 +8,11 @@ from pathlib import Path
 
 import networkx as nx
 
-from blackgrid.agent import InvestigationInput
+from blackgrid.agent.roles import InvestigationInput
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, RunConfig
-from blackgrid.providers import MockProvider
-from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation, write_json
-from blackgrid.synthetic import erdos_renyi, planted_sbm
+from blackgrid.agent.providers import MockProvider
+from blackgrid.workflow.runner import REPO_ROOT, capture_environment, run_investigation, write_json
+from blackgrid.data.synthetic import erdos_renyi, planted_sbm
 
 
 def source_hashes(root: Path) -> dict:
@@ -129,8 +129,8 @@ def score(path: Path, graph: nx.Graph, refuse: bool) -> dict:
 
 
 def run_suite(output: Path) -> dict:
-    from blackgrid.benchmark import dev_cases
-    from blackgrid.validation import CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, S4LIVE_CASE_IDS, validation_input
+    from blackgrid.evaluation.benchmark import dev_cases
+    from blackgrid.evaluation.validation import CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, S4LIVE_CASE_IDS, validation_input
     if output.exists() or not output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
         raise ValueError("use a fresh output directory under runs/")
     output.mkdir(parents=True)

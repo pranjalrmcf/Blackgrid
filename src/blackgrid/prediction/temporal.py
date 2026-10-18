@@ -15,7 +15,7 @@ from typing import Literal
 
 from blackgrid.contracts import Contract
 
-Event = tuple[int, int, int]  # (source, target, unix timestamp), as in blackgrid.collegemsg
+Event = tuple[int, int, int]  # (source, target, unix timestamp), as in blackgrid.data.collegemsg
 Pair = tuple[int, int]  # canonical: (min, max)
 Task = Literal["new_pair", "repeat_pair"]
 TASKS: tuple[Task, ...] = ("new_pair", "repeat_pair")

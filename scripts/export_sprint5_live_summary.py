@@ -4,8 +4,8 @@ import json
 import sys
 from pathlib import Path
 
-from blackgrid.live_allowance import read_allowance
-from blackgrid.runner import REPO_ROOT, write_json
+from blackgrid.agent.live_allowance import read_allowance
+from blackgrid.workflow.runner import REPO_ROOT, write_json
 
 
 def audit(folder: Path) -> dict:

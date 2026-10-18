@@ -41,7 +41,7 @@ def run(tmp_path: Path, config: Path, *extra: str) -> tuple[int, Path | None, Ru
 
 
 def planted_events() -> str:
-    from blackgrid.benchmark import dev_cases
+    from blackgrid.evaluation.benchmark import dev_cases
 
     graph = dev_cases()["dev-001"].graph
     return "".join(f"{u} {v} {1000 + i}\n" for i, (u, v) in enumerate(graph.edges()))
@@ -113,7 +113,7 @@ def test_live_mode_gates_pause_before_any_paid_call_and_deny_is_visible(tmp_path
 
 def test_model_name_comes_from_env_file_in_live_mode_only(tmp_path, monkeypatch):
     from blackgrid.contracts import RunConfig
-    from blackgrid.runner import apply_env_model
+    from blackgrid.workflow.runner import apply_env_model
 
     for name in ("OPEN_ROUTER_MODEL", "OPENROUTER_MODEL"):
         monkeypatch.delenv(name, raising=False)

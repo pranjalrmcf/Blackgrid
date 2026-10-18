@@ -10,8 +10,8 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from blackgrid.agent import flatten
-from blackgrid.critic import CRITIC_VERSION, CriticContext, critique
+from blackgrid.agent.roles import flatten
+from blackgrid.agent.critic import CRITIC_VERSION, CriticContext, critique
 
 ROOT = Path(__file__).resolve().parents[1]
 RUN = ROOT / "runs" / "sprint4-live-v1"

@@ -20,7 +20,7 @@ from typing import Literal
 
 import networkx as nx
 
-from blackgrid.budget import BudgetLedger
+from blackgrid.agent.budget import BudgetLedger
 from blackgrid.contracts import (
     Claim,
     Contract,
@@ -34,9 +34,9 @@ from blackgrid.contracts import (
     RunStatus,
     ToolCallRecord,
 )
-from blackgrid.critic import CRITIC_VERSION, CriticDecision, PlanDecision
-from blackgrid.providers import Provider
-from blackgrid.tools import ToolContext
+from blackgrid.agent.critic import CRITIC_VERSION, CriticDecision, PlanDecision
+from blackgrid.agent.providers import Provider
+from blackgrid.agent.tools import ToolContext
 
 Condition = Literal["validated", "tool_only"]
 VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")

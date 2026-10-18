@@ -10,7 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from blackgrid.cli import EXIT_OK, main
-from blackgrid.collegemsg import build_bounded_graph, build_full_graph, build_graph
+from blackgrid.data.collegemsg import build_bounded_graph, build_full_graph, build_graph
 from blackgrid.contracts import RunConfig, RunManifest, RunStatus, WindowRule
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,7 +26,7 @@ def config(path: Path, **changes) -> dict:
 
 def spread_events(days: int = 30) -> str:
     """dev-001's edges spread over `days` days, so the first week holds only part of them."""
-    from blackgrid.benchmark import dev_cases
+    from blackgrid.evaluation.benchmark import dev_cases
 
     edges = list(dev_cases()["dev-001"].graph.edges())
     return "".join(f"{u} {v} {1_000 + i * (days * DAY // len(edges))}\n" for i, (u, v) in enumerate(edges))

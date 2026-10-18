@@ -11,14 +11,14 @@ import networkx as nx
 import pytest
 from pydantic import ValidationError
 
-from blackgrid.benchmark import dev_cases
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import canonical_sha256
-from blackgrid.evaluation import (PREFIX, assess_claim, numerical_verdict, paired_interval,
+from blackgrid.evaluation.scoring import (PREFIX, assess_claim, numerical_verdict, paired_interval,
                                   evaluate_run, failure_row, resolve, summarize, verify_artifacts)
-from blackgrid.experiment import DeadlineExceeded, modularity, run_community_test
-from blackgrid.methods import (MethodSpec, compare_scope, comparison_verdict, optimize,
+from blackgrid.analysis.experiment import DeadlineExceeded, modularity, run_community_test
+from blackgrid.analysis.methods import (MethodSpec, compare_scope, comparison_verdict, optimize,
                                validate_partition, variation_information)
-from blackgrid.validation import CASE_IDS, public_registry, validation_input, validation_spec
+from blackgrid.evaluation.validation import CASE_IDS, public_registry, validation_input, validation_spec
 
 
 def test_fresh_inputs_reproducible_disjoint_and_answer_free():
@@ -40,7 +40,7 @@ def test_fresh_inputs_reproducible_disjoint_and_answer_free():
 
 
 def test_independent_evaluator_does_not_import_critic_or_pilot():
-    import blackgrid.evaluation as evaluator
+    import blackgrid.evaluation.scoring as evaluator
 
     tree = ast.parse(Path(evaluator.__file__).read_text())
     modules = [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)]
@@ -85,7 +85,7 @@ def test_partition_validation_and_stability_oracles():
 
 
 def test_shared_nulls_and_degree_preservation(monkeypatch):
-    import blackgrid.methods as methods
+    import blackgrid.analysis.methods as methods
 
     seen = {m: [] for m in ("louvain", "leiden")}
     original = methods.optimize
@@ -197,7 +197,7 @@ def test_unscorable_attempts_stay_in_denominators_with_unknown_counts():
 
 def test_suite_refuses_outside_runs_and_invalid_spec_reload(tmp_path, capsys):
     from blackgrid.cli import EXIT_INVALID, main
-    from blackgrid.runner import load_input
+    from blackgrid.workflow.runner import load_input
 
     assert main(["sprint3", "--output", str(tmp_path / "unsafe")]) == EXIT_INVALID
     with pytest.raises(ValueError):
@@ -207,7 +207,7 @@ def test_suite_refuses_outside_runs_and_invalid_spec_reload(tmp_path, capsys):
 
 
 def test_suite_budget_failure_is_preserved_and_output_cannot_be_reused(tmp_path, monkeypatch):
-    import blackgrid.sprint3 as sprint3
+    import blackgrid.evaluation.sprint3 as sprint3
 
     monkeypatch.setattr(sprint3, "TOTAL_TIMEOUT_S", -1)
     monkeypatch.setattr(sprint3, "run_investigation", lambda *_a, **_k: pytest.fail("budget must stop execution"))

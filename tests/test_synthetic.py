@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from blackgrid.collegemsg import graph_sha256
+from blackgrid.data.collegemsg import graph_sha256
 from blackgrid.contracts import DataOrigin, canonical_sha256
-from blackgrid.synthetic import erdos_renyi, planted_sbm, tiny_fixtures
+from blackgrid.data.synthetic import erdos_renyi, planted_sbm, tiny_fixtures
 
 # Pinned for the locked NetworkX version (uv.lock). A change means the generator output moved.
 GOLDEN = {

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from blackgrid.agent import flatten
-from blackgrid.critic import CriticContext, critique
+from blackgrid.agent.roles import flatten
+from blackgrid.agent.critic import CriticContext, critique
 
 P = "experiment_report.json#/primary/"
 S = "experiment_report.json#/secondary/"

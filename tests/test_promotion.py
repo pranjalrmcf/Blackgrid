@@ -79,7 +79,7 @@ def test_rolling_evidence_claims_pass_the_checker(setup, tmp_path):
 
 
 def test_selected_forecasts_always_compare_against_their_own_evidence():
-    from blackgrid.inquiry import validate_forecast
+    from blackgrid.agent.inquiry import validate_forecast
 
     plan = {"decision": "run", "tool_calls": [{"tool": "link_prediction", "args": {"task": "new_pair"}},
                                                {"tool": "prediction_compare", "args": {"task": "new_pair", "split": "test"}}]}
@@ -92,7 +92,7 @@ def test_selected_forecasts_always_compare_against_their_own_evidence():
 def test_mean_ap_difference_is_ap_evidence_and_upstreams_can_be_excluded(monkeypatch):
     import io
 
-    from blackgrid import providers
+    from blackgrid.agent import providers
     from blackgrid.prediction.claims import check
 
     scope = {"task": "new_pair", "cutoff": 1, "horizon_s": 1, "candidate_policy": "x", "split": "test", "method": "m"}

@@ -7,10 +7,10 @@ import random
 import networkx as nx
 import pytest
 
-from blackgrid.benchmark import dev_cases
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, EdgeStatus, ExperimentSpec
-from blackgrid.experiment import run_community_test
-from blackgrid.sensitivity import R_SENS, ReplicateSummary, remove_edges, run_replicate, summarise
+from blackgrid.analysis.experiment import run_community_test
+from blackgrid.analysis.sensitivity import R_SENS, ReplicateSummary, remove_edges, run_replicate, summarise
 
 
 def spec(**overrides) -> ExperimentSpec:

@@ -5,15 +5,15 @@ import time
 import networkx as nx
 import pytest
 
-from blackgrid.agent import Controller, InvestigationInput, flatten
-from blackgrid.benchmark import dev_cases
-from blackgrid.budget import BudgetLedger, FREE
+from blackgrid.agent.roles import Controller, InvestigationInput, flatten
+from blackgrid.evaluation.benchmark import dev_cases
+from blackgrid.agent.budget import BudgetLedger, FREE
 from blackgrid.contracts import BudgetLimits, ExecutionMode
-from blackgrid.inquiry import family, safe_outputs, validate_structural
-from blackgrid.pilot import dev_spec
-from blackgrid.providers import MockProvider
-from blackgrid.structural import NodeRow, bridges, centrality, compute, partition, spearman, top_set
-from blackgrid.tools import AnswerKeyAccess, ToolContext, ToolRejected, execute
+from blackgrid.agent.inquiry import family, safe_outputs, validate_structural
+from blackgrid.evaluation.pilot import dev_spec
+from blackgrid.agent.providers import MockProvider
+from blackgrid.analysis.structural import NodeRow, bridges, centrality, compute, partition, spearman, top_set
+from blackgrid.agent.tools import AnswerKeyAccess, ToolContext, ToolRejected, execute
 
 
 def input_for(kind="centrality", question="Which nodes have many contacts and shortest-path positions?"):
@@ -210,7 +210,7 @@ def test_follow_up_budget_stops_before_call(tmp_path):
 
 
 def test_replay_reproduces_follow_up_and_claims(tmp_path):
-    from blackgrid.providers import ReplayProvider
+    from blackgrid.agent.providers import ReplayProvider
     inp = input_for()
     a, _ = Controller(MockProvider(), BudgetLedger(BudgetLimits(), FREE, ExecutionMode.MOCK), ExecutionMode.MOCK, tmp_path / "a").investigate(inp, "validated")
     b, _ = Controller(ReplayProvider(tmp_path / "a" / "llm_trace.jsonl"), BudgetLedger(BudgetLimits(), FREE, ExecutionMode.REPLAY),

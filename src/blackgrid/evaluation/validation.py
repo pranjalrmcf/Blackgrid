@@ -9,9 +9,9 @@ from dataclasses import dataclass
 
 import networkx as nx
 
-from blackgrid.benchmark import PublicCase, TaskType, seed_allowed
+from blackgrid.evaluation.benchmark import PublicCase, TaskType, seed_allowed
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, GraphRecord
-from blackgrid.synthetic import (
+from blackgrid.data.synthetic import (
     degree_heterogeneous, disconnected_sparse, erdos_renyi, masked_sbm, planted_sbm,
 )
 

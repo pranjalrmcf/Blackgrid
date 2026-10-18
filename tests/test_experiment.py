@@ -10,9 +10,9 @@ from fractions import Fraction
 import networkx as nx
 import pytest
 
-from blackgrid.benchmark import dev_cases
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec
-from blackgrid.experiment import (
+from blackgrid.analysis.experiment import (
     Analysis,
     DeadlineExceeded,
     _quantile,

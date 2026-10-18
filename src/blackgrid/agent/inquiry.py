@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from blackgrid.tools import ARTIFACT_NAMES, FORECAST_TOOLS, AnswerKeyAccess, ToolRejected, parse_request
+from blackgrid.agent.tools import ARTIFACT_NAMES, FORECAST_TOOLS, AnswerKeyAccess, ToolRejected, parse_request
 
 STRUCTURAL_TOOLS = {"profile_graph", "node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"}
 

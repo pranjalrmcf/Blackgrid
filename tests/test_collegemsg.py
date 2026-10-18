@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from blackgrid.collegemsg import (
+from blackgrid.data.collegemsg import (
     BoundedGraph,
     DataIntegrityError,
     WindowSelection,

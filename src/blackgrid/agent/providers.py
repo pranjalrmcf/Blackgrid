@@ -18,7 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from blackgrid.budget import FREE, Pricing
+from blackgrid.agent.budget import FREE, Pricing
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 KEY_NAMES = ("OPEN_ROUTER_API_KEY", "OPENROUTER_API_KEY")
@@ -155,7 +155,7 @@ class MockProvider:
 
     @staticmethod
     def _plan(payload: dict) -> dict:
-        from blackgrid.inquiry import family, requirements
+        from blackgrid.agent.inquiry import family, requirements
         task = payload.get("task", {})
         question, request = task.get("question", ""), task.get("request", {})
         kind = family(question, request)

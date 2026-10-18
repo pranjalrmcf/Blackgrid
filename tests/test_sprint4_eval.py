@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from blackgrid.evaluation import assess_claim
-from blackgrid.providers import MockProvider
-from blackgrid.sprint4 import RuleBaselineProvider, assess_claim_s4
-from blackgrid.validation import CASE_IDS, S4_CASE_IDS, case_index, generator_seed, validation_spec
+from blackgrid.evaluation.scoring import assess_claim
+from blackgrid.agent.providers import MockProvider
+from blackgrid.evaluation.sprint4 import RuleBaselineProvider, assess_claim_s4
+from blackgrid.evaluation.validation import CASE_IDS, S4_CASE_IDS, case_index, generator_seed, validation_spec
 
 P = "experiment_report.json#/primary/result/"
 
@@ -80,8 +80,8 @@ def test_rule_baseline_claims_are_templated_from_evidence():
 
 
 def test_s4v2_case_set_is_fresh_and_separate():
-    from blackgrid.sprint4 import PROTOCOLS
-    from blackgrid.validation import S4V2_CASE_IDS
+    from blackgrid.evaluation.sprint4 import PROTOCOLS
+    from blackgrid.evaluation.validation import S4V2_CASE_IDS
 
     seeds = {generator_seed(c) + k for c in S4V2_CASE_IDS for k in range(4)}
     others = {generator_seed(c) + k for c in CASE_IDS + S4_CASE_IDS for k in range(4)}

@@ -10,7 +10,7 @@ import networkx as nx
 import pytest
 from pydantic import ValidationError
 
-from blackgrid.benchmark import (
+from blackgrid.evaluation.benchmark import (
     SPLITS,
     DevCase,
     TaskType,
@@ -19,7 +19,7 @@ from blackgrid.benchmark import (
     seed_allowed,
     split_of,
 )
-from blackgrid.collegemsg import graph_sha256
+from blackgrid.data.collegemsg import graph_sha256
 from blackgrid.contracts import EdgeRemovalSensitivity, EdgeStatus, ExperimentSpec
 
 REGISTRY = Path(__file__).resolve().parents[1] / "benchmarks" / "dev" / "registry.json"

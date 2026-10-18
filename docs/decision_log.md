@@ -1034,3 +1034,29 @@ All four findings were reproduced as failing tests before fixing.
   - A test built from the exact live plan.
   - A live rerun of the user's exact question (USD 0.0006): completed, with `temporal_profile`, `link_prediction` and `prediction_compare`, and 3/3 claims accepted. The new prompt kept the planner from adding the structural tool.
 - **Status:** active.
+
+### D-082 — Source tree reorganized into packages (2026-10-19)
+- **Request (user):** "can you organize the scripts in src folder properly".
+- **Change:** 29 flat modules were moved with `git mv` (history kept) into packages by responsibility. No behaviour changed.
+
+  | Package | Contents |
+  |---|---|
+  | `data/` | collegemsg, datasets, ingestion, synthetic |
+  | `analysis/` | experiment, sensitivity, structural, methods, parity |
+  | `agent/` | `roles.py` (formerly `agent.py`), tools, critic, inquiry, providers, budget, report, live_allowance |
+  | `workflow/` | adds runner |
+  | `evaluation/` | benchmark, validation, `scoring.py` (formerly `evaluation.py`), pilot, sprint3 … sprint5_live |
+  | `console/` | adds ui |
+
+  `cli.py`, `contracts.py` and `__main__.py` stay at the top. `prediction/` is unchanged.
+- **Imports:** rewritten across `src/`, `tests/` and `scripts/` by one mapping table. There are no compatibility shims: tests monkeypatch real module objects, and shims would split those patches.
+  - **A rewrite bug was caught by the tests:** five imports such as `from blackgrid.agent import providers` had been turned into `…agent.roles import providers`. They were fixed.
+  - `REPO_ROOT` in `workflow/runner.py` now uses `parents[3]`.
+- **Verification:**
+  - Every module imports; full suite: 402 passed.
+  - The CLI, a mock investigation, a forecast, script compilation and console rendering all work.
+- **Effects on history:**
+  - Historical documents and frozen protocols keep their old paths, as a record of when they were written.
+  - Archived source snapshots and freeze receipts still verify against their own saved copies. A freeze taken from now on records the new paths.
+  - Runs paused before this change resume normally: version identities depend on recorded versions, not module paths.
+- **Status:** active.

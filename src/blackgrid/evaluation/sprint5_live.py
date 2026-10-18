@@ -5,12 +5,12 @@ import json
 import time
 from pathlib import Path
 
-from blackgrid.agent import InvestigationInput
+from blackgrid.agent.roles import InvestigationInput
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, RunConfig
-from blackgrid.live_allowance import ensure_allowance, constrain, read_allowance, MODEL
-from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation, write_json
-from blackgrid.sprint5 import evaluation_input, score, source_hashes
-from blackgrid.synthetic import erdos_renyi, planted_sbm
+from blackgrid.agent.live_allowance import ensure_allowance, constrain, read_allowance, MODEL
+from blackgrid.workflow.runner import REPO_ROOT, capture_environment, run_investigation, write_json
+from blackgrid.evaluation.sprint5 import evaluation_input, score, source_hashes
+from blackgrid.data.synthetic import erdos_renyi, planted_sbm
 from blackgrid.workflow.api import open_services
 
 
@@ -43,8 +43,8 @@ def run_pilot(output: Path, *, allow_paid: bool = False, provider=None) -> dict:
     frozen = source_hashes(REPO_ROOT)
     write_json(output / "freeze.json", {"source_hashes": frozen, "protocol": "s5-live-v2", "model": MODEL,
         "environment": capture_environment().model_dump(mode="json"), "allowance": read_allowance(allowance, runs)})
-    from blackgrid.benchmark import dev_cases
-    from blackgrid.validation import CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, S4LIVE_CASE_IDS, validation_input
+    from blackgrid.evaluation.benchmark import dev_cases
+    from blackgrid.evaluation.validation import CASE_IDS, S4_CASE_IDS, S4V2_CASE_IDS, S4LIVE_CASE_IDS, validation_input
     seen = {c.planner_view()[2].projection_sha256 for c in dev_cases().values()}
     seen |= {validation_input(cid).record.projection_sha256 for cid in CASE_IDS+S4_CASE_IDS+S4V2_CASE_IDS+S4LIVE_CASE_IDS}
     seen |= {evaluation_input(i).record.projection_sha256 for i in range(1, 17)}

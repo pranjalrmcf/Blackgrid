@@ -13,9 +13,9 @@ import json
 import sys
 from pathlib import Path
 
-from blackgrid.benchmark import TaskType, dev_cases
+from blackgrid.evaluation.benchmark import TaskType, dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, canonical_sha256
-from blackgrid.experiment import run_community_test
+from blackgrid.analysis.experiment import run_community_test
 
 REPLICATES = 499  # exp-v1 §7 (decision log)
 

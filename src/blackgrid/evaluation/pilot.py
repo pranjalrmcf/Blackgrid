@@ -13,12 +13,12 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
-from blackgrid.agent import InvestigationInput, flatten
-from blackgrid.benchmark import BENCHMARK_VERSION, DevCase, TaskType, dev_cases
+from blackgrid.agent.roles import InvestigationInput, flatten
+from blackgrid.evaluation.benchmark import BENCHMARK_VERSION, DevCase, TaskType, dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec, RunConfig
-from blackgrid.critic import CAUSAL, STRUCTURE, mislabelled_numbers, unsupported_numbers
-from blackgrid.providers import MockProvider
-from blackgrid.runner import RunOutput, run_investigation, write_json
+from blackgrid.agent.critic import CAUSAL, STRUCTURE, mislabelled_numbers, unsupported_numbers
+from blackgrid.agent.providers import MockProvider
+from blackgrid.workflow.runner import RunOutput, run_investigation, write_json
 
 EVAL_VERSION = "eval-v2"  # v2: meaning-aware number check, partial-run accounting (D-038, D-039)
 CONDITIONS = ("tool_only", "validated")
@@ -138,7 +138,7 @@ def run_pilot(runs_dir: Path, cache_dir: Path | None) -> Path:
     lines += [f"| {r['case']} | {r['condition']} | {r['verdict']} | {r['verdict_ok']} | {r['flags_ok']} | "
               f"{r['claims']} | {r['unsupported_claims']} |" for r in rows]
     (pilot_dir / "pilot.md").write_bytes("\n".join(lines).encode("utf-8"))
-    from blackgrid.ui import write_pilot_page
+    from blackgrid.console.ui import write_pilot_page
 
     write_pilot_page(pilot_dir)
     return pilot_dir

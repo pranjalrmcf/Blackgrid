@@ -8,9 +8,9 @@ from __future__ import annotations
 import json
 import time
 
-from blackgrid.benchmark import dev_cases
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec
-from blackgrid.experiment import analyse
+from blackgrid.analysis.experiment import analyse
 
 CANDIDATES = (99, 199, 499, 999)
 BUDGET_S = 30.0

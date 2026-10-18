@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from blackgrid.collegemsg import event_counts, load_events, select_window
+from blackgrid.data.collegemsg import event_counts, load_events, select_window
 from blackgrid.contracts import WindowRule
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "collegemsg"

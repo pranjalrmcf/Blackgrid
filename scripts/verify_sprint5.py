@@ -3,7 +3,7 @@ import json
 import sys
 from pathlib import Path
 
-from blackgrid.sprint5 import evaluation_input, score
+from blackgrid.evaluation.sprint5 import evaluation_input, score
 
 
 def verify(folder: Path) -> dict:

@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from blackgrid.collegemsg import DataIntegrityError
+from blackgrid.data.collegemsg import DataIntegrityError
 from blackgrid.contracts import DatasetSource
-from blackgrid.ingestion import ingest_full, write_ingestion
+from blackgrid.data.ingestion import ingest_full, write_ingestion
 
 
 def source(tmp_path, rows):

@@ -16,16 +16,16 @@ from pathlib import Path
 
 import networkx as nx
 
-from blackgrid.agent import InvestigationInput, PROMPT_VERSION
-from blackgrid.benchmark import dev_cases
+from blackgrid.agent.roles import InvestigationInput, PROMPT_VERSION
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeStatus, RunConfig, canonical_sha256
-from blackgrid.evaluation import EVALUATOR_VERSION, evaluate_run, expectation, failure_row, resolve, summarize, verify_artifacts
-from blackgrid.methods import (ADAPTER_VERSION, MethodSpec, backend_versions, compare_scope,
+from blackgrid.evaluation.scoring import EVALUATOR_VERSION, evaluate_run, expectation, failure_row, resolve, summarize, verify_artifacts
+from blackgrid.analysis.methods import (ADAPTER_VERSION, MethodSpec, backend_versions, compare_scope,
                                comparison_verdict, variation_information)
-from blackgrid.providers import MockProvider
-from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation
-from blackgrid.tools import network_denied
-from blackgrid.validation import CASE_IDS, VALIDATION_VERSION, public_registry, validation_input, validation_spec
+from blackgrid.agent.providers import MockProvider
+from blackgrid.workflow.runner import REPO_ROOT, capture_environment, run_investigation
+from blackgrid.agent.tools import network_denied
+from blackgrid.evaluation.validation import CASE_IDS, VALIDATION_VERSION, public_registry, validation_input, validation_spec
 
 SUITE_VERSION = "s3-suite-v1.1"
 TOTAL_TIMEOUT_S = 2700

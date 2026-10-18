@@ -236,21 +236,30 @@ Every step of a run is saved, so an interrupted run continues where it stopped w
 
 ## Layout
 
+Source code lives in `src/blackgrid/`, grouped by responsibility (reorganized in D-082):
+
+| Package | Modules | Purpose |
+|---|---|---|
+| `blackgrid/` | `cli.py`, `__main__.py`, `contracts.py` | Command line, and the typed contracts shared by everything |
+| `data/` | `collegemsg.py`, `datasets.py`, `ingestion.py`, `synthetic.py` | Loading and validating event data (CollegeMsg, schema-driven datasets), full-data ingestion, synthetic graph generators |
+| `analysis/` | `experiment.py`, `sensitivity.py`, `structural.py`, `methods.py`, `parity.py` | Graph science: modularity vs degree-preserving null, missing-edge sensitivity, centrality and bridges, Louvain/Leiden comparison |
+| `agent/` | `roles.py`, `tools.py`, `critic.py`, `inquiry.py`, `providers.py`, `budget.py`, `report.py`, `live_allowance.py` | The AI agent: role prompts and inputs, allowlisted tools, plan validator and claim critic, question routing, mock/OpenRouter/replay providers, budget ledger, evidence-linked reports, live allowance |
+| `workflow/` | `engine.py`, `api.py`, `store.py`, `runner.py` | Durable LangGraph workflow, start/resume/cancel API, SQLite operation store, run orchestration |
+| `prediction/` | `temporal.py`, `scores.py`, `features*.py`, `model.py`, `metrics.py`, `fast.py`, `suite.py`, `rolling.py`, `service.py`, `claims.py`, `synthetic.py` | Temporal link prediction: cutoff-safe pipeline, heuristics, models, sealed and rolling evaluation, forecast tools and predictive-claim checker |
+| `evaluation/` | `benchmark.py`, `validation.py`, `scoring.py`, `pilot.py`, `sprint3.py` … `sprint5_live.py` | Dev benchmark and validation cases, independent scoring, mock pilot, the frozen sprint evaluation suites |
+| `console/` | `server.py`, `data.py`, `render.py`, `template.html`, `ui.py` | Local interactive console and saved snapshots |
+
+Other folders:
+
 | Path | Purpose |
 |---|---|
-| `src/blackgrid/contracts.py` | Typed contracts: graph, experiment, result, claim, budget, manifest |
-| `src/blackgrid/collegemsg.py` | Loader, size-only window selection, projection |
-| `src/blackgrid/experiment.py` | Louvain modularity vs degree-preserving null, suitability, verdict rule |
-| `src/blackgrid/sensitivity.py` | Missing-edge sensitivity (removed pairs become *unknown*) |
-| `src/blackgrid/tools.py` | Allowlisted tools, guarded executor, network guard, cache |
-| `src/blackgrid/budget.py`, `providers.py` | Budget ledger; mock / OpenRouter / replay providers |
-| `src/blackgrid/agent.py`, `critic.py` | Bounded controller; plan validator and claim critic |
-| `src/blackgrid/report.py`, `ui.py` | Evidence-linked report; static HTML console |
-| `src/blackgrid/synthetic.py`, `benchmark.py`, `pilot.py` | Synthetic generators, dev benchmark, mock pilot |
+| `tests/` | Offline test suite (`uv run --frozen pytest`) |
+| `scripts/` | Verification, replay, export and archive helpers |
 | `benchmarks/` | Split policy and public dev registry; `sealed/` is reserved and git-ignored |
-| `configs/`, `protocols/`, `docs/` | Run configs, preregistered protocols, decision log, reports |
+| `configs/`, `protocols/`, `docs/` | Run configs, frozen protocols, decision log, reports and guides |
+| `results/` | Aggregate-only, shareable result summaries |
 | `data/` | Raw inputs, read-only and not tracked (only `data/manifests/` is tracked) |
-| `runs/` | Run artifacts and UI pages, not tracked |
+| `runs/` | Run artifacts, local rankings and UI pages, not tracked |
 
 ## Data citation
 

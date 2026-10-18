@@ -8,14 +8,14 @@ import json
 import pytest
 
 import blackgrid.workflow.engine as engine
-from blackgrid import providers
-from blackgrid.providers import OpenRouterProvider
+from blackgrid.agent import providers
+from blackgrid.agent.providers import OpenRouterProvider
 
 from tests.test_workflow import Counting, only_run, start
 
 
 def test_unexpected_error_leaves_a_resumable_pause_not_running(tmp_path, monkeypatch):
-    from blackgrid.runner import resume_investigation
+    from blackgrid.workflow.runner import resume_investigation
     from blackgrid.workflow.api import open_services
 
     real = engine.finalize_run

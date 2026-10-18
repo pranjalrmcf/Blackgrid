@@ -40,9 +40,9 @@ from blackgrid.contracts import (
     ToolCallRecord,
     canonical_sha256,
 )
-from blackgrid.experiment import CommunityTestReport, DeadlineExceeded, GraphProfile, profile, run_community_test
-from blackgrid.sensitivity import R_SENS, SensitivitySummary, run_replicate, summarise
-from blackgrid.structural import StructuralResult, compute as compute_structural
+from blackgrid.analysis.experiment import CommunityTestReport, DeadlineExceeded, GraphProfile, profile, run_community_test
+from blackgrid.analysis.sensitivity import R_SENS, SensitivitySummary, run_replicate, summarise
+from blackgrid.analysis.structural import StructuralResult, compute as compute_structural
 
 TOOL_VERSION = "tools-v2 structural-v1 exp-v1.1 report-v2"
 MAX_REQUEST_BYTES = 2_000

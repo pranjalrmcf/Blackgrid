@@ -18,7 +18,7 @@ import networkx as nx
 from pydantic import Field
 
 from blackgrid.contracts import Contract, GraphRecord, NonEmpty
-from blackgrid.synthetic import (
+from blackgrid.data.synthetic import (
     EvaluatorTruth,
     SyntheticGraph,
     degree_heterogeneous,

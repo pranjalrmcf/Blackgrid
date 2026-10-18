@@ -10,10 +10,10 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from blackgrid.benchmark import dev_cases
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import EdgeRemovalSensitivity, ExperimentSpec
-from blackgrid.critic import CriticContext, critique
-from blackgrid.tools import ToolContext, ToolRejected, execute
+from blackgrid.agent.critic import CriticContext, critique
+from blackgrid.agent.tools import ToolContext, ToolRejected, execute
 from blackgrid.workflow.store import OperationStore, RunLocked
 
 from tests.test_workflow import Counting, only_run, start
@@ -109,7 +109,7 @@ def test_r2_unimplemented_method_is_rejected_by_the_tool_schema(tmp_path):
 
 
 def test_r2_executor_refuses_a_spec_that_bypassed_validation():
-    from blackgrid.experiment import run_community_test
+    from blackgrid.analysis.experiment import run_community_test
 
     forged = spec().model_copy(update={"null_model": "erdos_renyi_gnm"})  # model_copy skips validation
     with pytest.raises(ValueError, match="not implemented"):
@@ -229,7 +229,7 @@ def test_r4_qualified_and_negative_findings_remain_expressible():
 
 
 def test_r5_keyboard_interrupt_leaves_an_accurate_terminal_status(tmp_path, monkeypatch):
-    from blackgrid import sprint3
+    from blackgrid.evaluation import sprint3
 
     def interrupt(*_a, **_k):
         raise KeyboardInterrupt
@@ -243,7 +243,7 @@ def test_r5_keyboard_interrupt_leaves_an_accurate_terminal_status(tmp_path, monk
 
 def test_r5_interrupted_investigation_is_resumable_not_running(tmp_path, monkeypatch):
     import blackgrid.workflow.engine as engine
-    from blackgrid.runner import resume_investigation
+    from blackgrid.workflow.runner import resume_investigation
     from blackgrid.workflow.api import open_services
 
     original = engine.execute
@@ -275,7 +275,7 @@ def test_tool_descriptions_match_the_configured_run():
     from pathlib import Path
 
     from blackgrid.contracts import RunConfig
-    from blackgrid.tools import tool_descriptions
+    from blackgrid.agent.tools import tool_descriptions
 
     root = Path(__file__).resolve().parents[1] / "configs"
     full = RunConfig.model_validate_json((root / "collegemsg_full.json").read_text(encoding="utf-8"))
@@ -297,7 +297,7 @@ def test_r9_preregistered_wording_needs_establishing_evidence(text, accepted):
 
 
 def test_mock_reviser_uses_the_neutral_verdict_wording():
-    from blackgrid.providers import MockProvider
+    from blackgrid.agent.providers import MockProvider
 
     payload = {"evidence": EVIDENCE, "flags": []}
     texts = [c["text"] for c in MockProvider._analyse(payload, revise=True)["claims"]]

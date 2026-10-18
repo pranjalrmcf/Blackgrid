@@ -4,10 +4,10 @@ import sys
 from pathlib import Path
 
 from blackgrid.contracts import RunConfig
-from blackgrid.providers import ReplayProvider
-from blackgrid.runner import REPO_ROOT, run_investigation, write_json
-from blackgrid.sprint5 import score
-from blackgrid.sprint5_live import live_input
+from blackgrid.agent.providers import ReplayProvider
+from blackgrid.workflow.runner import REPO_ROOT, run_investigation, write_json
+from blackgrid.evaluation.sprint5 import score
+from blackgrid.evaluation.sprint5_live import live_input
 
 
 def replay(source: Path, output: Path) -> dict:

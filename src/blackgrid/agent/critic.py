@@ -38,8 +38,8 @@ import re
 from dataclasses import dataclass
 
 from blackgrid.contracts import Contract, EvidenceLevel, NonEmpty
-from blackgrid.experiment import DEGREE_CONFOUND_RATIO
-from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
+from blackgrid.analysis.experiment import DEGREE_CONFOUND_RATIO
+from blackgrid.agent.tools import AnswerKeyAccess, ToolRejected, parse_request
 
 # v2: no bare x100 matches; labelled numbers must match their field (D-038).
 # v3: comparisons cite both sides; unoperationalized strength wording is rejected (Sprint 4 R4, D-057).
@@ -264,7 +264,7 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
 
     Raises AnswerKeyAccess if the plan reaches for evaluator-only data.
     """
-    from blackgrid.inquiry import family, validate_structural
+    from blackgrid.agent.inquiry import family, validate_structural
     if family(question, request) != "community":
         allowed, calls, reason = validate_structural(question, request, plan)
         return PlanDecision(allowed=allowed, tool_calls=tuple(calls), reasons=(reason,))

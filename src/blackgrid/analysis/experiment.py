@@ -16,7 +16,7 @@ from typing import Literal
 import networkx as nx
 from pydantic import Field
 
-from blackgrid.collegemsg import graph_sha256
+from blackgrid.data.collegemsg import graph_sha256
 from blackgrid.contracts import (
     Contract,
     ExperimentResult,

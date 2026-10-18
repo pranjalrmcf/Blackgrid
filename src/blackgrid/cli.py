@@ -36,8 +36,8 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from blackgrid.agent import InvestigationInput
-from blackgrid.collegemsg import BoundedGraph, DataIntegrityError, build_graph
+from blackgrid.agent.roles import InvestigationInput
+from blackgrid.data.collegemsg import BoundedGraph, DataIntegrityError, build_graph
 from blackgrid.contracts import (
     CostRecord,
     Outcome,
@@ -47,8 +47,8 @@ from blackgrid.contracts import (
     ToolCallRecord,
     canonical_sha256,
 )
-from blackgrid.providers import PricingUnavailable
-from blackgrid.runner import (
+from blackgrid.agent.providers import PricingUnavailable
+from blackgrid.workflow.runner import (
     REPO_ROOT,
     LiveNotAuthorized,
     apply_env_model,
@@ -112,7 +112,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
             config = RunConfig.model_validate(config.model_dump(mode="json") | overrides)
         config = apply_env_model(config, args.env_file)
         if args.live_allowance:
-            from blackgrid.live_allowance import constrain
+            from blackgrid.agent.live_allowance import constrain
             if config.mode.value != "live" or not args.allow_paid:
                 raise ValueError("a live allowance requires live mode and --allow-paid")
             config = constrain(config, args.live_allowance, args.runs_dir)
@@ -263,7 +263,7 @@ def _cmd_console(args: argparse.Namespace) -> int:
     args.runs_dir.mkdir(parents=True, exist_ok=True)
     allowance = None
     if args.allow_paid:
-        from blackgrid.live_allowance import ensure_allowance
+        from blackgrid.agent.live_allowance import ensure_allowance
         allowance = ensure_allowance(args.runs_dir)
     console = Console(args.runs_dir, args.cache_dir, args.config, args.data_root, args.port, live_allowance=allowance)
     try:
@@ -313,7 +313,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
 
 
 def _cmd_pilot(args: argparse.Namespace) -> int:
-    from blackgrid.pilot import run_pilot
+    from blackgrid.evaluation.pilot import run_pilot
 
     print("mock pilot: 8 dev cases x 2 conditions (first run computes experiments; later runs use the cache)...",
           file=sys.stderr)
@@ -328,7 +328,7 @@ def _cmd_pilot(args: argparse.Namespace) -> int:
 
 
 def _cmd_ui(args: argparse.Namespace) -> int:
-    from blackgrid.ui import write_index, write_pilot_page, write_run_page
+    from blackgrid.console.ui import write_index, write_pilot_page, write_run_page
 
     args.runs_dir.mkdir(parents=True, exist_ok=True)
     for d in sorted(p for p in args.runs_dir.iterdir() if p.is_dir()):
@@ -345,7 +345,7 @@ def _cmd_ui(args: argparse.Namespace) -> int:
 
 
 def _cmd_ingest(args: argparse.Namespace) -> int:
-    from blackgrid.ingestion import ingest_full, write_ingestion
+    from blackgrid.data.ingestion import ingest_full, write_ingestion
 
     try:
         config = load_config(args.config)
@@ -364,7 +364,7 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
 
 
 def _cmd_sprint3(args: argparse.Namespace) -> int:
-    from blackgrid.sprint3 import run_suite
+    from blackgrid.evaluation.sprint3 import run_suite
 
     if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
         print("Sprint 3 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
@@ -380,7 +380,7 @@ def _cmd_sprint3(args: argparse.Namespace) -> int:
 
 
 def _cmd_sprint3_verify(args: argparse.Namespace) -> int:
-    from blackgrid.sprint3 import verify_suite
+    from blackgrid.evaluation.sprint3 import verify_suite
 
     try:
         print(json.dumps(verify_suite(args.output), sort_keys=True))
@@ -391,7 +391,7 @@ def _cmd_sprint3_verify(args: argparse.Namespace) -> int:
 
 
 def _cmd_sprint4(args: argparse.Namespace) -> int:
-    from blackgrid.sprint4 import export_summary, run_suite
+    from blackgrid.evaluation.sprint4 import export_summary, run_suite
 
     if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
         print("Sprint 4 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
@@ -409,7 +409,7 @@ def _cmd_sprint4(args: argparse.Namespace) -> int:
 
 
 def _cmd_sprint4_live(args: argparse.Namespace) -> int:
-    from blackgrid.sprint4_live import export_summary, run_pilot
+    from blackgrid.evaluation.sprint4_live import export_summary, run_pilot
 
     if not args.allow_paid:
         print("the live pilot makes paid calls; add --allow-paid to authorize this one execution", file=sys.stderr)
@@ -431,7 +431,7 @@ def _cmd_sprint4_live(args: argparse.Namespace) -> int:
 
 def _cmd_predict_eval(args: argparse.Namespace) -> int:
     """Sprint 6: run the frozen prediction-v1 evaluation on CollegeMsg (local, offline, USD 0)."""
-    from blackgrid.collegemsg import load_events
+    from blackgrid.data.collegemsg import load_events
     from blackgrid.prediction.suite import run
 
     if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
@@ -449,7 +449,7 @@ def _cmd_forecast(args: argparse.Namespace) -> int:
     """Sprint 6: prospective known-node forecast from a frozen prediction-v1 evaluation (mock, USD 0)."""
     from datetime import UTC, datetime
 
-    from blackgrid.collegemsg import load_events
+    from blackgrid.data.collegemsg import load_events
     from blackgrid.console.render import write_forecast_snapshot, write_index_snapshot
     from blackgrid.prediction.service import PredictionToolRejected, forecast
 
@@ -472,7 +472,7 @@ def _cmd_forecast(args: argparse.Namespace) -> int:
 
 def _cmd_predict_rolling(args: argparse.Namespace) -> int:
     """prediction-v2: frozen rolling-origin evaluation (local, offline, USD 0; development evidence)."""
-    from blackgrid.collegemsg import load_events
+    from blackgrid.data.collegemsg import load_events
     from blackgrid.prediction.rolling import run
 
     if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
@@ -488,7 +488,7 @@ def _cmd_predict_rolling(args: argparse.Namespace) -> int:
 
 def _cmd_predict_confirm(args: argparse.Namespace) -> int:
     """prediction-v3: frozen confirmation of logistic_v2 on an authorized second dataset (local, USD 0)."""
-    from blackgrid.datasets import load
+    from blackgrid.data.datasets import load
     from blackgrid.prediction.rolling import run
 
     if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
@@ -507,7 +507,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
     def sprint5_run(args):
-        from blackgrid.sprint5 import run_suite
+        from blackgrid.evaluation.sprint5 import run_suite
         try:
             summary = run_suite(args.output)
         except (OSError, ValueError, TimeoutError) as exc:
@@ -519,7 +519,7 @@ def build_parser() -> argparse.ArgumentParser:
     sprint5.add_argument("--output", type=Path, required=True)
     sprint5.set_defaults(func=sprint5_run)
     def live5_run(args):
-        from blackgrid.sprint5_live import run_pilot
+        from blackgrid.evaluation.sprint5_live import run_pilot
         try:
             summary = run_pilot(args.output, allow_paid=args.allow_paid)
         except (OSError, ValueError, PermissionError) as exc:

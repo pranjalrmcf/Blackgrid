@@ -13,7 +13,7 @@ from pathlib import Path
 
 import networkx as nx
 
-from blackgrid.collegemsg import DataIntegrityError, graph_sha256, load_events, project
+from blackgrid.data.collegemsg import DataIntegrityError, graph_sha256, load_events, project
 from blackgrid.contracts import DatasetSource
 
 

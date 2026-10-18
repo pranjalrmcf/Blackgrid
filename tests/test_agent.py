@@ -7,10 +7,10 @@ import json
 import networkx as nx
 import pytest
 
-from blackgrid.agent import Controller, InvestigationInput
-from blackgrid.benchmark import dev_cases
-from blackgrid.budget import FREE, BudgetExceeded, BudgetLedger, Pricing
-from blackgrid.collegemsg import graph_sha256
+from blackgrid.agent.roles import Controller, InvestigationInput
+from blackgrid.evaluation.benchmark import dev_cases
+from blackgrid.agent.budget import FREE, BudgetExceeded, BudgetLedger, Pricing
+from blackgrid.data.collegemsg import graph_sha256
 from blackgrid.contracts import (
     BudgetLimits,
     DataOrigin,
@@ -23,9 +23,9 @@ from blackgrid.contracts import (
     RunStatus,
     canonical_sha256,
 )
-from blackgrid.critic import CriticContext, critique, validate_plan
-from blackgrid.providers import MockProvider, OpenRouterProvider
-from blackgrid.tools import AnswerKeyAccess
+from blackgrid.agent.critic import CriticContext, critique, validate_plan
+from blackgrid.agent.providers import MockProvider, OpenRouterProvider
+from blackgrid.agent.tools import AnswerKeyAccess
 
 E = "experiment_report.json#/primary/result/"
 
@@ -135,7 +135,7 @@ class Broken(MockProvider):
         return PRICE
 
     def complete(self, *a, **k):
-        from blackgrid.providers import ProviderError
+        from blackgrid.agent.providers import ProviderError
         self.calls += 1
         raise ProviderError(f"simulated {self.category} failure", self.category)
 
@@ -252,7 +252,7 @@ def test_numbers_must_match_their_meaning(text, links, ok):
 
 
 def test_percent_needs_a_percent_sign():
-    from blackgrid.critic import unsupported_numbers
+    from blackgrid.agent.critic import unsupported_numbers
 
     assert unsupported_numbers("Removed 10% of edges.", [0.1]) == []
     assert unsupported_numbers("Removed 10 of edges.", [0.1]) == ["10"]

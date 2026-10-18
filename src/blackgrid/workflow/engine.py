@@ -26,7 +26,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from blackgrid.agent import (
+from blackgrid.agent.roles import (
     PROMPT_VERSION,
     RETRY_INVALID,
     RETRY_TRUNCATED,
@@ -38,7 +38,7 @@ from blackgrid.agent import (
     flatten,
     parse_json,
 )
-from blackgrid.budget import BudgetExceeded, BudgetLedger, Pricing, Reservation
+from blackgrid.agent.budget import BudgetExceeded, BudgetLedger, Pricing, Reservation
 from blackgrid.contracts import (
     BudgetLimits,
     CostRecord,
@@ -47,11 +47,11 @@ from blackgrid.contracts import (
     ToolCallRecord,
     canonical_sha256,
 )
-from blackgrid.critic import CRITIC_VERSION, REQUIRED_TOOLS, CriticContext, critique, validate_plan
-from blackgrid.experiment import profile
-from blackgrid.inquiry import family, requirements, safe_outputs, factual_claims
-from blackgrid.providers import Provider, ProviderError, ReplayMismatch, ReplayProvider, prompt_sha256
-from blackgrid.tools import (
+from blackgrid.agent.critic import CRITIC_VERSION, REQUIRED_TOOLS, CriticContext, critique, validate_plan
+from blackgrid.analysis.experiment import profile
+from blackgrid.agent.inquiry import family, requirements, safe_outputs, factual_claims
+from blackgrid.agent.providers import Provider, ProviderError, ReplayMismatch, ReplayProvider, prompt_sha256
+from blackgrid.agent.tools import (
     ARTIFACT_NAMES,
     TOOLS,
     AnswerKeyAccess,
@@ -501,7 +501,7 @@ def forecast_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
 
     def build():
         if "tools" not in cache:
-            from blackgrid.collegemsg import load_events
+            from blackgrid.data.collegemsg import load_events
             from blackgrid.prediction.service import PredictionTools
 
             table = load_events(data_root / source.path, source.sha256)  # checksum-verified

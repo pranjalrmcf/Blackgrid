@@ -6,7 +6,7 @@ import hashlib
 
 import pytest
 
-import blackgrid.datasets as D
+import blackgrid.data.datasets as D
 from blackgrid.prediction.temporal import candidate_count, candidates, history
 
 

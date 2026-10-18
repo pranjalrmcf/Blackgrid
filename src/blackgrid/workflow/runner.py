@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from blackgrid import __version__
-from blackgrid.agent import InvestigationInput, InvestigationResult, flatten, to_claims
+from blackgrid.agent.roles import InvestigationInput, InvestigationResult, flatten, to_claims
 from blackgrid.contracts import (
     DataOrigin,
     Environment,
@@ -22,7 +22,7 @@ from blackgrid.contracts import (
     RunStatus,
     canonical_sha256,
 )
-from blackgrid.providers import (
+from blackgrid.agent.providers import (
     MockProvider,
     OpenRouterProvider,
     Provider,
@@ -31,12 +31,12 @@ from blackgrid.providers import (
     load_env_file,
     model_from_env,
 )
-from blackgrid.report import Report, build_report, check_numbers, render_markdown
+from blackgrid.agent.report import Report, build_report, check_numbers, render_markdown
 from blackgrid.workflow.api import Outcome, RunSpec, approval_scope, identity_of, open_services, resume, start
 from blackgrid.workflow.engine import atomic_write
 from blackgrid.workflow.engine import write_json as _atomic_json
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]  # src/blackgrid/workflow/runner.py -> repository root
 
 
 class LiveNotAuthorized(RuntimeError):
@@ -117,7 +117,7 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
     """Rebuild the scientific input from its approved local source (never from the checkpoint)."""
     kind = input_ref.get("kind")
     if kind == "collegemsg":
-        from blackgrid.collegemsg import BoundedGraph, build_graph
+        from blackgrid.data.collegemsg import BoundedGraph, build_graph
 
         config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
         built = build_graph(Path(input_ref["data_root"]), config)  # first window or full dataset
@@ -128,28 +128,28 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
                                            "planning_mode": config.planning_mode}, graph=built.graph, record=built.record,
                                   spec=config.experiment)
     if kind == "dev":
-        from blackgrid.benchmark import dev_cases
-        from blackgrid.pilot import dev_spec
+        from blackgrid.evaluation.benchmark import dev_cases
+        from blackgrid.evaluation.pilot import dev_spec
 
         case = dev_cases()[input_ref["case_id"]]
         public, graph, record = case.planner_view()  # never the answer key
         return InvestigationInput(case_id=public.case_id, question=public.question, request=public.request,
                                   graph=graph, record=record, spec=dev_spec(case))
     if kind == "validation":
-        from blackgrid.validation import validation_input, validation_spec
+        from blackgrid.evaluation.validation import validation_input, validation_spec
 
         case = validation_input(input_ref["case_id"])
         return InvestigationInput(case_id=case.public.case_id, question=case.public.question,
                                   request=case.public.request, graph=case.graph, record=case.record,
                                   spec=validation_spec(case.public.case_id))
     if kind == "sprint5":
-        from blackgrid.sprint5 import evaluation_input
+        from blackgrid.evaluation.sprint5 import evaluation_input
         inp = evaluation_input(input_ref["index"])
         config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
         inp.request["planning_mode"] = config.planning_mode
         return inp
     if kind == "sprint5-live":
-        from blackgrid.sprint5_live import live_input
+        from blackgrid.evaluation.sprint5_live import live_input
         inp = live_input(input_ref["index"], input_ref.get("version", "s5-live-v1"))
         config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
         inp.request["planning_mode"] = config.planning_mode
@@ -184,7 +184,7 @@ def finalizer(config: RunConfig, reproduce: str):
                 "evaluation_protocol_sha256": protocol, "cutoff": "last observed event (fixed by the system)",
                 "pair_rankings": "local_ranking.json, local only; never sent to a model or exported"})
         elif result.family != "community":
-            from blackgrid.structural import StructuralSpec
+            from blackgrid.analysis.structural import StructuralSpec
             write_json(run_dir / "structural_contract.json", StructuralSpec(family=result.family,
                        graph_sha256=inp.record.projection_sha256, seed=inp.spec.seed).model_dump(mode="json"))
         write_json(run_dir / "investigation.json", result.model_dump(mode="json"))
@@ -220,7 +220,7 @@ def finalizer(config: RunConfig, reproduce: str):
 
 
 def renderer(rt, state) -> None:
-    from blackgrid.ui import write_run_page  # presentation only
+    from blackgrid.console.ui import write_run_page  # presentation only
 
     write_run_page(rt.run_dir, graph=rt.inputs(state).graph)
 

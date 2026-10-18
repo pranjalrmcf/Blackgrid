@@ -15,11 +15,11 @@ from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
 
-from blackgrid.agent import PROMPT_VERSION, InvestigationInput
-from blackgrid.benchmark import dev_cases
+from blackgrid.agent.roles import PROMPT_VERSION, InvestigationInput
+from blackgrid.evaluation.benchmark import dev_cases
 from blackgrid.contracts import RunConfig, canonical_sha256
-from blackgrid.critic import CRITIC_VERSION
-from blackgrid.evaluation import (
+from blackgrid.agent.critic import CRITIC_VERSION
+from blackgrid.evaluation.scoring import (
     EVALUATOR_VERSION as S3_EVALUATOR_VERSION,
     NUMBER,
     PREFIX,
@@ -30,11 +30,11 @@ from blackgrid.evaluation import (
     numerical_verdict,
     summarize,
 )
-from blackgrid.providers import MockProvider, _ev, _request
-from blackgrid.runner import REPO_ROOT, capture_environment, run_investigation
-from blackgrid.sprint3 import append, save, sha
-from blackgrid.tools import network_denied
-from blackgrid.validation import (CASE_IDS, S4_CASE_IDS, S4LIVE_CASE_IDS, S4V2_CASE_IDS, case_index,
+from blackgrid.agent.providers import MockProvider, _ev, _request
+from blackgrid.workflow.runner import REPO_ROOT, capture_environment, run_investigation
+from blackgrid.evaluation.sprint3 import append, save, sha
+from blackgrid.agent.tools import network_denied
+from blackgrid.evaluation.validation import (CASE_IDS, S4_CASE_IDS, S4LIVE_CASE_IDS, S4V2_CASE_IDS, case_index,
                                   public_registry, validation_input, validation_spec)
 
 # Each protocol version has its own fresh case IDs; an inspected case set is never reused as unseen evidence.

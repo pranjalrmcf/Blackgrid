@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-from blackgrid.critic import CAUSAL, unsupported_numbers
+from blackgrid.agent.critic import CAUSAL, unsupported_numbers
 
 PRED_CRITIC_VERSION = "pred-critic-v1"
 SCOPE_KEYS = ("task", "cutoff", "horizon_s", "candidate_policy", "split", "method")

@@ -19,10 +19,10 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 
-from blackgrid.agent import PROMPT_VERSION, InvestigationInput, InvestigationResult
+from blackgrid.agent.roles import PROMPT_VERSION, InvestigationInput, InvestigationResult
 from blackgrid.contracts import BudgetLimits, ExecutionMode, RunStatus, canonical_sha256
-from blackgrid.critic import CRITIC_VERSION
-from blackgrid.providers import Provider
+from blackgrid.agent.critic import CRITIC_VERSION
+from blackgrid.agent.providers import Provider
 from blackgrid.workflow.engine import (
     WORKFLOW_VERSION,
     ResumeBlocked,
