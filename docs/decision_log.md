@@ -684,3 +684,23 @@ All four findings were reproduced as failing tests before fixing.
   - Every validated shortfall is the "Under the preregistered rule…" claim, which critic-v3 accepts and the AI-reviewed rubric rejects. It is not tuned away; it needs a new versioned protocol.
 - **Reproduction:** in a clean copy with `uv sync --frozen --offline`, 248 passed and 1 skipped (`leidenalg` extra absent). A first-window mock run there matched the working-tree uncached and cached runs exactly (Q, null values, p, verdict, sensitivity, claims).
 - **Status:** active. Sprint 4 work is complete as scoped, with the human review waived (D-059). Report: `docs/sprint04_report.md`.
+
+### D-061 — s4-v2: neutral verdict wording, critic-v4 R9, fresh rerun (2026-10-18)
+- **Request (user):** "okay do it", meaning fix the "preregistered" wording found in D-060.
+- **Changes** (decided after inspecting s4-v1, disclosed in `protocols/sprint04_evaluation_v2.md`):
+  - The mock reviser and `prompts-v4` now say "The saved decision-rule verdict is 'X' for this graph only." The prompts also forbid "preregistered" and strength words in claims.
+  - critic-v4 adds R9: an un-negated "preregistered" in a claim is rejected.
+  - The evaluator `s4-eval-v1` is unchanged.
+- **Fresh run:** `runs/sprint4-v2` on new cases `val-201`–`val-224` (seeds 5001–6704 and 8201–8206).
+  - 72/72 attempts, 0 errors, 0 overlaps, 314 s, USD 0. Aggregates are in `results/sprint04-sprint4-v2/`.
+- **Results** (primary and sensitivity are now identical):
+  - Useful answers: baseline 24, tool_only 0, validated 24.
+  - Unsupported/assessed claims: 0/36, 45/45, 0/36. No unassessed claims.
+  - Correct refusals: 6 / 0 / 6.
+  - Positive-answer coverage: 3/3, 0/3, 3/3.
+  - Failures: 0 / 3 / 0. The 3 tool_only failures are invalid-method requests the naive mock obeys.
+- **Reading:**
+  - The one known failure is gone and nothing else got worse. This is expected development evidence, because the change targeted that failure.
+  - The validated arm now ties the rule baseline while using 18 more calls. Nothing shows a scripted agent adds value over templates. Whether a real model does is untested.
+- **Compatibility:** the Sprint 3 evaluator's frozen whitelist does not know the new verdict wording, so rerunning Sprint 3 on current code would score it unassessed. Sprint 3's results are historical and stay unchanged.
+- **Status:** active.

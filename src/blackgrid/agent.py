@@ -42,7 +42,8 @@ Condition = Literal["validated", "tool_only"]
 VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
 # v2: claim-count/length limits and corrective retry notes (D-037).
 # v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
-PROMPT_VERSION = "prompts-v3"
+# v4: neutral verdict wording; no 'preregistered' or strength words in claims (s4-v2, D-061).
+PROMPT_VERSION = "prompts-v4"
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
@@ -60,8 +61,9 @@ SYSTEM = {
         "You are the analyst in BLACKGRID. Write short factual claims about the tool results. "
         "Every claim must cite evidence paths copied exactly from the provided evidence map, and every number "
         "in a claim must be copied from a cited value (you may round). Use evidence_level 'descriptive'. "
-        "Do not make causal claims. Do not say communities exist unless the preregistered verdict is "
-        "'supported'. Mention every flag that applies. Write at most 5 claims, each under 35 words; prefer "
+        "Do not make causal claims. Do not say communities exist unless the saved decision-rule verdict is "
+        "'supported'. Do not call the verdict or analysis 'preregistered' and do not use strength words such as "
+        "'strong'; report the numbers instead. Mention every flag that applies. Write at most 5 claims, each under 35 words; prefer "
         "fewer, information-dense claims. "
         'Reply with JSON only: {"verdict": one of ' + json.dumps(list(VERDICTS[:4])) + ', "flags": [str], '
         '"claims": [{"text": str, "evidence_level": str, "evidence": [path]}]}.'),

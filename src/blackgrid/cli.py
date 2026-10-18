@@ -355,7 +355,7 @@ def _cmd_sprint3(args: argparse.Namespace) -> int:
         print("Sprint 3 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
         return EXIT_INVALID
     try:
-        folder = run_suite(args.output)
+        folder = run_suite(args.output, args.protocol)
         status = json.loads((folder / "suite.json").read_text(encoding="utf-8"))["status"]
     except (OSError, ValueError) as exc:
         print(f"Sprint 3 failed: {exc}", file=sys.stderr)
@@ -382,7 +382,7 @@ def _cmd_sprint4(args: argparse.Namespace) -> int:
         print("Sprint 4 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
         return EXIT_INVALID
     try:
-        folder = run_suite(args.output)
+        folder = run_suite(args.output, args.protocol)
         status = json.loads((folder / "suite.json").read_text(encoding="utf-8"))["status"]
         if (folder / "evaluation.json").is_file():
             export_summary(folder, REPO_ROOT / "results" / f"sprint04-{folder.name}")
@@ -405,6 +405,8 @@ def build_parser() -> argparse.ArgumentParser:
     verify3.set_defaults(func=_cmd_sprint3_verify)
     sprint4 = sub.add_parser("sprint4", help="run the frozen Sprint 4 fresh evaluation (baseline, tool_only, validated)")
     sprint4.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    sprint4.add_argument("--protocol", choices=("s4-v1", "s4-v2"), default="s4-v2",
+                         help="frozen protocol; each has its own fresh case IDs")
     sprint4.set_defaults(func=_cmd_sprint4)
 
     ingest = sub.add_parser("ingest", help="validate and describe full CollegeMsg without running inference")

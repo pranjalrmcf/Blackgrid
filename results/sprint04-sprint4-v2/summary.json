@@ -1,0 +1,255 @@
+{
+  "elapsed_s": 314.15316809999786,
+  "errors": [],
+  "evaluator": "s4-eval-v1",
+  "freeze_sha256": "a2ed46b9f9d5c32492eb993ce54e49759bca5f2a09ca5ee6667c5b4cba2e4526",
+  "overlap_check": {
+    "cases": 24,
+    "compared_against": "8 dev + all other validation case sets",
+    "exact_overlaps": 0,
+    "fresh": 24
+  },
+  "paid_cost_usd": 0,
+  "primary": {
+    "baseline": {
+      "abstained": 0,
+      "assessed": 36,
+      "cases": 24,
+      "claims": 36,
+      "complete": 24,
+      "correct_refusals": 6,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 3,
+      "evidence_consistent": 24,
+      "failed": 0,
+      "generator_expectation_match": 24,
+      "llm_calls": 42,
+      "macro_unsupported_fraction": 0.0,
+      "missing_analysis_cases": 0,
+      "no_assessed_claim_cases": 6,
+      "refusal_tasks": 6,
+      "tokens": 37034,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 0,
+      "unsupported_rate": 0.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 24
+    },
+    "paired_validated_minus_baseline": {
+      "macro_unsupported_fraction": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "difference": 0.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 18
+      },
+      "useful_fraction": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "difference": 0.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 24
+      }
+    },
+    "paired_validated_minus_tool_only": {
+      "macro_unsupported_fraction": {
+        "ci95": [
+          -1.0,
+          -1.0
+        ],
+        "difference": -1.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 18
+      },
+      "useful_fraction": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "difference": 1.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 24
+      }
+    },
+    "tool_only": {
+      "abstained": 0,
+      "assessed": 45,
+      "cases": 24,
+      "claims": 45,
+      "complete": 21,
+      "correct_refusals": 0,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 0,
+      "evidence_consistent": 5,
+      "failed": 3,
+      "generator_expectation_match": 9,
+      "llm_calls": 45,
+      "macro_unsupported_fraction": 1.0,
+      "missing_analysis_cases": 3,
+      "no_assessed_claim_cases": 3,
+      "refusal_tasks": 6,
+      "tokens": 41369,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 45,
+      "unsupported_rate": 1.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 0
+    },
+    "validated": {
+      "abstained": 0,
+      "assessed": 36,
+      "cases": 24,
+      "claims": 36,
+      "complete": 24,
+      "correct_refusals": 6,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 3,
+      "evidence_consistent": 24,
+      "failed": 0,
+      "generator_expectation_match": 24,
+      "llm_calls": 60,
+      "macro_unsupported_fraction": 0.0,
+      "missing_analysis_cases": 0,
+      "no_assessed_claim_cases": 6,
+      "refusal_tasks": 6,
+      "tokens": 68029,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 0,
+      "unsupported_rate": 0.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 24
+    }
+  },
+  "sensitivity_preregistered_wording_accepted": {
+    "baseline": {
+      "abstained": 0,
+      "assessed": 36,
+      "cases": 24,
+      "claims": 36,
+      "complete": 24,
+      "correct_refusals": 6,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 3,
+      "evidence_consistent": 24,
+      "failed": 0,
+      "generator_expectation_match": 24,
+      "llm_calls": 42,
+      "macro_unsupported_fraction": 0.0,
+      "missing_analysis_cases": 0,
+      "no_assessed_claim_cases": 6,
+      "refusal_tasks": 6,
+      "tokens": 37034,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 0,
+      "unsupported_rate": 0.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 24
+    },
+    "paired_validated_minus_baseline": {
+      "macro_unsupported_fraction": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "difference": 0.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 18
+      },
+      "useful_fraction": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "difference": 0.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 24
+      }
+    },
+    "paired_validated_minus_tool_only": {
+      "macro_unsupported_fraction": {
+        "ci95": [
+          -1.0,
+          -1.0
+        ],
+        "difference": -1.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 18
+      },
+      "useful_fraction": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "difference": 1.0,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 24
+      }
+    },
+    "tool_only": {
+      "abstained": 0,
+      "assessed": 45,
+      "cases": 24,
+      "claims": 45,
+      "complete": 21,
+      "correct_refusals": 0,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 0,
+      "evidence_consistent": 5,
+      "failed": 3,
+      "generator_expectation_match": 9,
+      "llm_calls": 45,
+      "macro_unsupported_fraction": 1.0,
+      "missing_analysis_cases": 3,
+      "no_assessed_claim_cases": 3,
+      "refusal_tasks": 6,
+      "tokens": 41369,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 45,
+      "unsupported_rate": 1.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 0
+    },
+    "validated": {
+      "abstained": 0,
+      "assessed": 36,
+      "cases": 24,
+      "claims": 36,
+      "complete": 24,
+      "correct_refusals": 6,
+      "discovery_opportunities": 3,
+      "discovery_recovered": 3,
+      "evidence_consistent": 24,
+      "failed": 0,
+      "generator_expectation_match": 24,
+      "llm_calls": 60,
+      "macro_unsupported_fraction": 0.0,
+      "missing_analysis_cases": 0,
+      "no_assessed_claim_cases": 6,
+      "refusal_tasks": 6,
+      "tokens": 68029,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 0,
+      "unsupported_rate": 0.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 24
+    }
+  },
+  "status": "completed",
+  "suite": "s4-suite-v2"
+}

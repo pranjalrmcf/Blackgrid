@@ -16,6 +16,8 @@ Rubric (version `critic-v1`), applied to every drafted claim:
   R8 strength      effect-strength adjectives ("strong", "weak", "substantial", "clear", "real groups", ...)
                    are rejected: a small p against a null is not an effect size, and no threshold for
                    such words is preregistered  [v3]
+  R9 registration  a claim may not call a result "preregistered": no cited artifact establishes
+                   registration (negated statements such as "not preregistered" are allowed)  [v4]
 
 The critic is a rule set, not a model, and it is not independent scientific validation.
 """
@@ -31,7 +33,8 @@ from blackgrid.tools import AnswerKeyAccess, ToolRejected, parse_request
 # v2: no bare x100 matches; labelled numbers must match their field (D-038).
 # v3: comparisons cite both sides; unoperationalized strength wording is rejected (Sprint 4 R4, D-057).
 #     Provisional until the blinded human review (docs/sprint04_review_rubric.md) is complete.
-CRITIC_VERSION = "critic-v3"
+# v4: R9 rejects unestablished "preregistered" wording (s4-v2, D-061).
+CRITIC_VERSION = "critic-v4"
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -43,6 +46,7 @@ STRENGTH = re.compile(r"\b(strong(ly)?|weak(ly)?|substantial(ly)?|pronounced|mar
                       r"dramatic(ally)?|very|highly|clear(ly)?|robust(ly)?|large|huge|massive|real|genuine|"
                       r"meaningful)\b(\W+\w+){0,3}?\W+(communit\w*|structure|groups?|clusters?|modular\w*|"
                       r"effects?|evidence|signal|differences?)\b", re.I)
+REGISTERED = re.compile(r"\bpre-?registered\b", re.I)
 OBSERVED_SIDE = ("observed_statistic", "observed_q_min", "observed_q_max", "observed_q_median")
 NULL_SIDE = ("null/mean", "delta_q", "delta_q_min", "delta_q_median", "delta_q_max")
 CONCLUSION = ("p_value", "#/verdict", "/raw_verdict")
@@ -161,6 +165,11 @@ def critique(claim: object, ctx: CriticContext) -> CriticDecision:
         if sides:
             reasons.append(f"R7: comparison with the null does not cite {', '.join(sides)}")
         break
+    for match in REGISTERED.finditer(text):
+        if not NEGATION.search(text[: match.start()]):
+            reasons.append("R9: 'preregistered' is not established by any cited artifact; say 'the saved "
+                           "decision-rule verdict' instead")
+            break
     strength = STRENGTH.search(text)
     if strength:
         reasons.append(f"R8: strength wording {strength.group(1)!r} has no preregistered threshold; report the "

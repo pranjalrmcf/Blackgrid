@@ -283,3 +283,23 @@ def test_tool_descriptions_match_the_configured_run():
     assert "5 replicates with 19 nulls" in tool_descriptions(full.experiment, 19)["edge_removal_sensitivity"]
     assert f"{window.experiment.sensitivity.replicates} replicates with 99 nulls" in \
         tool_descriptions(window.experiment)["edge_removal_sensitivity"]
+
+
+
+@pytest.mark.parametrize("text,accepted", [
+    ("Under the preregistered rule the verdict is 'supported' for this graph only.", False),
+    ("The saved decision-rule verdict is 'supported' for this graph only.", True),
+    ("This exploratory analysis was not preregistered; the saved decision-rule verdict is 'supported'.", True),
+])
+def test_r9_preregistered_wording_needs_establishing_evidence(text, accepted):
+    decision = critique(claim(text, "experiment_report.json#/verdict"), SUPPORTED)
+    assert decision.accepted is accepted, decision.reasons
+
+
+def test_mock_reviser_uses_the_neutral_verdict_wording():
+    from blackgrid.providers import MockProvider
+
+    payload = {"evidence": EVIDENCE, "flags": []}
+    texts = [c["text"] for c in MockProvider._analyse(payload, revise=True)["claims"]]
+    assert texts[1] == "The saved decision-rule verdict is 'supported' for this graph only."
+    assert not any("preregistered" in t for t in texts)

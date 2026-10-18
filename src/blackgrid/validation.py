@@ -27,6 +27,7 @@ class ValidationInput:
 
 
 S4_CASE_IDS = tuple(f"val-{i:03}" for i in range(101, 125))  # Sprint 4 fresh instances (s4-v1)
+S4V2_CASE_IDS = tuple(f"val-{i:03}" for i in range(201, 225))  # Sprint 4 fresh instances (s4-v2)
 
 
 def case_index(case_id: str) -> int:
@@ -35,6 +36,8 @@ def case_index(case_id: str) -> int:
         return int(case_id[-3:])
     if case_id in S4_CASE_IDS:
         return int(case_id[-3:]) - 100
+    if case_id in S4V2_CASE_IDS:
+        return int(case_id[-3:]) - 200
     raise ValueError("unknown validation case (sealed tests are inaccessible)")
 
 
@@ -42,6 +45,8 @@ def generator_seed(case_id: str) -> int:
     index = case_index(case_id)
     if case_id in S4_CASE_IDS:  # protocols/sprint04_evaluation.md §1
         return 3001 + 100 * (index - 1) if index <= 18 else 8100 + index - 18
+    if case_id in S4V2_CASE_IDS:  # protocols/sprint04_evaluation_v2.md §1
+        return 5001 + 100 * (index - 1) if index <= 18 else 8200 + index - 18
     return 1001 + 100 * (index - 1) if index <= 18 else 8000 + index - 18
 
 
@@ -85,14 +90,15 @@ def validation_input(case_id: str) -> ValidationInput:
 
 def validation_spec(case_id: str) -> ExperimentSpec:
     index = case_index(case_id)
-    sprint4 = case_id in S4_CASE_IDS
+    tag, base = ("s4v2", 50000) if case_id in S4V2_CASE_IDS else ("s4", 40000) if case_id in S4_CASE_IDS \
+        else ("s3", 30000)
     return ExperimentSpec(
-        experiment_id=f"{'s4' if sprint4 else 's3'}-{case_id}", graph_id=case_id, status="exploratory",
+        experiment_id=f"{tag}-{case_id}", graph_id=case_id, status="exploratory",
         hypothesis="Louvain modularity exceeds degree-preserving randomizations.",
         competing_explanations=("degree heterogeneity", "disconnection", "sparsity"),
         task="community_structure_vs_null", method="louvain", statistic="modularity",
         null_model="degree_preserving_double_edge_swap", null_replicates=99,
-        seed=(40000 if sprint4 else 30000) + index,
+        seed=base + index,
         sensitivity=EdgeRemovalSensitivity(mechanism="uniform", removal_fraction=.1, replicates=3))
 
 

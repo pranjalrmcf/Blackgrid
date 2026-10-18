@@ -77,3 +77,14 @@ def test_rule_baseline_claims_are_templated_from_evidence():
     assert [c["text"] for c in out["claims"]] == [
         "Modularity Q = 0.500 versus a degree-preserving null mean of 0.400 (p = 0.010).",
         "The saved decision-rule verdict is 'supported' for this graph only."]
+
+
+def test_s4v2_case_set_is_fresh_and_separate():
+    from blackgrid.sprint4 import PROTOCOLS
+    from blackgrid.validation import S4V2_CASE_IDS
+
+    seeds = {generator_seed(c) + k for c in S4V2_CASE_IDS for k in range(4)}
+    others = {generator_seed(c) + k for c in CASE_IDS + S4_CASE_IDS for k in range(4)}
+    assert not seeds & others and [case_index(c) for c in S4V2_CASE_IDS] == list(range(1, 25))
+    assert validation_spec("val-201").seed == 50_001 and validation_spec("val-201").experiment_id == "s4v2-val-201"
+    assert PROTOCOLS["s4-v2"][2] == S4V2_CASE_IDS and PROTOCOLS["s4-v1"][2] == S4_CASE_IDS

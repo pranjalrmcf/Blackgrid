@@ -107,3 +107,27 @@ The smallest next task is to resolve the "preregistered" wording. Two options:
 
 Either is a new versioned protocol (s4-v2). Rerunning on these already-inspected cases would be development evidence,
 not fresh validation. After that, a separately authorized live pilot can measure a real model under the D-056 limits.
+
+## Addendum: s4-v2, the wording fix (D-061)
+
+**What changed** after s4-v1:
+- The writer's verdict sentence now reads "The saved decision-rule verdict is 'X' for this graph only."
+- critic-v4 rejects any un-negated "preregistered" claim.
+- The evaluator is unchanged.
+
+**Fresh run:** `val-201`–`val-224` (`runs/sprint4-v2`, 72/72 attempts, 0 errors, USD 0).
+
+| Per arm, 24 fresh cases | baseline | tool_only | validated |
+|---|---:|---:|---:|
+| Useful complete answers | 24 | 0 | **24** |
+| Unsupported / assessed claims | 0/36 | 45/45 | **0/36** |
+| Correct refusals (of 6) | 6 | 0 | 6 |
+| Positive-answer coverage (of 3) | 3 | 0 | 3 |
+| Failed runs | 0 | 3 | 0 |
+| Calls | 42 | 45 | 60 |
+
+**What it shows:**
+- The single s4-v1 shortfall is removed, and no other metric got worse.
+- The fix was aimed at a known failure, so this is development evidence, not independent proof that the critic works.
+- The checked agent now **ties** a template baseline, at 18 extra calls.
+- Whether a real model adds anything is the next open question. It needs a separately authorized live pilot.

@@ -177,7 +177,7 @@ class MockProvider:
                              f"(p = {p:.3f}).",
                      "evidence_level": "descriptive",
                      "evidence": [base + "observed_statistic", base + "null/mean", base + "p_value"]},
-                    {"text": f"Under the preregistered rule the verdict is '{verdict}' for this graph only.",
+                    {"text": f"The saved decision-rule verdict is '{verdict}' for this graph only.",
                      "evidence_level": "descriptive", "evidence": ["experiment_report.json#/verdict"]},
                 ],
             }
