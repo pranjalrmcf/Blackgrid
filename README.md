@@ -12,7 +12,14 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, and `AGENTS.md`
 
 ## Status
 
-**Sprint 2 is implemented.** Investigations now run as a resumable LangGraph workflow with durable operations, persisted budgets, authorization pauses, cancellation, and crash recovery, plus an interactive console. 182 tests pass. The frozen science is identical to Sprint 1's reference, recomputed in a clean offline environment. No paid call was made in Sprint 2 (D-047).
+**Sprint 2 is implemented.** Investigations now run as a resumable LangGraph workflow with durable operations, persisted budgets, authorization pauses, cancellation, and crash recovery, plus an interactive console. 187 tests pass, including fixes from a third external review (D-048). The frozen science is identical to Sprint 1's reference, recomputed in a clean offline environment.
+
+**One live Sprint 2 run** (user-run, `deepseek/deepseek-v4-flash-0731`) **completed** with both required analyses:
+- the real model's 4 claims were accepted by the critic on the first draft;
+- no charge exceeded its reservation;
+- it cost USD 0.0016 (D-049).
+
+Project spend so far: USD 0.0067.
 
 Sprint 1 is implemented (Days 1–14). The mock pipeline is reproduced from a clean environment.
 

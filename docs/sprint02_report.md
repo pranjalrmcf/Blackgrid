@@ -57,10 +57,34 @@ Date: 2026-10-18. Plan: `SPRINT_02.md`. Contract: `protocols/sprint02_workflow.m
 5. **The identity guard caught a test fixture** whose model name didn't match its config. This was correct behaviour; the fixture was fixed.
 6. **The console server replied to rejected POSTs before reading their body.** On Windows this intermittently aborted the connection. It now always consumes the body (at most 4 KB) first.
 
+## Live run (after the report was first written)
+
+The user ran one live validated investigation, `20261018T080547Z-56cecd`, with `deepseek/deepseek-v4-flash-0731` (D-049).
+
+- **Outcome:** `completed`, verdict `not_supported`, both required analyses present.
+- **Claims:** 4 claims, all accepted by the critic on the first draft.
+- **Money:** 2 calls, USD 0.0016 actual against USD 0.0038 reserved, with no breach.
+- **Science:** identical to the reference fingerprint.
+
+This shows that the live path works under the new safeguards. With n = 1 and no rejections, it says nothing about the critic's real-model value. The controlled live recovery case has not been run.
+
+## Review 3 fixes (D-048)
+
+A third review found four defects. Each was reproduced as a failing test and then fixed:
+
+1. **A crash during revision could repeat the reviser call.** The round number is now taken from the checkpointed state.
+2. **Saved LLM replies were reused without a hash check.** Each reply's hash is now recorded before the file is written, and verified on every reuse and at every node start.
+3. **An expired deadline could skip finalization.** Finalize now always runs, and early exits publish their status.
+4. **The console blocked cancellation while a job ran.** Cancel is now exempt from the one-job limit.
+
+Tests: 187 pass.
+
 ## Time and cost
 
-- **Money:** USD 0 spent in Sprint 2; no paid call was made.
-- **Totals:** project total so far USD 0.0051, all from Sprint 1. Sprint 2 cap: USD 1.
+- **Money:**
+  - Sprint 2: USD 0.0016 (one user-run live investigation), against the USD 1 cap.
+  - Project total: USD 0.0067 (Sprint 1 USD 0.0051 + Sprint 2 USD 0.0016).
+  - The agent made no paid calls; every check it ran was offline.
 - **Time:** about 1 hour of agent wall-clock time for implementation and verification. Human hours were not measured, so none are claimed.
 
 ## Limitations (unchanged or new)
@@ -73,4 +97,4 @@ Date: 2026-10-18. Plan: `SPRINT_02.md`. Contract: `protocols/sprint02_workflow.m
 
 ## Next smallest step
 
-With separate authorization (USD 1 Sprint 2 ceiling): one live validated CollegeMsg investigation plus one controlled recovery case, both using `deepseek/deepseek-v4-flash-0731`. Then Sprint 3: fresh validation cases and an independent evaluation. The optional Louvain/Leiden comparison stays deferred to a new preregistered protocol.
+The live validated investigation is done (D-049). What remains, with separate authorization under the USD 1 Sprint 2 ceiling: one controlled live recovery case, interrupting a live run and resuming it to confirm that no call is repeated. Then Sprint 3: fresh validation cases and an independent evaluation. The optional Louvain/Leiden comparison stays deferred to a new preregistered protocol.

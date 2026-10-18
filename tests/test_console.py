@@ -93,6 +93,27 @@ def test_actions_are_guarded(console, body, token, ctype, code):
     assert status == code, payload
 
 
+def test_cancel_is_accepted_while_another_job_is_running(console):
+    """Regression (review 3, item 4): the one-job limit must not block cancellation."""
+    from tests.test_workflow import Counting, dev_config, start
+
+    run_id = start(console.runs_dir, Counting(live=True), None, config=dev_config("live")).outcome.run_id
+    console.busy = "a-long-running-job"  # e.g. a mock run or the pilot is in progress
+    status, payload, _ = request(console, "POST", "/api/action", {"action": "pilot"}, token=console.token)
+    assert status == 409  # other actions still wait their turn
+    status, job, _ = request(console, "POST", "/api/action", {"action": "cancel", "run_id": run_id},
+                             token=console.token)
+    assert status == 202
+    for _ in range(100):
+        _, job, _ = request(console, "GET", f"/api/job?id={job['job_id']}")
+        if job["state"] != "running":
+            break
+        time.sleep(0.1)
+    assert job["state"] == "done" and console.busy == "a-long-running-job"  # cancel never took the slot
+    _, run, _ = request(console, "GET", f"/api/run?id={run_id}")
+    assert run["summary"]["status"] == "cancelled"
+
+
 def test_browser_can_deny_but_never_approve_paid_execution(console, tmp_path):
     from tests.test_workflow import Counting, dev_config, start
 

@@ -323,11 +323,29 @@ def _receipt_path(rt: Runtime, op_id: str) -> Path:
     return rt.run_dir / "ops" / f"{op_id}.json"
 
 
+def _read_receipt(rt: Runtime, op: Operation) -> dict:
+    """Load a saved LLM reply only if it matches the hash recorded before it was written (review 3, item 2)."""
+    path = _receipt_path(rt, op.op_id)
+    if not op.receipt_sha256:
+        raise ResumeBlocked(f"saved {op.name} reply {op.op_id[:12]} has no recorded hash; it cannot be trusted")
+    if file_sha(path) != op.receipt_sha256:
+        raise ResumeBlocked(f"saved {op.name} reply {op.op_id[:12]} is missing or was modified after it was recorded")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def verify_receipts(rt: Runtime) -> None:
+    """Check every saved LLM reply of this run against its recorded hash."""
+    for op in rt.store.operations(rt.run_id, kind="llm"):
+        if op.receipt_sha256 and file_sha(_receipt_path(rt, op.op_id)) != op.receipt_sha256:
+            raise ResumeBlocked(f"saved {op.name} reply {op.op_id[:12]} is missing or was modified after it "
+                                "was recorded")
+
+
 def _finish_from_receipt(rt: Runtime, op: Operation) -> dict | None:
     """Commit a saved response's usage and classify it. Returns parsed JSON, or None if malformed."""
     path = _receipt_path(rt, op.op_id)
-    receipt = json.loads(path.read_text(encoding="utf-8"))
-    sha = file_sha(path)
+    receipt = _read_receipt(rt, op)
+    sha = op.receipt_sha256
     ledger = rt.ledger()
     ledger.pending = Reservation(prompt_tokens=0, prompt_token_bound=0, max_completion_tokens=0, usd=op.reserved_usd)
     usd = ledger.commit(receipt["prompt_tokens"], receipt["completion_tokens"], receipt.get("reported_usd"))
@@ -405,7 +423,12 @@ def llm(rt: Runtime, state: WFState, role: str, payload: dict, index: int) -> di
                            "completion_tokens": completion.completion_tokens,
                            "reported_usd": completion.reported_usd, "model": completion.model,
                            "provider": completion.provider, "finish_reason": completion.finish_reason}
-                write_json(_receipt_path(rt, op_id), receipt)
+                data = json.dumps(receipt, indent=2, sort_keys=True, default=str).encode("utf-8")
+                path = _receipt_path(rt, op_id)
+                # Record the hash first, then write the file: any later edit to the file is detectable.
+                rt.store.transition(op_id, "dispatched", receipt_path=str(path.relative_to(rt.run_dir)),
+                                    receipt_sha256=hashlib.sha256(data).hexdigest())
+                atomic_write(path, data)
                 rt.fault("after_receipt", role)
                 op = rt.store.get(op_id)
 
@@ -442,14 +465,13 @@ def llm(rt: Runtime, state: WFState, role: str, payload: dict, index: int) -> di
         if op.state == "succeeded":
             if isinstance(rt._provider, ReplayProvider):
                 rt._provider.skip(role, sha)
-            receipt = json.loads(_receipt_path(rt, op_id).read_text(encoding="utf-8"))
-            return parse_json(receipt["response"])
+            return parse_json(_read_receipt(rt, op)["response"])  # verified against its recorded hash
         if op.state in ("failed_known", "billing_unknown"):
             last_error = op.error or op.state
             if op.category in PERMANENT_CATEGORIES:
                 raise _LLMFailed(f"{role}_failed: {last_error} (not retried: {op.category})")
             if op.category == "malformed":
-                receipt = json.loads(_receipt_path(rt, op_id).read_text(encoding="utf-8"))
+                receipt = _read_receipt(rt, op)
                 note = RETRY_TRUNCATED if receipt.get("finish_reason") == "length" else RETRY_INVALID
                 messages = base + [{"role": "user", "content": note}]
             continue
@@ -536,10 +558,17 @@ def _node(rt: Runtime, name: str, fn: Callable[[WFState], dict], check_cancel: b
         rt.store.heartbeat(rt.run_id, rt.owner)
         rt.store.set_stage(rt.run_id, name)
         if check_cancel and rt.store.cancel_requested(rt.run_id):
-            return {"stage": name, "status": "cancelled", "status_reason": f"cancelled by the user before {name}"}
-        if time.perf_counter() - rt.started > rt.deadline_s:
-            return {"stage": name, "status": "failed", "status_reason": "deadline_exceeded: wall-clock limit reached"}
+            update = {"stage": name, "status": "cancelled", "status_reason": f"cancelled by the user before {name}"}
+            publish(rt, {**state, **update})
+            return update
+        # The deadline stops work, never finalization: a failure must always be recorded (review 3, item 3).
+        if name != "finalize" and time.perf_counter() - rt.started > rt.deadline_s:
+            update = {"stage": name, "status": "failed", "status_reason": "deadline_exceeded: wall-clock limit reached"}
+            publish(rt, {**state, **update})
+            return update
         try:
+            if name != "finalize":
+                verify_receipts(rt)  # a tampered saved reply stops the run before any further work
             update = fn(state) or {}
         except _Terminal as stop:
             update = {"status": stop.status, "status_reason": stop.reason}
@@ -648,12 +677,15 @@ def build(rt: Runtime):
                 "reported": [d["claim"] for d in latest if d["accepted"]]}
 
     def reviser(state: WFState) -> dict:
-        ledger = rt.ledger()
-        try:
-            ledger.begin_revision()
-        except BudgetExceeded:
+        # The round number comes from the checkpointed state (completed rounds + 1), never from a
+        # counter that a re-entered node would bump again: a resumed node recomputes the same
+        # number, hence the same operation ID, and reuses its saved receipt (review 3, item 1).
+        rounds_done = sum(1 for d in state.get("drafts", []) if isinstance(d, dict) and "round" in d)
+        index = rounds_done + 1
+        if index > rt.limits.max_revision_rounds:
+            rt.store.append_event(rt.run_id, {"event": "stop", "reason": "revision cap reached"})
             return {"latest": []}  # revision cap: keep the accepted claims of the last round
-        rt.store.set_revisions(rt.run_id, ledger.revisions)
+        rt.store.set_revisions(rt.run_id, index)  # idempotent: same value on every re-entry
         ctx = tool_context(rt, state)
         inp = rt.inputs(state)
         payload = _analysis_payload(inp, ctx, state) | {
@@ -661,14 +693,14 @@ def build(rt: Runtime):
             "critic_feedback": [{"claim": d["claim"].get("text"), "reasons": d["reasons"]}
                                 for d in state["latest"] if not d["accepted"]]}
         try:
-            revised = llm(rt, state, "reviser", payload, index=ledger.revisions)
+            revised = llm(rt, state, "reviser", payload, index=index)
         except (BudgetExceeded, _LLMFailed):
-            if not any(op.name == "reviser" and op.call_index == ledger.revisions
+            if not any(op.name == "reviser" and op.call_index == index
                        for op in rt.store.operations(rt.run_id, kind="llm")):
-                rt.store.set_revisions(rt.run_id, ledger.revisions - 1)  # no call was made: not a round
+                rt.store.set_revisions(rt.run_id, index - 1)  # no call was made: not a round
             return {"latest": []}  # cannot afford or obtain a revision: keep accepted claims only
         claims = revised.get("claims") if isinstance(revised.get("claims"), list) else []
-        return {"drafts": state.get("drafts", []) + [{"round": ledger.revisions, "claims": claims}]}
+        return {"drafts": state.get("drafts", []) + [{"round": index, "claims": claims}]}
 
     def finalize(state: WFState) -> dict:
         return finalize_run(rt, state)
@@ -807,9 +839,8 @@ def write_trace(rt: Runtime) -> None:
     """Rebuild llm_trace.jsonl from durable receipts (idempotent; replay reads it)."""
     lines = []
     for op in rt.store.operations(rt.run_id, kind="llm"):
-        path = _receipt_path(rt, op.op_id)
-        if path.is_file():
-            receipt = json.loads(path.read_text(encoding="utf-8"))
+        if op.receipt_path:
+            receipt = _read_receipt(rt, op)  # the trace never carries an altered reply
             receipt["usd"] = op.actual_usd
             lines.append(json.dumps(receipt, sort_keys=True))
     if lines:
@@ -817,7 +848,10 @@ def write_trace(rt: Runtime) -> None:
 
 
 def finalize_run(rt: Runtime, state: WFState) -> dict:
-    write_trace(rt)
+    try:
+        write_trace(rt)
+    except ResumeBlocked as exc:  # record the integrity failure; never stop half-way through finalizing
+        state = {**state, "status": "failed", "status_reason": f"integrity: {exc}"}
     result, ctx = build_result(rt, state)
     if rt.on_finalize is not None and ctx is not None:
         # Writes report, manifest, and UI. Deterministic and safe to repeat after a crash here.

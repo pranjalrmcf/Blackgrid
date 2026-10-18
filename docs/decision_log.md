@@ -490,4 +490,29 @@ All live runs were made by the user.
   - a crash when pricing was missing on a denied run;
   - nested DOM children in the console;
   - the console server rejecting POSTs before reading their body. On Windows this aborted the connection and turned a clean 403 or 415 into a connection error. It was intermittent; the fix was confirmed by three repeated runs.
+- **Correction (see D-049):** this entry said "USD 0 in Sprint 2", which was true when written. A user-run live investigation followed; see D-049.
+
+### D-048 — External review 3: four workflow fixes (2026-10-18)
+All four findings were reproduced as failing tests before fixing.
+1. **A crash during revision repeated the reviser call** (2 calls instead of 1). The round number came from a counter that a re-entered node incremented again, producing a new operation ID.
+   - *Fix:* the round number is derived from the checkpointed state (completed rounds + 1). A resumed node therefore recomputes the same operation ID and reuses its receipt. The stored revision count is set idempotently.
+2. **Saved LLM replies were reused without a hash check.** An edited analyst reply was accepted, and the run completed.
+   - *Fix:* each reply's SHA-256 is recorded in the operation row **before** the file is written. Every reuse, the trace, and the start of every node verify it. A mismatch is an integrity failure, recorded through finalize, and no further paid work happens.
+3. **An expired deadline skipped finalize.** The result said `failed` while SQLite said `running`, with no status file.
+   - *Fix:* the deadline guard stops work but never finalization. Early exits publish their status.
+4. **The console's one-job limit blocked cancellation.**
+   - *Fix:* `cancel` runs alongside an active job, which is safe under the run lock: for the working run it only raises the flag. Other actions still wait.
+- **Tests:** regression tests added. 187 tests pass.
+- **Status:** active.
+
+### D-049 — First live run under the Sprint 2 safeguards (2026-10-18)
+- **Run:** `20261018T080547Z-56cecd`, made by the user, live, validated, `deepseek/deepseek-v4-flash-0731` (priced at USD 0.0114/M input and 0.45/M output when fetched).
+- **Outcome:** `completed`, verdict `not_supported`, flags `disconnected` and `degree_confound`. Both required analyses ran, including the 20-replicate sensitivity.
+- **Claims:** the real model's 4 drafted claims were all accepted by critic-v2 on the first draft, so there were 0 revision rounds.
+- **Money:** 2 calls, USD 0.0016188 actual against USD 0.0037732 reserved. Each charge stayed below its reservation, with no breach.
+- **Science:** experiment, sensitivity, and projection fingerprints are identical to the Sprint 2 reference.
+- **Totals:** Sprint 2 spend USD 0.0016 of the USD 1 cap. Project total USD 0.0067 (Sprint 1 USD 0.0051 + Sprint 2 USD 0.0016).
+- **What it shows and doesn't:** one live run shows the live path works end to end under the new safeguards. It is not evidence about critic efficacy (n = 1, and no rejection occurred).
+- **Not yet done:** the controlled live recovery case from `SPRINT_02.md` §13 has not been run.
+- **Status:** recorded.
 - **Status:** recorded.

@@ -77,11 +77,16 @@ class Console:
 
     def start_job(self, body: dict) -> dict:
         argv = self.argv(body)
+        # Cancellation is exempt from the one-job limit: it is most useful while another job runs. It is
+        # safe alongside it because the run lock decides who may touch a run; for the run that is
+        # working right now, cancel only raises its flag and the worker stops at its next boundary.
+        exclusive = body.get("action") != "cancel"
         with self.lock:
-            if self.busy is not None:
-                raise RuntimeError("another action is still running")
+            if exclusive and self.busy is not None:
+                raise RuntimeError("another action is still running (cancel is always allowed)")
             job_id = uuid.uuid4().hex[:12]
-            self.busy = job_id
+            if exclusive:
+                self.busy = job_id
             self.jobs[job_id] = {"job_id": job_id, "action": body.get("action"), "state": "running",
                                  "started_utc": datetime.now(UTC).isoformat()}
 
@@ -98,8 +103,9 @@ class Console:
                 traceback.print_exc()
             finally:
                 job["finished_utc"] = datetime.now(UTC).isoformat()
-                with self.lock:
-                    self.busy = None
+                if exclusive:
+                    with self.lock:
+                        self.busy = None
 
         threading.Thread(target=work, name=f"console-job-{job_id}", daemon=True).start()
         return self.jobs[job_id]

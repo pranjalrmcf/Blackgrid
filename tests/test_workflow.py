@@ -173,6 +173,59 @@ def test_uncertain_provider_error_pauses_rather_than_retrying(tmp_path, cache_di
     assert out.outcome.status == "paused" and provider.calls["analyst"] == 1
 
 
+def test_crash_during_revision_does_not_repeat_the_reviser_call(tmp_path, cache_dir):
+    """Regression (review 3, item 1): resuming the reviser node must reuse the same revision identity."""
+    first = Counting()
+    with pytest.raises(SimulatedCrash):
+        start(tmp_path, first, cache_dir, faults={"after_receipt:reviser"})
+    run_id = only_run(tmp_path)
+    second = Counting()
+    out = resume_investigation(run_id, tmp_path, provider=second, cache_dir=cache_dir, force_unlock=True)
+    assert out.outcome.status == "completed"
+    assert (first.calls + second.calls)["reviser"] == 1 and out.result.revisions == 1
+    assert [op.name for op in llm_ops(tmp_path, run_id)] == ["planner", "analyst", "reviser"]
+
+
+@pytest.mark.parametrize("fault,role", [("after_receipt:analyst", "analyst"), ("before_dispatch:reviser", "analyst")])
+def test_tampered_llm_receipt_is_never_reused(tmp_path, cache_dir, fault, role):
+    """Regression (review 3, item 2): saved LLM replies are hash-checked like tool artifacts."""
+    with pytest.raises(SimulatedCrash):
+        start(tmp_path, Counting(), cache_dir, faults={fault})
+    run_id = only_run(tmp_path)
+    (op,) = [o for o in llm_ops(tmp_path, run_id) if o.name == role]
+    receipt = next(tmp_path.rglob(f"ops/{op.op_id}.json"))
+    data = json.loads(receipt.read_text(encoding="utf-8"))
+    data["response"] = data["response"].replace("not_supported", "supported")  # forge a nicer reply
+    receipt.write_text(json.dumps(data), encoding="utf-8")
+    second = Counting()
+    out = resume_investigation(run_id, tmp_path, provider=second, cache_dir=cache_dir, force_unlock=True)
+    assert out.outcome.status == "failed" and "integrity" in out.outcome.reason
+    assert sum(second.calls.values()) == 0  # no further paid work after the tampering was detected
+    status = json.loads(next(tmp_path.rglob("workflow_status.json")).read_text(encoding="utf-8"))
+    assert status["status"] == "failed" and (out.run_dir / "manifest.json").is_file()  # failure fully recorded
+
+
+def test_expired_deadline_still_finalizes_and_persists_the_failure(tmp_path, cache_dir):
+    """Regression (review 3, item 3): finalize must run even after the wall-clock deadline."""
+    from blackgrid.agent import Controller
+    from blackgrid.budget import BudgetLedger
+    from blackgrid.contracts import BudgetLimits
+
+    dev = dev_cases()["dev-002"]
+    public, graph, record = dev.planner_view()
+    from blackgrid.agent import InvestigationInput
+
+    inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request, graph=graph,
+                             record=record, spec=dev_spec(dev))
+    from blackgrid.budget import FREE
+
+    ledger = BudgetLedger(limits=BudgetLimits(), pricing=FREE)
+    result, _ = Controller(Counting(), ledger, ExecutionMode.MOCK, tmp_path, deadline_s=0).investigate(inp, "validated")
+    assert result.status is RunStatus.FAILED and "deadline" in result.failure_reason
+    published = json.loads((tmp_path / "workflow_status.json").read_text(encoding="utf-8"))
+    assert published["status"] == "failed" and published["stage"] == "finalize"  # the store agrees
+
+
 # --- 2. budgets and locks survive restarts -----------------------------------------------------------
 
 
