@@ -44,7 +44,7 @@ VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
 # v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
 # v4: neutral verdict wording; no 'preregistered' or strength words in claims (s4-v2, D-061).
 # v5: flags appear in the evidence map (#/flags/N) and can be cited (D-065).
-PROMPT_VERSION = "prompts-v8"  # v8: forecast family tools and claim rules (Sprint 6 integration, D-073)
+PROMPT_VERSION = "prompts-v9"  # v8: forecast tools and claim rules (D-073); v9: forecast reliability via prediction_compare (D-081)
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
@@ -80,8 +80,10 @@ SYSTEM["planner"] += (" A structural family uses its own tools, not community si
                        "State your reason. Never interpret centrality as causal influence. "
                        "For a forecasting question choose link_prediction with task new_pair (pairs that never "
                        "messaged) or repeat_pair (pairs that messaged before), usually method selected, then "
-                       "prediction_compare with the same task and split test; temporal_profile is optional. You "
-                       "cannot change the cutoff, horizon or candidates.")
+                       "prediction_compare with the same task and split rolling; temporal_profile is optional. "
+                       "For forecasts, reliability in past windows comes from prediction_compare; do not add "
+                       "structural tools such as ranking_sensitivity. You cannot change the cutoff, horizon or "
+                       "candidates.")
 SYSTEM["analyst"] += (" For structural investigations copy claims exactly from allowed_claims, including their "
                        "evidence paths. Local node rankings are rendered separately; do not invent individual claims.")
 SYSTEM["reviser"] += (" For structural investigations copy claims exactly from allowed_claims with their evidence paths. "

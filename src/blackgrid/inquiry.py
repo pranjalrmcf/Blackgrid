@@ -8,25 +8,39 @@ from blackgrid.tools import ARTIFACT_NAMES, FORECAST_TOOLS, AnswerKeyAccess, Too
 STRUCTURAL_TOOLS = {"profile_graph", "node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"}
 
 
+CAUSAL_Q = re.compile(r"\b(influen\w*|caus\w*|persuad\w*|why)\b")
+# Forecast wording (D-080): "next few weeks", "over the coming month", "likely to keep talking", "will start messaging".
+FORECAST = re.compile(
+    r"\b(forecast\w*|predict\w*|future|"
+    r"next(?:\s+\w+){0,2}\s+(?:weeks?|months?|days?|window|period)|"
+    r"(?:in|over|during|within)\s+the\s+(?:next|coming)|coming\s+(?:weeks?|months?|days)|"
+    r"will\s+(?:\w+\s+){0,2}(?:message|talk|contact|connect|interact|chat|start|keep|continue)\w*|"
+    r"likely\s+to\s+(?:\w+\s+){0,2}(?:message|talk|contact|connect|interact|chat|start|keep|continue)\w*|"
+    r"keep\s+(?:talking|messaging|chatting|in touch)|start\s+(?:talking|messaging|chatting)|"
+    r"(?:new|future)\s+connections?)")
+# Bridge wording: "connect otherwise separate groups", "between communities", "cross-group".
+BRIDGE = re.compile(
+    r"\b(bridg\w*|cross.(?:community|group)|connect\w*(?:\s+\w+){0,3}\s+(?:groups|communities|clusters)|"
+    r"between\s+(?:different\s+|separate\s+)?(?:groups|communities|clusters))\b")
+
+
 def family(question: str, request: dict) -> str:
     selected = request.get("family", "community")
     if selected != "auto":
         return selected
     q = question.lower()
-    if re.search(r"\b(influen\w*|caus\w*|persuad\w*|why)\b", q):
+    if CAUSAL_Q.search(q):
         return "clarify"
-    if re.search(r"\b(forecast\w*|predict\w*|future|next (?:week|month|weeks|days|window|period)|will (?:\w+ )?"
-                 r"(?:message|talk|contact|connect|interact|chat)|likely to (?:message|talk|connect|interact)|"
-                 r"(?:new|future) connections?)\b", q):
+    if FORECAST.search(q):
         return "forecast"
-    if re.search(r"\b(bridg\w*|cross.community|connect\w* (?:different |the )?(?:groups|communities))\b", q):
+    if BRIDGE.search(q):
         return "bridge"
     # A degree-preserving null describes the community baseline, not a request
     # to rank nodes by degree. Keep genuine centrality requests distinct.
     centrality_question = re.sub(r"\bdegree[\s\-–—]+preserv\w*\b", "", q)
     if re.search(r"\b(central\w*|contacts|betweenness|shortest paths?|degree)\b", centrality_question):
         return "centrality"
-    if re.search(r"\b(communit\w*|cluster\w*|modularity)\b", q):
+    if re.search(r"\b(communit\w*|cluster\w*|modular\w*)\b", q):
         return "community"
     return "clarify"
 
@@ -55,8 +69,12 @@ def requirements(question: str, request: dict) -> dict[str, dict]:
 
 def validate_structural(question: str, request: dict, plan: dict) -> tuple[bool, list[dict], str]:
     if family(question, request) == "clarify":
-        return False, [], ("Please ask about community evidence, structural centrality, cross-community connections or "
-                           "forecasting known pairs; causes, influence and persuasion are not supported.")
+        if CAUSAL_Q.search(question.lower()):
+            return False, [], ("This asks about causes, influence or persuasion, which observational message data cannot "
+                               "establish. Ask what the network shows, or which known pairs are likely to message next.")
+        return False, [], ("I could not match this to a supported analysis. Try asking about communities, people with many "
+                           "contacts or central positions, people who connect separate groups, or which known pairs are "
+                           "likely to message in the next few weeks.")
     if family(question, request) == "forecast":
         return validate_forecast(question, request, plan)
     if re.search(r"\b(caus\w*|influen\w*|persuad\w*|predict\w*)\b", question, re.I):
@@ -102,19 +120,25 @@ def validate_forecast(question: str, request: dict, plan: dict) -> tuple[bool, l
     if plan.get("decision") == "refuse":
         return False, [], "Planner refused this forecasting question."
     calls = plan.get("tool_calls")
-    if not isinstance(calls, list) or not 1 <= len(calls) <= 3:
-        return False, [], "A forecast plan needs one to three registered forecast calls."
+    if not isinstance(calls, list) or not 1 <= len(calls) <= 6:
+        return False, [], "A forecast plan needs one to six registered calls."
     checked: dict[str, dict] = {}
+    dropped: list[str] = []
     for call in calls:
         try:
-            name, args = parse_request(call)
+            name, args = parse_request(call)  # unknown tools, bad arguments: refused as before
         except AnswerKeyAccess:
             raise
         except ToolRejected as exc:
             return False, [], str(exc)
         if name not in FORECAST_TOOLS or name in checked:
-            return False, [], "Forecast plan contains a non-forecast or duplicate tool."
+            # D-081: a registered but inapplicable tool (e.g. ranking_sensitivity for "how reliable") or a duplicate
+            # is dropped by the controller and noted, instead of rejecting a sound forecast plan.
+            dropped.append(name)
+            continue
         checked[name] = args.model_dump(mode="json")
+    if not checked:
+        return False, [], "The plan contains no forecast tool; forecasts use link_prediction and prediction_compare."
     required = requirements(question, request)
     task = checked.get("link_prediction", required["link_prediction"])["task"]
     checked.setdefault("link_prediction", {"task": task})
@@ -126,7 +150,9 @@ def validate_forecast(question: str, request: dict, plan: dict) -> tuple[bool, l
     checked["prediction_compare"] = {"task": task, "split": split}
     order = {"temporal_profile": 0, "link_prediction": 1, "prediction_compare": 2}
     plan_calls = [{"tool": name, "args": checked[name]} for name in sorted(checked, key=order.get)]
-    return True, plan_calls, "Validated forecast plan; cutoff, horizon and candidates are fixed by the system."
+    note = (f" Ignored tools that do not apply to forecasts: {', '.join(dict.fromkeys(dropped))}; past reliability "
+            "comes from prediction_compare." if dropped else "")
+    return True, plan_calls, "Validated forecast plan; cutoff, horizon and candidates are fixed by the system." + note
 
 
 def safe_outputs(outputs: dict[str, dict]) -> dict[str, dict]:

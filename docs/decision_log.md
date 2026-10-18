@@ -1011,3 +1011,26 @@ All four findings were reproduced as failing tests before fixing.
 - **Live checks:** 2 runs. USD 0.0209 (the overrun run; all 4 claims shown, 1 false rejection now fixed) and USD 0.0011 (clean; 3/3 claims accepted, evidence matches the method).
   - Live spend for D-073–D-079 totals about USD 0.056, within the allowance (about USD 0.42 left) and the user's USD 0.75 limit.
 - **Status:** active.
+
+### D-080 — Question routing missed suggested forecast and bridge wording (2026-10-18)
+- **Observed (user, live console):** "Which pairs who have been messaging recently are most likely to keep talking over the next few weeks…" was answered "needs a different interpretation", with a message wrongly blaming causes or influence. The suggested bridge question ("connect otherwise separate groups") would also have failed.
+- **Cause:** narrow keyword patterns. "next few weeks", "likely to keep talking" and "connect … separate groups" matched none of them.
+- **Fix (`inquiry.py`):**
+  - Broader `FORECAST` wording: next/coming windows, "will/likely to … message/talk/start/keep", "keep talking", "start messaging".
+  - Broader `BRIDGE` wording: "connect … groups", "between … communities", "cross-group".
+  - "modular" now counts as community wording.
+  - Separate clarify messages: causal wording vs. an unmatched question.
+- **Tests:** the four suggested questions plus variants (`tests/test_forecast_agent.py`). Full suite: 401 passed.
+- **Note:** routing remains keyword-based; unusual phrasings can still fall through to the clarify message, which now lists the supported question types.
+- **Status:** active.
+
+### D-081 — Inapplicable planner tools are dropped, not fatal (2026-10-18)
+- **Observed (user, live console):** the real planner proposed a sound repeat-pair forecast plus `ranking_sensitivity` (for "how reliable…"). The validator rejected the whole plan ("non-forecast or duplicate tool").
+- **Fix:**
+  - For forecast plans, registered but inapplicable tools and duplicates are dropped by the controller, and the outcome reason lists them ("Ignored tools that do not apply to forecasts: …").
+  - Unregistered tools, invalid arguments and answer-key attempts are still refused. A plan without any forecast tool is refused.
+  - prompts-v9 tells the planner that past reliability comes from `prediction_compare`, not structural tools.
+- **Verification:**
+  - A test built from the exact live plan.
+  - A live rerun of the user's exact question (USD 0.0006): completed, with `temporal_profile`, `link_prediction` and `prediction_compare`, and 3/3 claims accepted. The new prompt kept the planner from adding the structural tool.
+- **Status:** active.

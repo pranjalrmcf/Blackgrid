@@ -108,3 +108,50 @@ def test_forecast_tools_unavailable_without_a_frozen_evaluation(tmp_path, monkey
     out = run(tmp_path, NEW_Q)
     inv = json.loads((out.run_dir / "investigation.json").read_text(encoding="utf-8"))
     assert inv["status"] != "completed" and inv["missing_analyses"]
+
+
+@pytest.mark.parametrize("question,expected,task", [
+    # the exact questions suggested to the user (D-080)
+    ("Which pairs who have been messaging recently are most likely to keep talking over the next few weeks, and how "
+     "reliable has this ranking been in past windows?", "forecast", "repeat_pair"),
+    ("Which people who have never messaged each other are most likely to start in the next three weeks?", "forecast",
+     "new_pair"),
+    ("Which students connect otherwise separate groups, and are those rankings stable if some messages are missing?",
+     "bridge", None),
+    ("What is the probability that two specific students will start dating next month?", "forecast", None),
+    # more wording variants
+    ("Who will start messaging over the coming month?", "forecast", "new_pair"),
+    ("Which nodes sit between different communities?", "bridge", None),
+    ("Is the network modular?", "community", None),
+    ("Why do some students message more than others?", "clarify", None),
+])
+def test_suggested_and_varied_wording_routes_correctly(question, expected, task):
+    assert family(question, {"family": "auto"}) == expected
+    if task:
+        assert forecast_task(question) == task
+
+
+def test_clarify_messages_say_what_actually_happened():
+    from blackgrid.inquiry import validate_structural
+
+    unmatched = validate_structural("Tell me something interesting.", {"family": "auto"}, {})[2]
+    causal = validate_structural("Why do people message?", {"family": "auto"}, {})[2]
+    assert "could not match" in unmatched and "causes" not in unmatched
+    assert "causes, influence or persuasion" in causal
+
+
+def test_inapplicable_extra_tool_is_dropped_not_fatal():
+    """The exact live plan from D-081: a sound forecast plus ranking_sensitivity for 'how reliable'."""
+    from blackgrid.inquiry import validate_forecast
+
+    q = ("Which pairs who have been messaging recently are most likely to keep talking over the next few weeks, and how "
+         "reliable has this ranking been in past windows?")
+    plan = {"decision": "run", "tool_calls": [
+        {"tool": "link_prediction", "args": {"task": "repeat_pair", "method": "selected"}},
+        {"tool": "prediction_compare", "args": {"task": "repeat_pair", "split": "rolling"}},
+        {"tool": "ranking_sensitivity", "args": {}}]}
+    ok, calls, reason = validate_forecast(q, {"family": "auto"}, plan)
+    assert ok and [c["tool"] for c in calls] == ["link_prediction", "prediction_compare"]
+    assert "Ignored tools that do not apply to forecasts: ranking_sensitivity" in reason
+    bad = {"decision": "run", "tool_calls": [{"tool": "shell", "args": {}}]}
+    assert validate_forecast(q, {"family": "auto"}, bad)[0] is False  # unregistered tools are still refused
