@@ -86,11 +86,19 @@ def test_page_is_served_with_strict_headers_and_foreign_hosts_are_refused(consol
     ({"action": "shell", "cmd": "dir"}, "OK", "application/json", 400),       # not an allowed action
     ({"action": "cancel", "run_id": "../x"}, "OK", "application/json", 400),  # path traversal
     ({"action": "start", "condition": "live"}, "OK", "application/json", 400),  # no other modes
+    ({"action": "start", "scope": "../../etc"}, "OK", "application/json", 400),  # no other configs
 ])
 def test_actions_are_guarded(console, body, token, ctype, code):
     status, payload, _ = request(console, "POST", "/api/action", body,
                                  token=console.token if token == "OK" else token, ctype=ctype)
     assert status == code, payload
+
+
+def test_start_scope_maps_to_the_fixed_configs_in_mock_mode(console):
+    first = console.argv({"action": "start"})
+    full = console.argv({"action": "start", "scope": "full_dataset", "condition": "tool_only"})
+    assert first[1].endswith("collegemsg_sprint01.json") and full[1].endswith("collegemsg_full.json")
+    assert full[full.index("--mode") + 1] == "mock" and "--allow-paid" not in full
 
 
 def test_cancel_is_accepted_while_another_job_is_running(console):

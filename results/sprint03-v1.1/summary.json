@@ -1,0 +1,181 @@
+{
+  "authoritative_elapsed_s": 280.1096354000001,
+  "evaluation": {
+    "paired_validated_minus_tool_only": {
+      "macro_unsupported_fraction": {
+        "ci95": [
+          -0.9444444444444444,
+          -0.5555555555555556
+        ],
+        "difference": -0.7777777777777778,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 18
+      },
+      "useful_fraction": {
+        "ci95": [
+          0.6666666666666666,
+          0.9583333333333334
+        ],
+        "difference": 0.8333333333333334,
+        "label": "paired graph bootstrap percentile 95% confidence interval; scripted case mix only",
+        "n": 24
+      }
+    },
+    "tool_only": {
+      "abstained": 0,
+      "assessed": 45,
+      "cases": 24,
+      "claims": 45,
+      "complete": 21,
+      "correct_refusals": 0,
+      "discovery_opportunities": 4,
+      "discovery_recovered": 0,
+      "evidence_consistent": 5,
+      "failed": 3,
+      "generator_expectation_match": 9,
+      "llm_calls": 45,
+      "macro_unsupported_fraction": 1.0,
+      "missing_analysis_cases": 3,
+      "no_assessed_claim_cases": 3,
+      "refusal_tasks": 6,
+      "tokens": 39820,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 45,
+      "unsupported_rate": 1.0,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 0
+    },
+    "validated": {
+      "abstained": 0,
+      "assessed": 36,
+      "cases": 24,
+      "claims": 36,
+      "complete": 24,
+      "correct_refusals": 6,
+      "discovery_opportunities": 4,
+      "discovery_recovered": 0,
+      "evidence_consistent": 24,
+      "failed": 0,
+      "generator_expectation_match": 23,
+      "llm_calls": 56,
+      "macro_unsupported_fraction": 0.2222222222222222,
+      "missing_analysis_cases": 0,
+      "no_assessed_claim_cases": 6,
+      "refusal_tasks": 6,
+      "tokens": 58746,
+      "unassessed": 0,
+      "unscored_cases": 0,
+      "unsupported": 8,
+      "unsupported_rate": 0.2222222222222222,
+      "usage_unknown_cases": 0,
+      "usd": 0.0,
+      "useful": 20
+    }
+  },
+  "evaluator": "s3-eval-v1.1",
+  "evidence_level": "descriptive_exploratory_synthetic",
+  "human_review": "pending; condition mapping remains local evaluator-only",
+  "limitations": [
+    "Scripted mock results are not real-model efficacy evidence.",
+    "Same families and parameters as development; fresh instances only.",
+    "Eight validated claims remain unsupported under the independent rubric.",
+    "All-claims-supported positive-answer coverage is 0/4 despite correct positive verdicts.",
+    "Methods use 18 independent graphs; 54 graph-seed pairs are dependent repeats.",
+    "Finite-swap mixing unverified; no causal or FDR-control claim.",
+    "Manual interruption can leave suite.json running; supplemental cancellation receipt retained.",
+    "Cooperative deadlines and network guard are not OS isolation; memory not OS-capped."
+  ],
+  "mode": "mock",
+  "paid_cost_usd": 0,
+  "preserved_failures": [
+    "runs/sprint3-v1: partial scoring, corrected after inspection",
+    "runs/sprint3-source-v1.1/runs/reproduction: interrupted missing-HTML packaging attempt; see interruption.json"
+  ],
+  "protocol": "s3-v1.2",
+  "reproduction": {
+    "case_conditions": 48,
+    "excluded_volatile_fields": [
+      "elapsed_s",
+      "optimizer_elapsed_s",
+      "run_dir",
+      "tokens"
+    ],
+    "method_graph_seeds": 54,
+    "note": "Same instances rerun; reproduction is not independent scientific evidence.",
+    "status": "matched"
+  },
+  "reproduction_elapsed_s": 284.99443319999773,
+  "reproduction_verification": {
+    "agent_runs": 48,
+    "integrity": "verified",
+    "method_arithmetic": "verified",
+    "method_runs": 54,
+    "recomputed_scores": 48,
+    "status": "completed"
+  },
+  "source": {
+    "backend_versions": {
+      "igraph": "0.11.9",
+      "leidenalg": "0.10.2",
+      "networkx": "3.6.1"
+    },
+    "environment": {
+      "blackgrid_version": "0.1.0",
+      "dependency_lock_sha256": "22546882a613cffcdf208b751a0cb843a774d159601f86b4d760e704d6e143a9",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.9",
+      "source_commit": "f0141ed12d29a594060c55601c6d600e8724a18a",
+      "source_dirty": true
+    },
+    "freeze_sha256": "358e9d49113f1aa2b30bebdb74bbf796c6885dade5a6bbdbb0dc8589732ba955",
+    "snapshot_manifest_sha256": "763ad848e69029c18df939a423af7414e429aa07ea1db4cf78976ca2459711a9",
+    "source_hashes": {
+      "protocols/sprint03_evaluation.md": "6abec12f9523c986f716016d1cd1d8eeb119ab3cb21cbca088d2afa9a18fc987",
+      "pyproject.toml": "3d2c3476fa1deca34cfc1a401f9be53bbc6e08f8fe61e1bc235c6979e5b28c55",
+      "src/blackgrid/__init__.py": "aee9fd0275a1a82adcf44014e5204c5c0c0da7ab5f305b0d296df74dd0614ece",
+      "src/blackgrid/__main__.py": "68ffb73a3bd90b6f56dac8cf8c229664ad08186227ab91b00a92dd9a5dfb3b82",
+      "src/blackgrid/agent.py": "f0479c78b3cb00c1a10b83b87db6dcd7029e22b7ce4baebd9e9b143689cdbc1a",
+      "src/blackgrid/benchmark.py": "ecb3527e491249488e1a2e6bd9be2e420d2a227d3b259a5881745f40dada5c2b",
+      "src/blackgrid/budget.py": "bb21ca280d16e577a5fbe8a0a293d79fd12b9b6e6c3d584e5ac700886c0de742",
+      "src/blackgrid/cli.py": "b1e86cc31ab9c7ff0b670e428fa2e2821023f344979db8319a3553c670c31169",
+      "src/blackgrid/collegemsg.py": "ecf536ae7db5851663ea842d0bb111e71849855ec87113b9ecdf2f72a30996d5",
+      "src/blackgrid/console/__init__.py": "61ac00ae80bda4f0b51dca26b92ca40464189321ffda6ee76968cadf19b5f9a6",
+      "src/blackgrid/console/data.py": "9a7b3f68f559629a532737d159714965ef0fae3cb0b4b4845b206699a2fda15d",
+      "src/blackgrid/console/render.py": "3323c12982bc155aaafccbdb232f6e890dd9307c71ad1d3e5ba60d4b2c7cdc89",
+      "src/blackgrid/console/server.py": "963d090167ece03f2ae52290f805197e723cc8b7f25aacef9abd276b99dfdfaf",
+      "src/blackgrid/contracts.py": "3a046c4b60b2137e487427160047ac503c02eceadd288ff3cd1b37d3d083380b",
+      "src/blackgrid/critic.py": "52ebfc3ed4abea5b993c8cb1669f2c4773737126a4b0651a1be80fff9421a68b",
+      "src/blackgrid/evaluation.py": "c96c8649392c685c34b6c0557c1c8be3b30e0cfad520286d13c26c8908483632",
+      "src/blackgrid/experiment.py": "b4e0cb7e68689baec696d304841e4fe6bad0a026373793382aa76a1e7b8a6f50",
+      "src/blackgrid/ingestion.py": "d32c84187df64c3eddc330f91037ce8b95fcd95486d9d20b07ff0938c5f16292",
+      "src/blackgrid/methods.py": "e084dcf7ad00cf51cf356586f439da0feaac4b5f9a7b668f30bdc2a7739572c9",
+      "src/blackgrid/parity.py": "6297aa0e81959a4a54919afd57020c24e9ee8fd38cbbe69b3cf8edee898fe2f1",
+      "src/blackgrid/pilot.py": "6efac370d7f8ed21cacb9bafdd3180060603a5cc77e43663ddc259546e043c8f",
+      "src/blackgrid/providers.py": "00aca2674139af9688a312492a7a73d7d883845f11ca463f35c7b772c378f9d6",
+      "src/blackgrid/report.py": "2fd3173a7e635c99c1a68ad6c2ac90285c84202231d55f28e9e83c44ddbe067a",
+      "src/blackgrid/runner.py": "41a8d70216161dbc7dc9bf3de1745d6929aac7efff34921e4b8ff02bc27b2d7a",
+      "src/blackgrid/sensitivity.py": "7336c077f84c1a07ce946105212907422eb5d7829b3fef2fe3192b17105e2db1",
+      "src/blackgrid/sprint3.py": "0b330602db5e4341c4e28d5fa73c6803f02ef6c32341ac1018fa0c3aec2a7b1a",
+      "src/blackgrid/synthetic.py": "e836df1992040804695752c49a710527724826231369cd1305cc3a79927254e9",
+      "src/blackgrid/tools.py": "9dd5ab41581a6cadca58ac2816fb52dc3eccbf9fe7a610e1e89bf3ee0c38d489",
+      "src/blackgrid/ui.py": "4c20c2132da6c8dc260c20de604478d44a1a768bd87380091c9adab8576a20b2",
+      "src/blackgrid/validation.py": "6b35bd635fd2a9428a834f35b401f17fba537a4f381aa37740a5ec0e83b9b401",
+      "src/blackgrid/workflow/__init__.py": "ebe88eeb28e156bfdaeeef4823f4bc914aefa10c1df68ea5e26a90e181906ff2",
+      "src/blackgrid/workflow/api.py": "719c1735530a49cb739a06a1e7a2728cb0714394e51a63c7aea4e89a0e5593c8",
+      "src/blackgrid/workflow/engine.py": "c4dad5d620477cb7c8b7e4712e4f4d996fd7b53a8f76d6ba87e241ae45a47593",
+      "src/blackgrid/workflow/store.py": "d54b1b19e3660810a7f685a2a8bc36bff2145115f338e9b1863ac51d8fdc5120",
+      "uv.lock": "22546882a613cffcdf208b751a0cb843a774d159601f86b4d760e704d6e143a9"
+    }
+  },
+  "suite": "s3-suite-v1.1",
+  "verification": {
+    "agent_runs": 48,
+    "integrity": "verified",
+    "method_arithmetic": "verified",
+    "method_runs": 54,
+    "recomputed_scores": 48,
+    "status": "completed"
+  }
+}

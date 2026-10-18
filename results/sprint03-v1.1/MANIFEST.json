@@ -1,0 +1,8 @@
+{
+  "artifacts": {
+    "blinded_claims.csv": "9bc8d48f39d4bb10021e1e1e275d09aaf33107bffbad61f5c5c8a1080f7fb9ad",
+    "method_summary.json": "c4608234b59a7a81118bfd071443d32f6022b3263410190b97cced4585ea1626",
+    "summary.json": "c0e1f1bd5157684c4e2cbb0c4bcfef8841d62f0dd8e96f9137260f09020f7f88"
+  },
+  "note": "Reviewed synthetic summaries and blinded claims only. No raw CollegeMsg data or evaluator mapping included."
+}

@@ -1,0 +1,671 @@
+{
+  "expected_graph_seeds": 54,
+  "finished_graph_seeds": 54,
+  "limitations": [
+    "Exploratory optimization comparison, no scientific discovery ground truth.",
+    "Finite-swap null sampling is not proven mixed or exact.",
+    "Equal restarts are not equal compute; implementations differ.",
+    "Runtime is one machine, serial execution, no benchmark warmup.",
+    "No default switch or confirmatory multiple-method significance claim."
+  ],
+  "methods": {
+    "leiden": {
+      "completed_primary": 54,
+      "disconnected_observed_communities": 0,
+      "optimizer_elapsed_s": 17.02839710013359,
+      "stability": [
+        {
+          "case": "val-001",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-002",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-003",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-004",
+          "mean_vi_nats": 0.21907163021647533,
+          "q_range": 0.0011160022320044205,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-005",
+          "mean_vi_nats": 0.9566586331306796,
+          "q_range": 0.007023319615912238,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-006",
+          "mean_vi_nats": 0.8674005915804196,
+          "q_range": 0.0020621159835030878,
+          "verdicts": [
+            "supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-007",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-008",
+          "mean_vi_nats": 0.6010709565599255,
+          "q_range": 0.013333333333333364,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-009",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-010",
+          "mean_vi_nats": 0.3643732370427089,
+          "q_range": 0.0029220542041054065,
+          "verdicts": [
+            "not_supported",
+            "supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-011",
+          "mean_vi_nats": 1.1143766123098053,
+          "q_range": 0.004309106578569422,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-012",
+          "mean_vi_nats": 0.9886033697894838,
+          "q_range": 0.004503093429399252,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-013",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-014",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-015",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-016",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-017",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-018",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        }
+      ],
+      "verdict_counts": {
+        "abstain": 0,
+        "inconclusive": 18,
+        "not_supported": 25,
+        "supported": 11
+      }
+    },
+    "louvain": {
+      "completed_primary": 54,
+      "disconnected_observed_communities": 0,
+      "optimizer_elapsed_s": 38.92444550012442,
+      "stability": [
+        {
+          "case": "val-001",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-002",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-003",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-004",
+          "mean_vi_nats": 0.5830868252885999,
+          "q_range": 0.007936015872031799,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-005",
+          "mean_vi_nats": 1.2869766736216675,
+          "q_range": 0.00266117969821672,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-006",
+          "mean_vi_nats": 0.4353452509764056,
+          "q_range": 0.00606009595151924,
+          "verdicts": [
+            "not_supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "case": "val-007",
+          "mean_vi_nats": 0.6337713771269157,
+          "q_range": 0.015138888888888868,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-008",
+          "mean_vi_nats": 0.3633100585230471,
+          "q_range": 0.010972222222222217,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-009",
+          "mean_vi_nats": 0.5042857544506401,
+          "q_range": 0.018472222222222168,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-010",
+          "mean_vi_nats": 0.5323391365851786,
+          "q_range": 0.003981298853093729,
+          "verdicts": [
+            "not_supported",
+            "supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-011",
+          "mean_vi_nats": 1.3370676090305214,
+          "q_range": 0.010090491238149923,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-012",
+          "mean_vi_nats": 1.185634132424578,
+          "q_range": 0.0073224214895449835,
+          "verdicts": [
+            "not_supported",
+            "not_supported",
+            "not_supported"
+          ]
+        },
+        {
+          "case": "val-013",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-014",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-015",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-016",
+          "mean_vi_nats": 0.1335622909023592,
+          "q_range": 0.0021701388888889506,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-017",
+          "mean_vi_nats": 0.0,
+          "q_range": 0.0,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        },
+        {
+          "case": "val-018",
+          "mean_vi_nats": 0.12387069958259289,
+          "q_range": 0.0022675736961450532,
+          "verdicts": [
+            "inconclusive",
+            "inconclusive",
+            "inconclusive"
+          ]
+        }
+      ],
+      "verdict_counts": {
+        "abstain": 0,
+        "inconclusive": 18,
+        "not_supported": 24,
+        "supported": 12
+      }
+    }
+  },
+  "paired_observed_q_leiden_minus_louvain": [
+    {
+      "case": "val-001",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-001",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-001",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-002",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-002",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-002",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-003",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-003",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-003",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-004",
+      "delta": 0.00012400024800041098,
+      "seed": 31
+    },
+    {
+      "case": "val-004",
+      "delta": 0.00806001612003221,
+      "seed": 47
+    },
+    {
+      "case": "val-004",
+      "delta": 0.0038440076880153495,
+      "seed": 83
+    },
+    {
+      "case": "val-005",
+      "delta": 0.010562414266117981,
+      "seed": 31
+    },
+    {
+      "case": "val-005",
+      "delta": 0.0012071330589848994,
+      "seed": 47
+    },
+    {
+      "case": "val-005",
+      "delta": 0.0013717421124828655,
+      "seed": 83
+    },
+    {
+      "case": "val-006",
+      "delta": 0.00606009595151924,
+      "seed": 31
+    },
+    {
+      "case": "val-006",
+      "delta": -0.0005891759952866282,
+      "seed": 47
+    },
+    {
+      "case": "val-006",
+      "delta": -0.0020621159835030878,
+      "seed": 83
+    },
+    {
+      "case": "val-007",
+      "delta": 0.006944444444444475,
+      "seed": 31
+    },
+    {
+      "case": "val-007",
+      "delta": 0.022083333333333344,
+      "seed": 47
+    },
+    {
+      "case": "val-007",
+      "delta": 0.006944444444444475,
+      "seed": 83
+    },
+    {
+      "case": "val-008",
+      "delta": 0.013055555555555542,
+      "seed": 31
+    },
+    {
+      "case": "val-008",
+      "delta": 0.0020833333333333814,
+      "seed": 47
+    },
+    {
+      "case": "val-008",
+      "delta": -0.011249999999999927,
+      "seed": 83
+    },
+    {
+      "case": "val-009",
+      "delta": 0.019999999999999962,
+      "seed": 31
+    },
+    {
+      "case": "val-009",
+      "delta": 0.021805555555555522,
+      "seed": 47
+    },
+    {
+      "case": "val-009",
+      "delta": 0.003333333333333355,
+      "seed": 83
+    },
+    {
+      "case": "val-010",
+      "delta": 0.0039447731755424265,
+      "seed": 31
+    },
+    {
+      "case": "val-010",
+      "delta": 0.004711812404120108,
+      "seed": 47
+    },
+    {
+      "case": "val-010",
+      "delta": -0.0013149243918474385,
+      "seed": 83
+    },
+    {
+      "case": "val-011",
+      "delta": 0.014076414823326666,
+      "seed": 31
+    },
+    {
+      "case": "val-011",
+      "delta": 0.005637747773628354,
+      "seed": 47
+    },
+    {
+      "case": "val-011",
+      "delta": -0.00032318299339267886,
+      "seed": 83
+    },
+    {
+      "case": "val-012",
+      "delta": 0.007126634818701516,
+      "seed": 31
+    },
+    {
+      "case": "val-012",
+      "delta": 0.00509045344192971,
+      "seed": 47
+    },
+    {
+      "case": "val-012",
+      "delta": 0.010572480225546244,
+      "seed": 83
+    },
+    {
+      "case": "val-013",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-013",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-013",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-014",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-014",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-014",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-015",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-015",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-015",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-016",
+      "delta": 0.0021701388888889506,
+      "seed": 31
+    },
+    {
+      "case": "val-016",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-016",
+      "delta": 0.0021701388888889506,
+      "seed": 83
+    },
+    {
+      "case": "val-017",
+      "delta": 0.0,
+      "seed": 31
+    },
+    {
+      "case": "val-017",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-017",
+      "delta": 0.0,
+      "seed": 83
+    },
+    {
+      "case": "val-018",
+      "delta": 0.0022675736961450532,
+      "seed": 31
+    },
+    {
+      "case": "val-018",
+      "delta": 0.0,
+      "seed": 47
+    },
+    {
+      "case": "val-018",
+      "delta": 0.0022675736961450532,
+      "seed": 83
+    }
+  ]
+}

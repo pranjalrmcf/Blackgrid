@@ -1,0 +1,56 @@
+{
+  "protocol_version": "sprint01-v0.1",
+  "mode": "mock",
+  "paid_execution_authorized": false,
+  "network_allowed": false,
+  "dataset": {
+    "dataset_id": "snap-collegemsg",
+    "path": "data/CollegeMsg.txt/CollegeMsg.txt",
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "source_url": "https://snap.stanford.edu/data/CollegeMsg.html",
+    "citations": [
+      "Panzarasa, P., Opsahl, T., Carley, K. M. (2009). Patterns and dynamics of users' behavior and interaction: Network analysis of an online community. JASIST 60(5), 911-932.",
+      "Opsahl, T., Panzarasa, P. (2009). Clustering in weighted networks. Social Networks 31(2), 155-163."
+    ],
+    "rights_status": "accepted_local_noncommercial",
+    "rights_decision": "D-003",
+    "redistribution_allowed": false
+  },
+  "experiment": {
+    "experiment_id": "collegemsg-full-exp-v2",
+    "graph_id": "collegemsg-full",
+    "status": "exploratory",
+    "hypothesis": "The best Louvain modularity of the projected full CollegeMsg network exceeds that found by the same optimizer in degree-preserving randomizations.",
+    "competing_explanations": [
+      "Degree heterogeneity alone (absorbed by the degree-preserving null).",
+      "Disconnection into separate components (secondary largest-component analysis).",
+      "Sparsity and random fluctuation (absorbed by the null comparison).",
+      "Observation and windowing artefacts (Day 6 sensitivity; stated limitations)."
+    ],
+    "task": "community_structure_vs_null",
+    "method": "louvain",
+    "statistic": "modularity",
+    "null_model": "degree_preserving_double_edge_swap",
+    "null_replicates": 99,
+    "swaps_per_edge": 10.0,
+    "swap_attempt_factor": 100,
+    "optimizer_restarts": 5,
+    "resolution": 1.0,
+    "alpha": 0.05,
+    "seed": 20261018,
+    "sensitivity": {
+      "mechanism": "uniform",
+      "removal_fraction": 0.1,
+      "replicates": 5
+    },
+    "limits": {
+      "tool_timeout_s": 1200,
+      "max_nodes": 5000,
+      "max_edges": 50000
+    }
+  },
+  "scope": "full_dataset",
+  "question": "Across the whole CollegeMsg recording period, is the observed community structure stronger than expected under a degree-preserving null, and how sensitive is that to missing edges?",
+  "sensitivity_null_replicates": 19,
+  "deadline_s": 3600
+}

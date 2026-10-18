@@ -175,6 +175,7 @@ class Runtime:
     provider_factory: Callable[[], Provider]
     loader: Callable[[dict], InvestigationInput]
     cache_dir: Path | None = None
+    sensitivity_null_replicates: int | None = None  # None: exp-v1.1 default
     owner: str = ""
     faults: set[str] = field(default_factory=set)
     deadline_s: float = 900.0
@@ -485,6 +486,8 @@ def tool_context(rt: Runtime, state: WFState) -> ToolContext:
     """Rebuild tool outputs from verified artifacts of succeeded tool operations."""
     inp = rt.inputs(state)
     ctx = ToolContext(graph=inp.graph, record=inp.record, spec=inp.spec, cache_dir=rt.cache_dir)
+    if rt.sensitivity_null_replicates is not None:
+        ctx.sensitivity_null_replicates = rt.sensitivity_null_replicates
     for op in rt.store.operations(rt.run_id, kind="tool"):
         ctx.calls += [ToolCallRecord.model_validate(r) for r in op.records or []]
         if op.state != "succeeded":

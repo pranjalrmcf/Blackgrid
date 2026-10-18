@@ -207,10 +207,11 @@ function renderIndex(data){
 }
 
 function actionsPanel(){
+  const scope = h("select", {}, h("option", {value: "first_window"}, "first week (preregistered, ~2 min)"), h("option", {value: "full_dataset"}, "full dataset (exploratory, ~12 min)"));
   const cond = h("select", {}, h("option", {value: "validated"}, "validated (critic on)"), h("option", {value: "tool_only"}, "tool_only (critic off)"));
-  const start = h("button", {cls: "btn", on: {click: () => act({action: "start", condition: cond.value})}}, "Start mock run");
+  const start = h("button", {cls: "btn", on: {click: () => act({action: "start", scope: scope.value, condition: cond.value})}}, "Start mock run");
   const pilot = h("button", {cls: "btn", on: {click: () => act({action: "pilot"})}}, "Run mock pilot");
-  return panel("Actions", "", h("div", {cls: "row"}, h("span", {cls: "muted"}, "CollegeMsg investigation:"), cond, start, pilot),
+  return panel("Actions", "", h("div", {cls: "row"}, h("span", {cls: "muted"}, "CollegeMsg investigation:"), scope, cond, start, pilot),
     h("p", {cls: "small muted"}, "Mock mode only: the browser can never start or authorize paid calls. Live runs are started and approved from the command line (", h("code", {}, "--allow-paid"), ")."));
 }
 

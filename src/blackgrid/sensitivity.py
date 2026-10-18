@@ -65,13 +65,14 @@ def remove_edges(graph: nx.Graph, fraction: float, rng: random.Random) -> tuple[
     return reduced, removed
 
 
-def sensitivity_spec(spec: ExperimentSpec) -> ExperimentSpec:
-    return spec.model_copy(update={"null_replicates": R_SENS, "experiment_id": f"{spec.experiment_id}:sensitivity"})
+def sensitivity_spec(spec: ExperimentSpec, r_sens: int = R_SENS) -> ExperimentSpec:
+    return spec.model_copy(update={"null_replicates": r_sens, "experiment_id": f"{spec.experiment_id}:sensitivity"})
 
 
-def run_replicate(graph: nx.Graph, spec: ExperimentSpec, index: int) -> tuple[CommunityTestReport, ReplicateSummary]:
+def run_replicate(graph: nx.Graph, spec: ExperimentSpec, index: int, r_sens: int = R_SENS
+                  ) -> tuple[CommunityTestReport, ReplicateSummary]:
     """One reduced-graph experiment: a single bounded tool call under the spec's timeout."""
-    sens = sensitivity_spec(spec)
+    sens = sensitivity_spec(spec, r_sens)
     rng = random.Random(derive_seed(spec.seed, "sensitivity", index))
     reduced, removed = remove_edges(graph, spec.sensitivity.removal_fraction, rng)
     report = run_community_test(reduced, sens, spec_sha256=canonical_sha256(sens), unknown_pairs=len(removed))
@@ -104,7 +105,8 @@ def run_sensitivity(graph: nx.Graph, spec: ExperimentSpec, main_raw_verdict: str
     return summarise(spec, main_raw_verdict, runs)
 
 
-def summarise(spec: ExperimentSpec, main_raw_verdict: str, runs: list[ReplicateSummary]) -> SensitivitySummary:
+def summarise(spec: ExperimentSpec, main_raw_verdict: str, runs: list[ReplicateSummary], r_sens: int = R_SENS
+              ) -> SensitivitySummary:
     def stats(values: list[float]) -> tuple[float | None, float | None, float | None]:
         return (min(values), statistics.median(values), max(values)) if values else (None, None, None)
 
@@ -115,7 +117,7 @@ def summarise(spec: ExperimentSpec, main_raw_verdict: str, runs: list[ReplicateS
         mechanism=spec.sensitivity.mechanism,
         removal_fraction=spec.sensitivity.removal_fraction,
         replicates=len(runs),
-        null_replicates_per_run=R_SENS,
+        null_replicates_per_run=r_sens,
         main_raw_verdict=main_raw_verdict,
         agreement=agree,
         agreement_fraction=agree / len(runs) if runs else 0.0,

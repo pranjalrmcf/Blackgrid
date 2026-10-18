@@ -10,6 +10,7 @@ data/*
 # Run artifacts may contain derived data from raw records; publish only reviewed aggregates.
 # Workflow checkpoints, operation receipts, and spend records are sensitive local artifacts.
 runs/
+ingestion-backup-*/
 *.sqlite
 *.sqlite-journal
 *.sqlite-wal

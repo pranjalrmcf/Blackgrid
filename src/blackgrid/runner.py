@@ -115,10 +115,10 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
     """Rebuild the scientific input from its approved local source (never from the checkpoint)."""
     kind = input_ref.get("kind")
     if kind == "collegemsg":
-        from blackgrid.collegemsg import BoundedGraph, build_bounded_graph
+        from blackgrid.collegemsg import BoundedGraph, build_graph
 
         config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
-        built = build_bounded_graph(Path(input_ref["data_root"]), config.dataset, config.window)
+        built = build_graph(Path(input_ref["data_root"]), config)  # first window or full dataset
         if not isinstance(built, BoundedGraph):
             raise ValueError("the window rule no longer selects a graph")
         return InvestigationInput(case_id=built.record.graph_id, question=config.question,
@@ -132,13 +132,20 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
         public, graph, record = case.planner_view()  # never the answer key
         return InvestigationInput(case_id=public.case_id, question=public.question, request=public.request,
                                   graph=graph, record=record, spec=dev_spec(case))
+    if kind == "validation":
+        from blackgrid.validation import validation_input, validation_spec
+
+        case = validation_input(input_ref["case_id"])
+        return InvestigationInput(case_id=case.public.case_id, question=case.public.question,
+                                  request=case.public.request, graph=case.graph, record=case.record,
+                                  spec=validation_spec(case.public.case_id))
     raise ValueError(f"run input {kind!r} cannot be reloaded")
 
 
 # --- finalization: report, manifest, UI (idempotent) ------------------------------------------------
 
 
-KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json",
+KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json", "full_scope.json",
                    "graph_profile.json", "experiment_report.json", "sensitivity.json", "investigation.json",
                    "budget.json", "llm_trace.jsonl", "report.json", "report.md")
 
@@ -211,7 +218,8 @@ def run_spec(config: RunConfig, run_dir: Path, *, provider_factory, model: str, 
     return RunSpec(limits=config.budget, mode=config.mode, condition=config.condition,
                    max_tokens=config.llm.max_tokens_per_call, model=model, config_sha256=canonical_sha256(config),
                    provider_factory=provider_factory, loader=lambda ref: load_input(ref, run_dir),
-                   cache_dir=cache_dir, on_finalize=finalizer(config, reproduce), on_render=renderer)
+                   cache_dir=cache_dir, on_finalize=finalizer(config, reproduce), on_render=renderer,
+                   sensitivity_null_replicates=config.sensitivity_null_replicates, deadline_s=config.deadline_s)
 
 
 def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Provider | None, runs_dir: Path, *,

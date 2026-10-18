@@ -37,7 +37,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from blackgrid.agent import InvestigationInput
-from blackgrid.collegemsg import BoundedGraph, DataIntegrityError, build_bounded_graph
+from blackgrid.collegemsg import BoundedGraph, DataIntegrityError, build_graph
 from blackgrid.contracts import (
     CostRecord,
     Outcome,
@@ -136,7 +136,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
     clock = time.perf_counter()
     try:
-        built = build_bounded_graph(args.data_root, config.dataset, config.window)
+        built = build_graph(args.data_root, config)  # frozen first window, or the full dataset
     except (DataIntegrityError, ValidationError) as exc:
         call = ToolCallRecord(tool="collegemsg.build_bounded_graph", args_sha256=canonical_sha256(config.window),
                               outcome=Outcome.FAILED, elapsed_s=round(time.perf_counter() - clock, 6),
@@ -155,14 +155,19 @@ def _cmd_run(args: argparse.Namespace) -> int:
     inp = InvestigationInput(case_id=built.record.graph_id, question=config.question, request={"method": "auto"},
                              graph=built.graph, record=built.record, spec=config.experiment)
     reproduce = f"uv run --frozen blackgrid run {args.config.as_posix()} --mode {config.mode.value}"
-    print(f"running {config.condition} investigation in {config.mode.value} mode "
-          "(experiment + 20 sensitivity replicates; first run takes about 2 minutes)...", file=sys.stderr)
+    scope = ("FULL DATASET (exp-v2-full, exploratory): "
+             f"{built.record.window_events:,} events, {built.record.active_nodes:,} people, "
+             f"{built.record.unique_edges:,} connections; first run takes about 12 minutes"
+             if config.scope == "full_dataset" else
+             "first-week window (preregistered exp-v1.1); first run takes about 2 minutes")
+    print(f"running {config.condition} investigation in {config.mode.value} mode on the {scope}...",
+          file=sys.stderr)
     try:
         out = run_investigation(
             inp, config, provider, args.runs_dir, cache_dir=None if args.no_cache else args.cache_dir,
             input_ref={"kind": "collegemsg", "data_root": str(args.data_root.resolve())}, reproduce=reproduce,
             extra_artifacts={"input_profile.json": built.table.summary(),
-                             "window_selection.json": built.selection.summary()},
+                             built.scope_artifact: built.scope_summary()},
             allow_paid=args.allow_paid, replay_from=args.replay_from, env_file=args.env_file, parent_run=args.parent)
     except RunLocked as exc:
         print(f"not started: {exc}", file=sys.stderr)
@@ -324,9 +329,68 @@ def _cmd_ui(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _cmd_ingest(args: argparse.Namespace) -> int:
+    from blackgrid.ingestion import ingest_full, write_ingestion
+
+    try:
+        config = load_config(args.config)
+        if args.output.exists():
+            raise ValueError("output already exists; choose a fresh directory")
+        report = ingest_full(args.data_root, config.dataset)
+        write_ingestion(report, args.output)
+    except (OSError, ValidationError, ValueError, DataIntegrityError) as exc:
+        print(f"ingestion failed: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    counts = report["validation"]
+    print(f"full CollegeMsg: {counts['valid_events']} events, "
+          f"{counts['active_nodes']} nodes, {counts['unique_undirected_pairs']} undirected pairs")
+    print(args.output.resolve())
+    return EXIT_OK
+
+
+def _cmd_sprint3(args: argparse.Namespace) -> int:
+    from blackgrid.sprint3 import run_suite
+
+    if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+        print("Sprint 3 output must be under runs/ to protect evaluator-private artifacts", file=sys.stderr)
+        return EXIT_INVALID
+    try:
+        folder = run_suite(args.output)
+        status = json.loads((folder / "suite.json").read_text(encoding="utf-8"))["status"]
+    except (OSError, ValueError) as exc:
+        print(f"Sprint 3 failed: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    print(f"Sprint 3 {status}: {folder}")
+    return EXIT_OK if status == "completed" else EXIT_RUN_FAILED
+
+
+def _cmd_sprint3_verify(args: argparse.Namespace) -> int:
+    from blackgrid.sprint3 import verify_suite
+
+    try:
+        print(json.dumps(verify_suite(args.output), sort_keys=True))
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"Sprint 3 verification failed: {exc}", file=sys.stderr)
+        return EXIT_INVALID
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
+
+    sprint3 = sub.add_parser("sprint3", help="run the frozen offline validation and method comparison")
+    sprint3.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    sprint3.set_defaults(func=_cmd_sprint3)
+    verify3 = sub.add_parser("sprint3-verify", help="verify saved Sprint 3 artifacts and independent scores")
+    verify3.add_argument("output", type=Path)
+    verify3.set_defaults(func=_cmd_sprint3_verify)
+
+    ingest = sub.add_parser("ingest", help="validate and describe full CollegeMsg without running inference")
+    ingest.add_argument("config", type=Path)
+    ingest.add_argument("--data-root", type=Path, default=REPO_ROOT)
+    ingest.add_argument("--output", type=Path, required=True, help="new directory for aggregate reports")
+    ingest.set_defaults(func=_cmd_ingest)
 
     validate = sub.add_parser("validate", help="validate a run configuration")
     validate.add_argument("config", type=Path)

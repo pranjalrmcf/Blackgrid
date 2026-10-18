@@ -246,7 +246,54 @@ class BoundedGraph:
     record: GraphRecord
     graph: nx.Graph
     table: EventTable
-    selection: WindowSelection
+    selection: WindowSelection | None  # None for the full-dataset scope (no window is selected)
+
+    def scope_summary(self) -> dict:
+        """What part of the data the graph covers (window_selection.json or full_scope.json)."""
+        if self.selection is not None:
+            return self.selection.summary()
+        r = self.record
+        return {"scope": "full_dataset", "rule": "every valid event; no window", "start_ts": r.window_start_ts,
+                "end_ts_exclusive": r.window_end_ts, "events": r.window_events, "active_nodes": r.active_nodes,
+                "unique_edges": r.unique_edges}
+
+    @property
+    def scope_artifact(self) -> str:
+        return "window_selection.json" if self.selection is not None else "full_scope.json"
+
+
+def build_full_graph(root: Path, source: DatasetSource, *, graph_id: str = "collegemsg-full") -> BoundedGraph:
+    """exp-v2-full: project every valid event (same loader and projection as the window path)."""
+    table = load_events(root / source.path, source.sha256)
+    if not table.events:
+        raise DataIntegrityError("no valid events to analyse")
+    counts = event_counts(table.events)
+    graph = project(table.events)
+    record = GraphRecord(
+        graph_id=graph_id,
+        origin=DataOrigin.REAL_PUBLIC,
+        source=source,
+        scope="full_dataset",
+        window_start_ts=counts["min_timestamp"],
+        window_end_ts=counts["max_timestamp"] + 1,
+        window_candidate_index=None,
+        raw_events=len(table.events),
+        window_events=len(table.events),
+        self_loop_events_excluded=counts["self_loop_events"],
+        exact_duplicate_rows_flagged=counts["exact_duplicate_rows"],
+        active_nodes=graph.number_of_nodes(),
+        unique_edges=graph.number_of_edges(),
+        edge_status_counts={EdgeStatus.OBSERVED: graph.number_of_edges()},
+        projection_sha256=graph_sha256(graph),
+    )
+    return BoundedGraph(record=record, graph=graph, table=table, selection=None)
+
+
+def build_graph(root: Path, config) -> BoundedGraph | WindowSelection:
+    """The graph a run config asks for: the frozen first window (default) or the full dataset."""
+    if getattr(config, "scope", "first_window") == "full_dataset":
+        return build_full_graph(root, config.dataset)
+    return build_bounded_graph(root, config.dataset, config.window)
 
 
 def build_bounded_graph(

@@ -2,7 +2,7 @@
 
 Bounded, evidence-grounded network-science investigations. Sprint 1 delivers one offline, reproducible vertical slice. It runs a preregistered community-vs-null experiment on a bounded CollegeMsg window, plus synthetic known-truth checks. The work is driven by a constrained planner/analyst, an allowlisted tool executor, and a rule-based critic. It produces an evidence-linked report or abstains.
 
-Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, and `AGENTS.md`.
+Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`, and `AGENTS.md`.
 
 - Study rules: `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`.
 - Workflow contract: `protocols/sprint02_workflow.md`.
@@ -11,6 +11,15 @@ Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, and `AGENTS.md`
 - Sprint outcomes: `docs/sprint01_report.md` and `docs/sprint02_report.md`.
 
 ## Status
+
+**Sprint 3's offline scope is implemented and evaluated.** It adds 24 fresh
+synthetic validation cases, paired mock evaluation with independent artifact scoring,
+an actual CPU Louvain–Leiden comparison, and blinded claims for human review.
+The critic still lets unsupported claims through. Read the
+[measured results and limitations](docs/sprint03_report.md) or
+[plain-English guide](docs/sprint03_guide.md). Full CollegeMsg ingestion is also
+applied; see [usage and scope](docs/FULL_DATA_INGESTION.md). Historical experiments
+and the Louvain default are unchanged. Human review and real-model efficacy remain pending.
 
 **Sprint 2 is implemented.** Investigations now run as a resumable LangGraph workflow with durable operations, persisted budgets, authorization pauses, cancellation, and crash recovery, plus an interactive console. 187 tests pass, including fixes from a third external review (D-048). The frozen science is identical to Sprint 1's reference, recomputed in a clean offline environment.
 
@@ -66,6 +75,28 @@ To compare with the unvalidated condition (no plan validator, no critic):
 ```bash
 uv run --frozen blackgrid run configs/collegemsg_sprint01.json --condition tool_only
 ```
+
+### Use the whole dataset (exp-v2-full, exploratory)
+
+The command above analyses the preregistered **first week** (196 messages, 104 people). To analyse **every message** in CollegeMsg (59,835 messages, 1,899 people, 13,838 connections):
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_full.json
+```
+
+For a live, paid run:
+
+```bash
+uv run --frozen blackgrid run configs/collegemsg_full_live.json --allow-paid
+```
+
+The full-dataset run:
+
+- **Takes about 12 minutes** the first time, and seconds when cached.
+- **Is a separate, exploratory experiment** (`protocols/full_dataset_experiment.md`). It uses the same method and safeguards, with fewer nulls for runtime: 99 nulls, and a missing-data check of 5 replicates × 19 nulls.
+- **Never changes or replaces the first-week result.**
+
+`blackgrid ingest` (`docs/FULL_DATA_INGESTION.md`) only *describes* the full file. `collegemsg_full.json` runs the community test on it. The console's "Start mock run" button can run either scope.
 
 ## 4. Run the mock pilot (8 synthetic cases × 2 conditions)
 

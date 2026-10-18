@@ -96,6 +96,7 @@ class RunSpec:
     provider_factory: Callable[[], Provider]
     loader: Callable[[dict], InvestigationInput]
     cache_dir: Path | None = None
+    sensitivity_null_replicates: int | None = None
     on_finalize: Callable | None = None
     on_render: Callable | None = None
     deadline_s: float = 900.0
@@ -105,7 +106,8 @@ def _runtime(services: Services, run_id: str, run_dir: Path, spec: RunSpec, owne
              faults: set[str] | None) -> Runtime:
     return Runtime(store=services.store, run_id=run_id, run_dir=run_dir, mode=spec.mode, condition=spec.condition,
                    limits=spec.limits, max_tokens=spec.max_tokens, provider_factory=spec.provider_factory,
-                   loader=spec.loader, cache_dir=spec.cache_dir, owner=owner, faults=set(faults or ()),
+                   loader=spec.loader, cache_dir=spec.cache_dir,
+                   sensitivity_null_replicates=spec.sensitivity_null_replicates, owner=owner, faults=set(faults or ()),
                    deadline_s=spec.deadline_s, on_finalize=spec.on_finalize, on_render=spec.on_render)
 
 

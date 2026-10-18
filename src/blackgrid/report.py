@@ -54,8 +54,10 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
 
     status_items = [ReportItem(kind="text", text=f"Condition: {result.condition}. Run status: {result.status.value}.")]
     if result.verdict in ("supported", "not_supported", "inconclusive", "abstain") and E + "verdict" in ev:
+        label = ("Exploratory verdict (exp-v2-full rule, not preregistered)" if record.scope == "full_dataset"
+                 else "Preregistered verdict")
         status_items.append(ReportItem(kind="result", evidence=(E + "verdict",),
-                                       text=f"Preregistered verdict: {ev[E + 'verdict']} (evidence level: descriptive; "
+                                       text=f"{label}: {ev[E + 'verdict']} (evidence level: descriptive; "
                                             "applies to this graph only)."))
     elif result.condition == "tool_only":
         status_items.append(ReportItem(kind="text", text=f"Analyst-stated verdict (not validated): {result.verdict}."))
@@ -77,17 +79,24 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
     )))
 
     data_items = []
+    full = record.scope == "full_dataset"
     if record.origin is DataOrigin.REAL_PUBLIC:
         data_items += [
             ReportItem(kind="result", evidence=(G + "window_events", G + "raw_events"),
-                       text=f"Selected window holds {ev.get(G + 'window_events')} of {ev.get(G + 'raw_events')} "
-                            "valid message events."),
+                       text=(f"Full dataset: all {ev.get(G + 'window_events')} valid message events are used "
+                             "(no time window)." if full else
+                             f"Selected window holds {ev.get(G + 'window_events')} of {ev.get(G + 'raw_events')} "
+                             "valid message events.")),
             ReportItem(kind="result", evidence=(G + "active_nodes", G + "unique_edges", G + "self_loop_events_excluded"),
                        text=f"Projected undirected graph: {ev.get(G + 'active_nodes')} active users, "
                             f"{ev.get(G + 'unique_edges')} unique pairs; {ev.get(G + 'self_loop_events_excluded')} "
                             "self-loop events excluded."),
-            ReportItem(kind="text", text="Window chosen by the frozen size-only rule before any analysis; direction, "
-                                         "message counts, and timing are discarded by design."),
+            ReportItem(kind="text", text=(
+                "Exploratory full-dataset analysis (exp-v2-full), versioned separately from the preregistered "
+                "first-week experiment; the whole recording period is pooled into one static graph. Direction, "
+                "message counts, and timing are discarded by design." if full else
+                "Window chosen by the frozen size-only rule before any analysis; direction, "
+                "message counts, and timing are discarded by design.")),
         ]
     else:
         data_items.append(ReportItem(kind="text", text="Synthetic development case. Generator details are "
@@ -126,7 +135,8 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
                                                     "suitability rule (see run artifacts)."))
     else:
         results.append(ReportItem(kind="text", text="No experiment result was produced."))
-    sections.append(ReportSection(title="Experiment (exp-v1.1)", items=tuple(results)))
+    sections.append(ReportSection(title="Experiment (exp-v2-full, exploratory)" if full else "Experiment (exp-v1.1)",
+                                  items=tuple(results)))
 
     if S + "replicates" in ev:
         sections.append(ReportSection(title="Missing-edge sensitivity", items=(
@@ -165,7 +175,15 @@ def build_report(result: InvestigationResult, evidence: dict[str, object], recor
         "No claim here is causal, predictive, or about real social groups; modularity is a structural statistic.",
         "Pseudonymous identifiers only; no individual is profiled and no raw records leave this machine.",
     )]
-    if record.origin is DataOrigin.REAL_PUBLIC:
+    if record.origin is DataOrigin.REAL_PUBLIC and full:
+        limits += [ReportItem(kind="text", text=t) for t in (
+            "Exploratory, not confirmatory: the first-week result and full-file descriptive counts were seen before "
+            "this protocol was written.",
+            "Pooling the whole recording period into one static graph merges ties formed at different times; it "
+            "describes the aggregate network, not any moment in it.",
+            "The missing-edge sensitivity uses fewer replicates than the first-week experiment, for runtime.",
+            "Findings apply to the observed, projected messaging network only, not to unobserved users.")]
+    elif record.origin is DataOrigin.REAL_PUBLIC:
         limits.append(ReportItem(kind="text", text="Findings apply only to the observed, projected window, not to "
                                                    "the full dataset or to unobserved users."))
     sections.append(ReportSection(title="Flags and limitations", items=tuple(limits)))

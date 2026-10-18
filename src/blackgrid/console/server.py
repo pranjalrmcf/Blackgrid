@@ -40,8 +40,10 @@ HEADERS = {
 
 
 class Console:
-    def __init__(self, runs_dir: Path, cache_dir: Path, config: Path, data_root: Path, port: int) -> None:
+    def __init__(self, runs_dir: Path, cache_dir: Path, config: Path, data_root: Path, port: int,
+                 full_config: Path | None = None) -> None:
         self.runs_dir, self.cache_dir, self.config, self.data_root = runs_dir, cache_dir, config, data_root
+        self.full_config = full_config or config.parent / "collegemsg_full.json"
         self.port = port
         self.token = secrets.token_urlsafe(32)
         self.jobs: dict[str, dict] = {}
@@ -57,7 +59,11 @@ class Console:
             condition = body.get("condition", "validated")
             if condition not in ("validated", "tool_only"):
                 raise ValueError("condition must be validated or tool_only")
-            return ["run", str(self.config), "--mode", "mock", "--condition", condition,
+            scope = body.get("scope", "first_window")
+            if scope not in ("first_window", "full_dataset"):
+                raise ValueError("scope must be first_window or full_dataset")
+            config = self.full_config if scope == "full_dataset" else self.config
+            return ["run", str(config), "--mode", "mock", "--condition", condition,
                     "--data-root", str(self.data_root), *common]
         if action == "pilot":
             return ["pilot", *common]

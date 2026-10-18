@@ -193,7 +193,11 @@ def test_unlisted_method_and_tiny_null_rejected():
 
 def test_tool_timeout_cannot_exceed_cap():
     with pytest.raises(ValidationError):
-        spec(limits={"tool_timeout_s": 61})
+        spec(limits={"tool_timeout_s": 1_801})  # above even the full-dataset ceiling
+    data = config_dict()  # a first-window run keeps the Sprint 1 limit of 60 s per tool
+    data["experiment"]["limits"] = {"tool_timeout_s": 61}
+    with pytest.raises(ValidationError, match="first-window runs keep the Sprint 1 limits"):
+        RunConfig.model_validate(data)
 
 
 def result(**overrides) -> ExperimentResult:

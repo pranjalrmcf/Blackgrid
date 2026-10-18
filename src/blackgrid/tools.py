@@ -39,7 +39,7 @@ from blackgrid.contracts import (
     canonical_sha256,
 )
 from blackgrid.experiment import DeadlineExceeded, profile, run_community_test
-from blackgrid.sensitivity import run_replicate, summarise
+from blackgrid.sensitivity import R_SENS, run_replicate, summarise
 
 TOOL_VERSION = "tools-v1 exp-v1.1 report-v2"
 MAX_REQUEST_BYTES = 2_000
@@ -118,6 +118,7 @@ class ToolContext:
     record: GraphRecord
     spec: ExperimentSpec
     cache_dir: Path | None = None
+    sensitivity_null_replicates: int = R_SENS  # exp-v2-full may lower it (runtime)
     outputs: dict[str, dict] = field(default_factory=dict)  # artifact name -> JSON payload
     calls: list[ToolCallRecord] = field(default_factory=list)
 
@@ -223,10 +224,10 @@ def _run(name: str, ctx: ToolContext) -> dict:
         runs = []
         for i in range(ctx.spec.sensitivity.replicates):  # each replicate is its own bounded call
             start = time.perf_counter()
-            runs.append(run_replicate(ctx.graph, ctx.spec, i)[1])
+            runs.append(run_replicate(ctx.graph, ctx.spec, i, ctx.sensitivity_null_replicates)[1])
             ctx.calls.append(ToolCallRecord(tool=f"edge_removal_sensitivity[{i}]", args_sha256=_sha([name, i]),
                                             outcome=Outcome.COMPLETED, elapsed_s=round(time.perf_counter() - start, 6)))
-        return summarise(ctx.spec, main_raw, runs).model_dump(mode="json")
+        return summarise(ctx.spec, main_raw, runs, ctx.sensitivity_null_replicates).model_dump(mode="json")
     raise ToolRejected(f"tool not allowlisted: {name!r}")  # unreachable: parse_request guards
 
 
@@ -234,8 +235,9 @@ def _run(name: str, ctx: ToolContext) -> dict:
 
 
 def _cache_key(name: str, args: Contract, ctx: ToolContext) -> str:
+    extra = [] if ctx.sensitivity_null_replicates == R_SENS else [ctx.sensitivity_null_replicates]
     return _sha([TOOL_VERSION, name, args.model_dump(mode="json"), ctx.record.projection_sha256,
-                 canonical_sha256(ctx.spec), ctx.unknown_pairs])
+                 canonical_sha256(ctx.spec), ctx.unknown_pairs, *extra])
 
 
 def _cache_get(ctx: ToolContext, key: str) -> dict | None:

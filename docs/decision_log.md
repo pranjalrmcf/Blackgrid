@@ -516,3 +516,77 @@ All four findings were reproduced as failing tests before fixing.
 - **Not yet done:** the controlled live recovery case from `SPRINT_02.md` §13 has not been run.
 - **Status:** recorded.
 - **Status:** recorded.
+
+## Sprint 3
+
+### D-050 — Apply full CollegeMsg ingestion increment (2026-10-18)
+- **Authorization:** User requested continuing Sprint 3 and applying the prepared full CollegeMsg ingestion changes in C:\Blackgrid. Earlier scope selected CollegeMsg only.
+- **Change:** Applied eight package files after baseline/content hash verification; added one CLI regression check, restored the prepared Sprint 3 plan, and updated delivery documentation. The replaced CLI is backed up locally; backups are ignored by Git.
+- **Acceptance:** Full-file validation, aggregate-only output, duplicate preservation, source checksum and rights gate, fresh-output requirement, and historical experiment preservation are implemented. No experimental size cap was relaxed.
+- **Evidence:** results/full-collegemsg-v1/VERIFICATION.md; runs/full-collegemsg-applied-v1/ingestion.json and ingestion.sha256. Rerun JSON matches staged JSON exactly. Raw checksum and five historical implementation/config/reference files verified unchanged.
+- **Checks:** Full regression suite: 192 passed in 101.42 seconds outside the sandbox. Subsequent focused suite including the new CLI test: 6 passed. Initial sandbox permission failures are recorded in verification evidence. git diff --check passed.
+- **Resources:** Local CPU and existing environment only; zero LLM calls and USD 0 paid cost. No dependencies installed, commits, pushes or raw-data exports.
+- **Limits and next task:** Descriptive ingestion only; no full-network inference, causal claim or critic-efficacy evidence. Sprint 3 evaluation remains pending. Next smallest task: freeze the fresh validation protocol before generating cases; Leiden comparison requires its own controlled protocol and available backend.
+- **Status:** Ingestion increment applied and verified; Sprint 3 remains incomplete.
+
+### D-051 — Freeze Sprint 3 offline evaluation and method comparison (2026-10-18)
+- **Authorization:** User requested completing Sprint 3. Local implementation, synthetic evaluation, and optional CPU method dependencies are within scope; no paid provider call is authorized or made.
+- **Protocol:** protocols/sprint03_evaluation.md s3-v1.1, frozen before validation outcomes. Corrected the unexecuted draft's overlapping disconnected-component seed schedule; 24 new instances use spaced validation seeds. Development families/parameters are reused; no held-out-family claim.
+- **Adapters:** Optional igraph 0.11.9 (GPL) and leidenalg 0.10.2 (GPLv3+) plus texttable 1.7.0 are locked. API/rights metadata and official reference documentation inspected. Dependencies are optional, not vendored; release requires honoring GPL terms. Independently written conversion wrapper, RB configuration objective at resolution 1, two Leiden iterations, five restarts; no historical default change.
+- **Evaluation:** s3-eval-v1 independently reads hash-verified saved artifacts; imports no critic/pilot scoring rules. Conservative fixed-language rubric with explicit unassessed category, numerical p-value oracle, complete-answer gates, paired graph bootstrap intervals, and separate generator-expectation checks. No LLM self-grading.
+- **Execution:** One trusted CPU workflow, 24 paired mock cases, 18 structural graphs x 3 method seeds, 99 shared nulls per scope, 60-second cooperative scope limit and 2,700-second suite budget. Fresh outputs and append-only attempt ledger under runs/. Full source/protocol/lock hashes saved before generation. Sealed tests stay unopened.
+- **Preflight:** 13 scientific invariant tests passed using development/tiny numerical oracles; no validation significance outcomes were inspected. Full regression and suite runs follow; results go in a new entry.
+- **Known limits frozen:** Capability separation is not an OS sandbox; host memory not capped. Inherited tool prose mentions 20 sensitivity replicates while validation spec enforces three, disclosed before run. Mock behavior is scripted; human judgments pending, and no efficacy or publication-readiness claim follows.
+- **Status:** Frozen for first exploratory execution.
+
+### D-052 — Preserve first Sprint 3 attempt and correct refusal scoring (2026-10-18)
+- **First attempt:** runs/sprint3-v1 completed all 48 agent executions and 54 graph-seed method comparisons, but remains partial. Its evaluator omitted three causal tool-only rows after confusing the required task refusal with the distinct descriptive graph-test verdict. No artifacts were overwritten.
+- **Correction after inspection:** protocols/sprint03_evaluation.md s3-v1.2, s3-eval-v1.1 and s3-suite-v1.1. Separate graph arithmetic validation from task refusal expectations; require the final manifest's completion state; retain unscorable attempts in case denominators with unknown counts explicitly flagged. No claim rubric, graph, method, model or threshold change. These cases are now inspected and remain exploratory.
+- **Checks:** 15 focused Sprint 3 tests pass, including a causal-task regression and explicit unscored-denominator check. The preceding full suite passed 206 tests before these two additional checks.
+- **Reproduction environment:** A separate environment under runs/sprint3-clean-env was created solely from the frozen lock and cached packages, with offline uv sync. It has no editable project installation; source is loaded explicitly from this checkout.
+- **Next execution:** Fresh output runs/sprint3-v1.1 using that clean environment; keep the original failed-scoring attempt. Reproduce again without changing protocol or implementation before claiming repeatability.
+- **Status:** Correction frozen; no tuning to improve observed scientific scores.
+
+### D-053 — Sprint 3 offline scope completed; thesis remains unproven (2026-10-18)
+- **Authoritative run:** runs/sprint3-v1.1, completed in 280.11 seconds: 48 mock case-condition executions and 54 graph-seed CPU method comparisons. All cases retained, including three expected tool-only arbitrary-method failures. Independent scoring covers all 48 rows with zero scoring errors.
+- **Measured answers:** tool_only 45/45 unsupported claims and 0/24 fully supported useful answers; validated 8/36 unsupported and 20/24 useful. Explicit refusals 0/6 versus 6/6. Evidence-consistent task verdicts 5/24 versus 24/24. Both have 4/4 correct evidence-supported positive verdicts but 0/4 fully supported useful positive answers. No real-model efficacy or thesis-success claim.
+- **Independent disagreements:** four accepted strong-community claims lack an operational strength threshold; four accepted exceedance claims lack a citation to the observed statistic. No critic/model change was made after seeing these results. Graph-level bootstrap denominators and intervals are in results/sprint03-v1.1/summary.json.
+- **Methods:** real Leiden backend available. Both methods use the same 99 nulls per suitable scope, five restarts and unchanged largest-component/missingness qualifications. Selected observed partitions have zero disconnected communities for either method. Leiden Q is higher/equal/lower in 26/23/5 of 54 graph-seed pairs. Only 18 independent structural graphs. Seed-dependent decisions and finite-swap limits remain visible. Louvain stays default.
+- **Verification:** final full regression suite 209 passed in 107.46 seconds; independent audit recomputed all 48 scores/summaries and all 54 partition/modularity/p-value artifacts. Raw CollegeMsg checksum, historical loader/experiment/sensitivity, provider, critic, HTML template, config and reference match Git HEAD. Registry regenerated identically. Answer-key marker audit found no leaks in complete traces.
+- **Reproduction:** clean environment installed solely from cached frozen dependencies; exact frozen source snapshot plus Git-verified inherited HTML asset. runs/sprint3-source-v1.1-complete/runs/reproduction completed in 284.99 seconds. All scientific artifacts and scores matched; only timing, run directory and token estimates excluded. Both runs passed integrity/numerical audits. Reproduction is not new independent evidence.
+- **Preserved failures:** runs/sprint3-v1 remains partial from initial evaluator error (D-052). The initial source-snapshot reproduction omitted the HTML template and was interrupted; its attempt ledger, files and supplemental interruption.json remain. Manual KeyboardInterrupt can leave suite.json running; the explicit cancellation receipt disambiguates it. The archiver now includes the verified non-Python asset. Scientific source/settings were unchanged for the successful reproduction.
+- **Artifacts:** results/sprint03-v1.1 contains minimized synthetic summaries, hashes and 81 blinded claims; evaluator mappings/expectations and full traces remain under ignored runs/. Editable report and plain-English guide in docs/. SPRINT_03.md, benchmark registry, usage and status updated.
+- **Resources/privacy:** local CPU, no paid calls, USD 0, no GPU/cloud/publication/commits/pushes. Existing CollegeMsg window and limits unchanged; other datasets and sealed tests unopened. Actual human effort was not measured. Dependencies optional, locked, and not vendored; release must honor GPL-family backend terms.
+- **Limitations and next task:** mock script and narrow same-project independent rubric are not human ground truth or live-model efficacy; families overlap development. Host memory not capped; network/deadlines in-process/cooperative. Human review of the 81 blinded claims is pending. Review those, then freeze fresh cases before a new critic/evaluator experiment; address interruption status separately. Paid trials need explicit authorization.
+- **Status:** planned offline Sprint 3 deliverables completed and reproduced; research success not asserted.
+
+### D-054 — Full-dataset experiment exp-v2-full (user-requested, exploratory) (2026-10-18)
+- **Request:** the user asked to analyse the whole CollegeMsg dataset instead of the first-week window.
+- **Design:** a separate, versioned, explicitly selected experiment: `protocols/full_dataset_experiment.md`, `configs/collegemsg_full.json`, and `configs/collegemsg_full_live.json`.
+  - The new `RunConfig.scope = "full_dataset"` uses every valid event, with the same loader, projection, method, suitability rules, verdict rule, critic, and report safeguards.
+  - The first-week experiment (exp-v1.1), its config, its limits, and its results are unchanged. A no-cache recomputation of it is identical to the Sprint 2 reference fingerprint.
+- **Runtime rule** (measured before inference; per null replicate about 1.6 s per scope):
+  - R = 99 nulls (p resolution 0.01);
+  - sensitivity: 5 replicates × 19 nulls (p resolution 0.05);
+  - 1,200 s per tool, 3,600 s per run;
+  - caps of 5,000 nodes and 50,000 edges, applicable only to this scope.
+- **Disclosed before execution:** the first-week result, Codex's full-file counts (D-050), and one observed full-graph Louvain Q of about 0.26, printed while timing. The run is therefore exploratory, not confirmatory.
+- **Contract changes:**
+  - `GraphRecord.scope`, with caps per scope;
+  - `ResourceLimits` ceilings raised, but `RunConfig` enforces the Sprint 1 limits for `first_window` runs;
+  - `RunConfig.sensitivity_null_replicates` (full scope only) and `RunConfig.deadline_s`;
+  - `collegemsg.build_full_graph` and `build_graph`;
+  - scope-aware report wording;
+  - a console scope selector (mock only, allowlisted).
+- **First run:** `20261018T103944Z-5673fa`, mock, validated, about 10 minutes.
+  - Graph: 59,835 events, 1,899 people, 13,838 connections, 4 components.
+  - Primary: Q = 0.265 vs null mean 0.199 (sd 0.001), delta Q = 0.066, z = 56.7, **p = 0.010** (0 of 99 nulls at or above Q; this is the resolution floor).
+  - Largest component (1,893 nodes): p = 0.010.
+  - Sensitivity: 5/5 replicates agree.
+  - **Verdict `supported`**, flags `disconnected` and `degree_confound`.
+  - Interpretation: descriptive, for the aggregated network only. It contrasts with, and does not revise, the first-week `not_supported`.
+- **Issues seen in this run:**
+  1. The report labelled the exploratory verdict "Preregistered". This is fixed for future runs, with a test; the saved report of this run is kept as written.
+  2. The critic accepted "strong community structure (Q = 0.265)". The verdict permits saying the structure exceeds chance, but "strong" has no operational threshold (the same gap as D-053). The critic was **not** changed after seeing this result; this remains open for a versioned rubric change.
+- **Tests:** 217 pass. Cost: USD 0, no paid calls.
+- **Status:** active.

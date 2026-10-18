@@ -23,6 +23,13 @@ MAX_UNIQUE_EDGES = 10_000
 MAX_TOOL_TIMEOUT_S = 60
 MAX_WORKER_MEMORY_MB = 2_048
 
+# Full-dataset scope (exp-v2-full, protocols/full_dataset_experiment.md). These ceilings apply only when a
+# run explicitly selects scope="full_dataset"; the first-window experiment keeps the limits above.
+FULL_MAX_NODES = 5_000
+FULL_MAX_EDGES = 50_000
+FULL_MAX_TOOL_TIMEOUT_S = 1_800
+Scope = Literal["first_window", "full_dataset"]
+
 # Paid-pilot ceilings (SPRINT_01.md); they bound a budget, they do not authorize spending.
 CEILING_USD_TOTAL = 10.0
 CEILING_USD_PER_INVESTIGATION = 0.50
@@ -176,24 +183,32 @@ class GraphRecord(Contract):
     unique_edges: int = Field(ge=0)
     edge_status_counts: dict[EdgeStatus, int]
     projection_sha256: Sha256
+    scope: Scope = "first_window"  # full_dataset: every valid event, no window (exp-v2-full)
 
     @model_validator(mode="after")
     def _consistent(self) -> GraphRecord:
+        full = self.scope == "full_dataset"
         if self.origin is DataOrigin.REAL_PUBLIC:
             if self.source is None or self.generator_sha256 is not None:
                 raise ValueError("real graphs need a dataset source and no generator")
             if self.source.rights_status is not RightsStatus.ACCEPTED_LOCAL_NONCOMMERCIAL:
                 raise ValueError("real-data analysis is blocked until usage rights are accepted")
-            if None in (self.window_start_ts, self.window_end_ts, self.window_candidate_index):
-                raise ValueError("real graphs must record window bounds and the chosen candidate")
+            if None in (self.window_start_ts, self.window_end_ts) or (
+                    not full and self.window_candidate_index is None):
+                raise ValueError("real graphs must record time bounds (and, for a window, the chosen candidate)")
             if self.window_end_ts <= self.window_start_ts:
                 raise ValueError("window end must follow window start")
+            if full and self.window_events != self.raw_events:
+                raise ValueError("a full-dataset graph must use every valid event")
         elif self.generator_sha256 is None or self.source is not None:
             raise ValueError("synthetic graphs need a generator hash and no dataset source")
+        elif full:
+            raise ValueError("the full-dataset scope applies to real data only")
         if self.window_events > self.raw_events:
             raise ValueError("window cannot contain more events than the raw table")
-        if self.active_nodes > MAX_ACTIVE_NODES or self.unique_edges > MAX_UNIQUE_EDGES:
-            raise ValueError("graph exceeds Sprint 1 size limits")
+        node_cap, edge_cap = (FULL_MAX_NODES, FULL_MAX_EDGES) if full else (MAX_ACTIVE_NODES, MAX_UNIQUE_EDGES)
+        if self.active_nodes > node_cap or self.unique_edges > edge_cap:
+            raise ValueError("graph exceeds the size limits of its scope")
         if self.edge_status_counts.get(EdgeStatus.OBSERVED, 0) != self.unique_edges:
             raise ValueError("unique_edges must equal the observed-edge count; proxies stay separate")
         return self
@@ -203,11 +218,18 @@ class GraphRecord(Contract):
 
 
 class ResourceLimits(Contract):
-    tool_timeout_s: int = Field(default=MAX_TOOL_TIMEOUT_S, gt=0, le=MAX_TOOL_TIMEOUT_S)
+    """Defaults are the first-window limits. Values above them are only accepted by RunConfig for a run
+    that selects scope="full_dataset" (checked there, so historical specs and hashes are unchanged)."""
+
+    tool_timeout_s: int = Field(default=MAX_TOOL_TIMEOUT_S, gt=0, le=FULL_MAX_TOOL_TIMEOUT_S)
     worker_memory_mb: int = Field(default=MAX_WORKER_MEMORY_MB, gt=0, le=MAX_WORKER_MEMORY_MB)
-    max_nodes: int = Field(default=MAX_ACTIVE_NODES, gt=0, le=MAX_ACTIVE_NODES)
-    max_edges: int = Field(default=MAX_UNIQUE_EDGES, gt=0, le=MAX_UNIQUE_EDGES)
+    max_nodes: int = Field(default=MAX_ACTIVE_NODES, gt=0, le=FULL_MAX_NODES)
+    max_edges: int = Field(default=MAX_UNIQUE_EDGES, gt=0, le=FULL_MAX_EDGES)
     concurrency: Literal[1] = 1
+
+    def within_first_window_limits(self) -> bool:
+        return (self.tool_timeout_s <= MAX_TOOL_TIMEOUT_S and self.max_nodes <= MAX_ACTIVE_NODES
+                and self.max_edges <= MAX_UNIQUE_EDGES)
 
 
 class EdgeRemovalSensitivity(Contract):
@@ -365,11 +387,21 @@ class RunConfig(Contract):
     experiment: ExperimentSpec | None = None  # frozen on Day 5 before execution
     limits: ResourceLimits = ResourceLimits()
     budget: BudgetLimits = BudgetLimits()
+    # exp-v2-full: analyse every valid event instead of the frozen first window (explicit opt-in).
+    scope: Scope = "first_window"
+    sensitivity_null_replicates: int | None = Field(default=None, ge=19, le=999)  # None = exp-v1.1's 99
+    deadline_s: float = Field(default=900.0, gt=0, le=7_200)
 
     @model_validator(mode="after")
     def _authorized(self) -> RunConfig:
         if self.mode is ExecutionMode.LIVE and not self.paid_execution_authorized:
             raise ValueError("live mode requires explicit paid-execution authorization")
+        if self.scope == "first_window":
+            if self.experiment and not self.experiment.limits.within_first_window_limits():
+                raise ValueError("first-window runs keep the Sprint 1 limits (60 s per tool, 1,000 nodes, "
+                                 "10,000 edges); larger limits need scope=full_dataset")
+            if self.sensitivity_null_replicates is not None:
+                raise ValueError("sensitivity_null_replicates is only configurable for scope=full_dataset")
         return self
 
 

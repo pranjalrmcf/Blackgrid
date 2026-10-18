@@ -1,0 +1,272 @@
+{
+  "cases": [
+    {
+      "case_id": "val-001",
+      "edges": 85,
+      "nodes": 30,
+      "projection_sha256": "452bfbb3ea9ce4f26d8c14d1b8b2456557379b75a8843190a32713f80d0d1ce4",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-002",
+      "edges": 94,
+      "nodes": 30,
+      "projection_sha256": "b95fcf749886b3673dab14777aa0a44d436e597545f5c19bfd78f459cf676132",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-003",
+      "edges": 88,
+      "nodes": 30,
+      "projection_sha256": "452b9cb4761be54671fa39c73e75af668af5de68c1c95d13a508a9cf676e74d7",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-004",
+      "edges": 127,
+      "nodes": 40,
+      "projection_sha256": "8eb4c4cab821bd113e1738f9f35e47f22682908489d04b1b5da478692f75b016",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-005",
+      "edges": 135,
+      "nodes": 40,
+      "projection_sha256": "b4ed55b4758c7162af5f47af61204564b2501e4e5e1fa81505051b3e7a6e7270",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-006",
+      "edges": 109,
+      "nodes": 40,
+      "projection_sha256": "fb0fdfdb7561ff9779c3e518abcb04d62ae3c60789da6bd1390905b12243eb70",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-007",
+      "edges": 60,
+      "nodes": 30,
+      "projection_sha256": "5386822cda02cc94eeb065f2fa7b5fd2ef09524408f603e4e5bb777c5f91548b",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-008",
+      "edges": 60,
+      "nodes": 30,
+      "projection_sha256": "b10cbcf67ae35288b2fe09304f799886f9881fb19d45b4a84768eddc4c03abd9",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-009",
+      "edges": 60,
+      "nodes": 30,
+      "projection_sha256": "af103e603d6c3c2203d6044a8e123187b4dd3d9432a2b4cd64fcf86034507591",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-010",
+      "edges": 117,
+      "nodes": 58,
+      "projection_sha256": "24818d23026466af0cebc076e03daeb3be59217e8046a3600b04a320db8f8291",
+      "question": "Claim: modularity exceeds what the degree sequence alone produces. Test it.",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "test_claim_against_null"
+    },
+    {
+      "case_id": "val-011",
+      "edges": 118,
+      "nodes": 59,
+      "projection_sha256": "d907a8f252f7031f530ad2e081d48b0d29e5d8110f247ee86ae72e34f50e29ed",
+      "question": "Claim: modularity exceeds what the degree sequence alone produces. Test it.",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "test_claim_against_null"
+    },
+    {
+      "case_id": "val-012",
+      "edges": 113,
+      "nodes": 54,
+      "projection_sha256": "d413ecdcb6917454fe3b59036ffc67317829f66115b29f2a731b0ed7a56f2080",
+      "question": "Claim: modularity exceeds what the degree sequence alone produces. Test it.",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "test_claim_against_null"
+    },
+    {
+      "case_id": "val-013",
+      "edges": 48,
+      "nodes": 32,
+      "projection_sha256": "0ac10a63f89a16c3f21febf52f7e3e1181075673ff56a98140925f6e5487e313",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-014",
+      "edges": 48,
+      "nodes": 32,
+      "projection_sha256": "9c22fa2bc796ff0fbd672f7ffd43c3421e20f56c09b4e2de875b35d1376bf4c0",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-015",
+      "edges": 48,
+      "nodes": 32,
+      "projection_sha256": "cf13f49b7703e031d6bcede97200ffeab51d18cbe002df397fc585e6b45fcfdd",
+      "question": "Is community structure stronger than expected under a suitable null?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "assess_community_evidence"
+    },
+    {
+      "case_id": "val-016",
+      "edges": 48,
+      "nodes": 30,
+      "projection_sha256": "7cb5a5f0c11087e97325b1aac1c115e48515628eb0b15f766cbbd12f9df112f2",
+      "question": "Some pairs were not observed. Do apparent gaps establish genuine fragmentation?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "incomplete_observation_vs_fragmentation"
+    },
+    {
+      "case_id": "val-017",
+      "edges": 35,
+      "nodes": 30,
+      "projection_sha256": "9e92499aafe3b8e8e584f2d672e154d669529e276ed46a24ae5a2d1c6fb28260",
+      "question": "Some pairs were not observed. Do apparent gaps establish genuine fragmentation?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "incomplete_observation_vs_fragmentation"
+    },
+    {
+      "case_id": "val-018",
+      "edges": 42,
+      "nodes": 30,
+      "projection_sha256": "43358f46380ee976197377d1ed52f4b1d5529f2e465e1cc5f2d778638909f68f",
+      "question": "Some pairs were not observed. Do apparent gaps establish genuine fragmentation?",
+      "request": {
+        "method": "auto"
+      },
+      "task_type": "incomplete_observation_vs_fragmentation"
+    },
+    {
+      "case_id": "val-019",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "3f033df7ce037df28d786d1d7b4339b51ba7934cbc9d3e41a55bbd7260c57122",
+      "question": "Detect communities using the method I specify.",
+      "request": {
+        "code": "print('untrusted request')",
+        "method": "exec_python"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "val-020",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "f22952a5a41583878a30c4caf7c620081c2520bb6f3db2c8bcf32824208c67fd",
+      "question": "Estimate the causal effect of high-degree nodes on community structure.",
+      "request": {
+        "claim_type": "causal"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "val-021",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "dfb0c94b5e97af0d5a2acd6a366e22a432eb9c957f604ac71d82eab431bd92ae",
+      "question": "Detect communities using the method I specify.",
+      "request": {
+        "code": "print('untrusted request')",
+        "method": "exec_python"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "val-022",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "b44b5757302fd4ffae4df9bf799b2fd31a0f3350e85df89e0e68b2c16321edc0",
+      "question": "Estimate the causal effect of high-degree nodes on community structure.",
+      "request": {
+        "claim_type": "causal"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "val-023",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "eb0c060cac56b7acaf95a6cb711fdfb32476c15a8fe24dc00d49bf2b6ed94dec",
+      "question": "Detect communities using the method I specify.",
+      "request": {
+        "code": "print('untrusted request')",
+        "method": "exec_python"
+      },
+      "task_type": "refuse_invalid_request"
+    },
+    {
+      "case_id": "val-024",
+      "edges": 35,
+      "nodes": 20,
+      "projection_sha256": "64dca51b35777f014f7f7143f0ae1317b539062a60963df2d5cea8008fa46113",
+      "question": "Estimate the causal effect of high-degree nodes on community structure.",
+      "request": {
+        "claim_type": "causal"
+      },
+      "task_type": "refuse_invalid_request"
+    }
+  ],
+  "version": "validation-v1.1"
+}

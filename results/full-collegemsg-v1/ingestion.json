@@ -1,0 +1,278 @@
+{
+  "environment": {
+    "networkx": "3.6.1",
+    "python": "3.11.9"
+  },
+  "execution": {
+    "llm_calls": 0,
+    "network_calls": 0,
+    "paid_cost_usd": 0
+  },
+  "limitations": [
+    "Description of observed messages; absent pairs are unknown, not known non-links.",
+    "No causal conclusions, community significance test, or full-network agent run.",
+    "Repeated events retained; projection discards direction, frequency and time.",
+    "Historical seven-day experiment and its resource limits remain unchanged.",
+    "Local-use decision does not establish a redistribution license."
+  ],
+  "projection": {
+    "component_sizes": [
+      1893,
+      2,
+      2,
+      2
+    ],
+    "components": 4,
+    "density": 0.007678601848568738,
+    "edges": 13838,
+    "isolated_nodes": 0,
+    "kind": "simple_undirected_unweighted",
+    "largest_component_nodes": 1893,
+    "max_degree": 255,
+    "mean_degree": 14.573986308583464,
+    "median_degree": 5,
+    "nodes": 1899,
+    "sha256": "4eb16409e59e07d4da112ffa702e2cb02af5f9f59f02406c393b8016fac0f936",
+    "strong_components_in_directed_projection": 601,
+    "transitivity": 0.056830298909088986,
+    "triangles": 14319
+  },
+  "schema_version": "full-collegemsg-ingestion-v1",
+  "scope": "full_file_descriptive_only",
+  "source": {
+    "citations": [
+      "Panzarasa, P., Opsahl, T., Carley, K. M. (2009). Patterns and dynamics of users' behavior and interaction: Network analysis of an online community. JASIST 60(5), 911-932.",
+      "Opsahl, T., Panzarasa, P. (2009). Clustering in weighted networks. Social Networks 31(2), 155-163."
+    ],
+    "dataset_id": "snap-collegemsg",
+    "raw_redistribution_performed": false,
+    "rights_decision": "D-003",
+    "rights_status": "accepted_local_noncommercial",
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "source_url": "https://snap.stanford.edu/data/CollegeMsg.html"
+  },
+  "status": "completed",
+  "time": {
+    "first_utc": "2004-04-15T14:56:01+00:00",
+    "last_utc": "2004-10-26T07:52:22+00:00",
+    "span_seconds": 16736181,
+    "weekly_bins": [
+      {
+        "active_nodes": 104,
+        "end_timestamp_exclusive": 1082645761,
+        "events": 196,
+        "index": 0,
+        "start_timestamp": 1082040961
+      },
+      {
+        "active_nodes": 395,
+        "end_timestamp_exclusive": 1083250561,
+        "events": 3510,
+        "index": 1,
+        "start_timestamp": 1082645761
+      },
+      {
+        "active_nodes": 636,
+        "end_timestamp_exclusive": 1083855361,
+        "events": 8568,
+        "index": 2,
+        "start_timestamp": 1083250561
+      },
+      {
+        "active_nodes": 801,
+        "end_timestamp_exclusive": 1084460161,
+        "events": 8976,
+        "index": 3,
+        "start_timestamp": 1083855361
+      },
+      {
+        "active_nodes": 766,
+        "end_timestamp_exclusive": 1085064961,
+        "events": 7430,
+        "index": 4,
+        "start_timestamp": 1084460161
+      },
+      {
+        "active_nodes": 909,
+        "end_timestamp_exclusive": 1085669761,
+        "events": 11294,
+        "index": 5,
+        "start_timestamp": 1085064961
+      },
+      {
+        "active_nodes": 875,
+        "end_timestamp_exclusive": 1086274561,
+        "events": 4244,
+        "index": 6,
+        "start_timestamp": 1085669761
+      },
+      {
+        "active_nodes": 703,
+        "end_timestamp_exclusive": 1086879361,
+        "events": 3443,
+        "index": 7,
+        "start_timestamp": 1086274561
+      },
+      {
+        "active_nodes": 462,
+        "end_timestamp_exclusive": 1087484161,
+        "events": 2035,
+        "index": 8,
+        "start_timestamp": 1086879361
+      },
+      {
+        "active_nodes": 77,
+        "end_timestamp_exclusive": 1088088961,
+        "events": 57,
+        "index": 9,
+        "start_timestamp": 1087484161
+      },
+      {
+        "active_nodes": 294,
+        "end_timestamp_exclusive": 1088693761,
+        "events": 919,
+        "index": 10,
+        "start_timestamp": 1088088961
+      },
+      {
+        "active_nodes": 325,
+        "end_timestamp_exclusive": 1089298561,
+        "events": 1193,
+        "index": 11,
+        "start_timestamp": 1088693761
+      },
+      {
+        "active_nodes": 313,
+        "end_timestamp_exclusive": 1089903361,
+        "events": 973,
+        "index": 12,
+        "start_timestamp": 1089298561
+      },
+      {
+        "active_nodes": 193,
+        "end_timestamp_exclusive": 1090508161,
+        "events": 483,
+        "index": 13,
+        "start_timestamp": 1089903361
+      },
+      {
+        "active_nodes": 207,
+        "end_timestamp_exclusive": 1091112961,
+        "events": 687,
+        "index": 14,
+        "start_timestamp": 1090508161
+      },
+      {
+        "active_nodes": 196,
+        "end_timestamp_exclusive": 1091717761,
+        "events": 646,
+        "index": 15,
+        "start_timestamp": 1091112961
+      },
+      {
+        "active_nodes": 166,
+        "end_timestamp_exclusive": 1092322561,
+        "events": 428,
+        "index": 16,
+        "start_timestamp": 1091717761
+      },
+      {
+        "active_nodes": 205,
+        "end_timestamp_exclusive": 1092927361,
+        "events": 631,
+        "index": 17,
+        "start_timestamp": 1092322561
+      },
+      {
+        "active_nodes": 185,
+        "end_timestamp_exclusive": 1093532161,
+        "events": 685,
+        "index": 18,
+        "start_timestamp": 1092927361
+      },
+      {
+        "active_nodes": 223,
+        "end_timestamp_exclusive": 1094136961,
+        "events": 608,
+        "index": 19,
+        "start_timestamp": 1093532161
+      },
+      {
+        "active_nodes": 149,
+        "end_timestamp_exclusive": 1094741761,
+        "events": 366,
+        "index": 20,
+        "start_timestamp": 1094136961
+      },
+      {
+        "active_nodes": 175,
+        "end_timestamp_exclusive": 1095346561,
+        "events": 592,
+        "index": 21,
+        "start_timestamp": 1094741761
+      },
+      {
+        "active_nodes": 168,
+        "end_timestamp_exclusive": 1095951361,
+        "events": 455,
+        "index": 22,
+        "start_timestamp": 1095346561
+      },
+      {
+        "active_nodes": 147,
+        "end_timestamp_exclusive": 1096556161,
+        "events": 567,
+        "index": 23,
+        "start_timestamp": 1095951361
+      },
+      {
+        "active_nodes": 120,
+        "end_timestamp_exclusive": 1097160961,
+        "events": 377,
+        "index": 24,
+        "start_timestamp": 1096556161
+      },
+      {
+        "active_nodes": 117,
+        "end_timestamp_exclusive": 1097765761,
+        "events": 195,
+        "index": 25,
+        "start_timestamp": 1097160961
+      },
+      {
+        "active_nodes": 117,
+        "end_timestamp_exclusive": 1098370561,
+        "events": 156,
+        "index": 26,
+        "start_timestamp": 1097765761
+      },
+      {
+        "active_nodes": 90,
+        "end_timestamp_exclusive": 1098975361,
+        "events": 121,
+        "index": 27,
+        "start_timestamp": 1098370561
+      }
+    ]
+  },
+  "validation": {
+    "active_nodes": 1899,
+    "blank_or_comment_lines": 0,
+    "distinct_directed_pairs": 20296,
+    "events": 59835,
+    "exact_duplicate_rows": 37,
+    "malformed_by_reason": {},
+    "malformed_line_numbers_sample": [],
+    "malformed_rows": 0,
+    "max_timestamp": 1098777142,
+    "min_timestamp": 1082040961,
+    "repeated_directed_pair_events": 39539,
+    "self_loop_events": 0,
+    "self_loop_only_nodes": 0,
+    "sha256": "e00ba2415373dee52c00616065bcceaa4750e78de60d1855c76470600f10740f",
+    "timestamp_decreases_in_file_order": 0,
+    "total_lines": 59835,
+    "unique_undirected_pairs": 13838,
+    "valid_events": 59835
+  }
+}
