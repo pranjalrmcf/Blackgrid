@@ -36,6 +36,16 @@ def test_layout_has_no_identifiers():
     assert sorted(layout["degree"]) == sorted(d for _, d in graph.degree())
 
 
+def test_large_graphs_get_a_deterministic_layout():
+    """The full CollegeMsg graph (1,899 nodes) used to show 'No layout'; the grid variant draws it."""
+    graph = nx.gnm_random_graph(1_200, 4_000, seed=7)
+    a, b = compute_layout(graph), compute_layout(graph)
+    assert a is not None and a == b  # deterministic for the same graph and seed
+    assert len(a["points"]) == 1_200 and len(a["edges"]) == 4_000
+    assert all(0.0 <= x <= 1.0 and 0.0 <= y <= 1.0 for x, y in a["points"])
+    assert compute_layout(nx.empty_graph(5_001)) is None  # beyond every experiment's node cap
+
+
 def test_run_page_escapes_untrusted_text(tmp_path):
     run_dir = tmp_path / "runs" / "r1"
     run_dir.mkdir(parents=True)

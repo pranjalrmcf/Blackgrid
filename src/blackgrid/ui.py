@@ -48,10 +48,14 @@ def badge(verdict: str) -> str:
 # --- layout (pure Python Fruchterman-Reingold; positions only, no identifiers) ------------------
 
 
+LAYOUT_MAX_NODES = 5_000  # the full-dataset node cap (exp-v2-full)
+EXACT_LAYOUT_MAX_NODES = 300  # above this, repulsion uses the grid approximation
+
+
 def compute_layout(graph: nx.Graph, seed: int = 42) -> dict | None:
     """Largest component fills the top of the frame; smaller pieces sit in a strip below it."""
     n = graph.number_of_nodes()
-    if n == 0 or n > 400:
+    if n == 0 or n > LAYOUT_MAX_NODES:
         return None
     rng = random.Random(seed)
     nodes = list(graph.nodes())
@@ -78,7 +82,12 @@ def compute_layout(graph: nx.Graph, seed: int = 42) -> dict | None:
 
 
 def _fr(graph: nx.Graph, order: list, rng: random.Random, iterations: int = 120) -> list[tuple[float, float]]:
-    """Fruchterman-Reingold on one component, normalised to [0, 1] in both axes."""
+    """Fruchterman-Reingold on one component, normalised to [0, 1] in both axes.
+
+    Up to EXACT_LAYOUT_MAX_NODES every pair repels (unchanged, so small drawings are identical).
+    Larger components use the grid variant from Fruchterman & Reingold (1991): nodes only repel
+    neighbours within 2k, found through a grid of 2k cells, so each iteration is roughly linear.
+    """
     n = len(order)
     if n == 1:
         return [(0.5, 0.5)]
@@ -87,17 +96,23 @@ def _fr(graph: nx.Graph, order: list, rng: random.Random, iterations: int = 120)
     edges = [(index[u], index[v]) for u, v in graph.edges()]
     k = math.sqrt(4.0 / n)
     temp = 0.2
+    exact = n <= EXACT_LAYOUT_MAX_NODES
+    if not exact:
+        iterations = min(iterations, 80)
     for _ in range(iterations):
         disp = [[0.0, 0.0] for _ in order]
-        for i in range(n):
-            for j in range(i + 1, n):
-                dx, dy = pos[i][0] - pos[j][0], pos[i][1] - pos[j][1]
-                d = math.hypot(dx, dy) or 1e-6
-                f = k * k / d
-                disp[i][0] += dx / d * f
-                disp[i][1] += dy / d * f
-                disp[j][0] -= dx / d * f
-                disp[j][1] -= dy / d * f
+        if exact:
+            pairs = ((i, j) for i in range(n) for j in range(i + 1, n))
+        else:
+            pairs = _grid_pairs(pos, 2 * k)
+        for i, j in pairs:
+            dx, dy = pos[i][0] - pos[j][0], pos[i][1] - pos[j][1]
+            d = math.hypot(dx, dy) or 1e-6
+            f = k * k / d
+            disp[i][0] += dx / d * f
+            disp[i][1] += dy / d * f
+            disp[j][0] -= dx / d * f
+            disp[j][1] -= dy / d * f
         for a, b in edges:
             dx, dy = pos[a][0] - pos[b][0], pos[a][1] - pos[b][1]
             d = math.hypot(dx, dy) or 1e-6
@@ -115,6 +130,26 @@ def _fr(graph: nx.Graph, order: list, rng: random.Random, iterations: int = 120)
     xs, ys = [p[0] for p in pos], [p[1] for p in pos]
     sx, sy = (max(xs) - min(xs)) or 1.0, (max(ys) - min(ys)) or 1.0
     return [((x - min(xs)) / sx, (y - min(ys)) / sy) for x, y in pos]
+
+
+def _grid_pairs(pos: list[list[float]], radius: float):
+    """Index pairs closer than `radius`, using a grid of `radius`-sized cells (each pair once)."""
+    cells: dict[tuple[int, int], list[int]] = {}
+    for i, (x, y) in enumerate(pos):
+        cells.setdefault((int(x // radius), int(y // radius)), []).append(i)
+    r2 = radius * radius
+    for (cx, cy), members in cells.items():
+        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1), (1, -1)):  # half the neighbourhood: no duplicates
+            other = cells.get((cx + dx, cy + dy))
+            if other is None:
+                continue
+            same = dx == 0 and dy == 0
+            for a_pos, a in enumerate(members):
+                ax, ay = pos[a]
+                for b in (members[a_pos + 1:] if same else other):
+                    ddx, ddy = ax - pos[b][0], ay - pos[b][1]
+                    if ddx * ddx + ddy * ddy < r2:
+                        yield a, b
 
 
 # --- SVG components -----------------------------------------------------------------------------

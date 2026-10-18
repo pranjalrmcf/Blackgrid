@@ -45,6 +45,7 @@ def is_run(path: Path) -> bool:
 
 
 def run_summary(runs_dir: Path, path: Path) -> dict:
+    path = path.resolve()  # callers may pass relative folders
     inv = _load(path / "investigation.json") or {}
     ws = _load(path / "workflow_status.json") or {}
     manifest = _load(path / "manifest.json") or {}
@@ -78,6 +79,7 @@ def index_payload(runs_dir: Path) -> dict:
 
 
 def run_payload(runs_dir: Path, path: Path) -> dict:
+    path = path.resolve()
     payload = {key: _load(path / name) for key, name in RUN_FILES.items()}
     payload["id"] = path.relative_to(runs_dir.resolve()).as_posix()
     payload["summary"] = run_summary(runs_dir, path)

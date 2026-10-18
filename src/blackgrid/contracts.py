@@ -34,7 +34,7 @@ Scope = Literal["first_window", "full_dataset"]
 CEILING_USD_TOTAL = 10.0
 CEILING_USD_PER_INVESTIGATION = 0.50
 CEILING_LLM_CALLS = 8
-CEILING_TOKENS = 20_000
+CEILING_TOKENS = 100_000  # raised from 20,000 for reasoning models (D-056); the USD caps still bind
 CEILING_RETRIES_PER_CALL = 1
 CEILING_REVISION_ROUNDS = 2
 
@@ -368,8 +368,8 @@ class LLMConfig(Contract):
     """Provider settings. The model is only contacted in live mode; pricing is fetched before any call."""
 
     model: NonEmpty = "anthropic/claude-haiku-5.5"
-    max_tokens_per_call: int = Field(default=2_000, ge=64, le=4_000)
-    request_timeout_s: float = Field(default=60.0, gt=0, le=120)
+    max_tokens_per_call: int = Field(default=2_000, ge=64, le=16_000)
+    request_timeout_s: float = Field(default=60.0, gt=0, le=300)
 
 
 class RunConfig(Contract):

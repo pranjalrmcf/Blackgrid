@@ -26,3 +26,6 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Sprint plan files: kept locally, not version-controlled.
+SPRINT_*.md

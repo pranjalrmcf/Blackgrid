@@ -165,7 +165,7 @@ Before any call, BLACKGRID fetches the model's current price from OpenRouter; if
 
 Every call is reserved at its worst case before it is sent: a strict bound on the input, the full `max_tokens` output, at 2× list price. A failed call is booked at its whole reservation. A charge above its reservation stops all further paid calls. The reservation is checked against these caps:
 
-- 8 calls, 20,000 tokens, and USD 0.50 per run;
+- 8 calls, 100,000 tokens, and USD 0.50 per run (live configs allow up to 16,000 output tokens per call);
 - USD 10 for the whole sprint, tracked in `runs/spend_ledger.json`;
 - 1 retry per failed call, 2 revision rounds.
 

@@ -118,7 +118,7 @@ def test_network_cannot_be_enabled():
         RunConfig.model_validate(config_dict() | {"network_allowed": True})
 
 
-@pytest.mark.parametrize("field,value", [("max_usd_total", 10.01), ("max_llm_calls", 9), ("max_tokens", 20_001)])
+@pytest.mark.parametrize("field,value", [("max_usd_total", 10.01), ("max_llm_calls", 9), ("max_tokens", 100_001)])
 def test_budget_cannot_exceed_sprint_ceilings(field, value):
     with pytest.raises(ValidationError):
         RunConfig.model_validate(config_dict() | {"budget": {field: value}})

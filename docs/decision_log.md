@@ -590,3 +590,28 @@ All four findings were reproduced as failing tests before fixing.
   2. The critic accepted "strong community structure (Q = 0.265)". The verdict permits saying the structure exceeds chance, but "strong" has no operational threshold (the same gap as D-053). The critic was **not** changed after seeing this result; this remains open for a versioned rubric change.
 - **Tests:** 217 pass. Cost: USD 0, no paid calls.
 - **Status:** active.
+
+### D-055 — Live full-dataset run failed on reasoning-token truncation (2026-10-18)
+- **Run:** `20261018T110002Z-923f36`, authorized by the user for one paid run, live, validated, `deepseek/deepseek-v4-flash-0731`, full dataset (exp-v2-full). Statistics were reused from the identical mock run's cache.
+- **Outcome:** `failed`, `analyst_failed: truncated`. 3 calls, USD 0.0027. Every charge was below its reservation.
+- **What happened:**
+  - The planner used 1,914 output tokens for 405 visible characters.
+  - Both analyst attempts hit the 2,000-token cap: the first with 659 visible characters, the retry with 0.
+  - The model spends most of its output allowance on hidden reasoning. The truncation guard (D-037) correctly refused to parse the cut-off replies.
+- **Fix (configuration only):** `max_tokens_per_call` raised from 2,000 to 4,000 (the contract maximum) in `configs/collegemsg_live.json` and `configs/collegemsg_full_live.json`.
+  - The per-run caps (20,000 tokens, USD 0.50) and the sprint and project caps are unchanged.
+  - With larger reservations, a second revision round may be skipped by the token cap, which is handled gracefully.
+- **Not done:** the run was not retried; another paid run needs the user's authorization.
+- **Security note:** a commented-out API key line in `.env` was printed during a model check, because the redaction only matched uncommented lines. The user was told to revoke that key. No key is stored in the repository or in any artifact.
+- **Status:** active.
+
+### D-056 — Token limits raised for reasoning models (2026-10-18)
+- **Request:** the user asked for a higher token limit after D-055. The per-call cap of 4,000 was still tight for a model that spends ~2,000 tokens on hidden reasoning.
+- **Changes:**
+  - Per-call contract maximum: 4,000 → 16,000. Both live configs now use 16,000.
+  - Per-run token ceiling: 20,000 → 100,000. Without this, full-size reservations would block the critic.
+  - Request timeout maximum: 120 s → 300 s; live configs use 240 s, because long replies stream for minutes.
+- **Unchanged hard limits:** USD 0.50 per run, 8 calls, USD 1 per Sprint 2, and USD 10 per project.
+  - At deepseek-v4-flash prices, reserving the worst case (16,000 tokens at 2× list price) for each of the 8 calls costs about USD 0.12.
+- **Departure:** this exceeds the SPRINT_01.md token ceiling of 20,000. The money ceilings, not tokens, remain the binding spend control. No paid run was made.
+- **Status:** active.
