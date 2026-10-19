@@ -45,6 +45,25 @@ def _get(evidence: dict[str, object], path: str) -> object:
 
 def build_report(result: InvestigationResult, evidence: dict[str, object], record: GraphRecord, question: str,
                  run_id: str, reproduce: str) -> Report:
+    if result.family == "research":
+        items = tuple(ReportItem(kind="claim", text=c["text"], evidence=tuple(c["evidence"]), label="descriptive")
+                      for c in result.reported_claims)
+        return Report(title="BLACKGRID research evidence review", case_id=result.case_id,
+                      condition=result.condition, status=result.status.value, verdict=result.verdict, sections=(
+            ReportSection(title="Question", items=(ReportItem(kind="reference", text=question),)),
+            ReportSection(title="Outcome", items=(ReportItem(kind="reference", text=f"Run status: {result.status.value}; "
+                "completion means evidence inspection, not a new experiment or a real-world finding."),) +
+                ((ReportItem(kind="reference", text=result.failure_reason),) if result.failure_reason else ()) +
+                tuple(ReportItem(kind="reference", text=r) for r in
+                      (result.plan_decision.reasons if result.plan_decision and not result.plan_decision.allowed else ()))),
+            ReportSection(title="Checked research findings", items=items or
+                          (ReportItem(kind="text", text="No research claim passed review."),)),
+            ReportSection(title="Scope and limitations", items=(ReportItem(kind="text", text=
+                "These findings describe a saved synthetic demonstration. The selected real graph is context only. "
+                "Bayesian credible intervals, bootstrap confidence intervals and sensitivity are different outputs. "
+                "No real forecast probability, real causal effect or new experiment execution is established."),)),
+            ReportSection(title="Reproduction", items=(ReportItem(kind="reference", text=f"Run: {run_id}; {reproduce}"),)),
+        ))
     if result.family != "community":
         return structural_report(result, evidence, record, question, run_id, reproduce)
     ev = evidence
@@ -225,8 +244,8 @@ def structural_report(result: InvestigationResult, evidence: dict, record: Graph
                   "Degree counts contacts; betweenness measures shortest-path position; bridge rankings depend on the saved partition.")
     limits_text = ("Associational and exploratory forecast from the frozen prediction-v1 protocol. Scores are uncalibrated "
                    "rankings, not probabilities. Known nodes only: pairs involving people first seen after the cutoff are "
-                   "excluded. Undirected pair task; direction and within-horizon counts are discarded. Test evidence comes "
-                   "from two held-out windows of one network; no significance or generalization claim." if forecast else
+                   "excluded. Undirected pair task; direction and within-horizon counts are discarded. "
+                   "Historical evaluation is distinct from prospective outcomes; no significance or generalization claim." if forecast else
                    "Descriptive and exploratory. Centrality is not causal influence. Partitions are not verified social groups. "
                    "Direction, event frequency and timing are discarded. Sampled betweenness is an estimate; tie ranks are shared. "
                    "Uniform edge removal is an assumed missingness mechanism, not a confidence interval or hidden truth recovery. "
@@ -234,16 +253,66 @@ def structural_report(result: InvestigationResult, evidence: dict, record: Graph
     outcome_text = ("supported means the forecast and its frozen evaluation were produced and checked, not that any pair "
                     "will interact." if forecast else
                     "supported means the descriptive calculations completed, not significance or causal support.")
-    return Report(title="BLACKGRID forecast" if forecast else "BLACKGRID structural investigation",
+    if result.verdict == 'rejected':
+        outcome_text = ('The request was refused before numerical tool execution.' if not result.tool_calls else
+                        'The requested conclusion was withheld; inspect the completed evidence.')
+        local_text = 'No ranking was produced for this refused request.' if not result.tool_calls else local_text
+    scope_items = [ReportItem(kind="reference", text=question)]
+    details = []
+    P = "link_prediction.json#/"
+    C = "prediction_compare.json#/"
+    R = "ranking_sensitivity.json#/summary/"
+    if forecast:
+        if P + "scope" in evidence:
+            scope_items.append(ReportItem(kind="result", text=
+                f"Forecast scope: {evidence[P+'scope']}; history contains {evidence[P+'history_nodes']} known users "
+                f"and {evidence[P+'history_pairs']} observed pairs before cutoff {evidence[P+'cutoff']}.",
+                evidence=tuple(P+k for k in ('scope','history_nodes','history_pairs','cutoff'))))
+        else:
+            scope_items.append(ReportItem(kind="text", text="No forecast history scope was produced."))
+        if C + "split" in evidence:
+            split = evidence[C + "split"]
+            details.append(ReportItem(kind="result", text=f"Historical evaluation split: {split}.", evidence=(C+'split',)))
+            if split == 'rolling':
+                details.append(ReportItem(kind="result", text=
+                    f"Historical ranking metrics summarize {evidence[C+'windows']} rolling windows; evidence status: "
+                    f"{evidence[C+'evidence']}.", evidence=(C+'windows',C+'evidence')))
+            if C+'confirmation/dataset' in evidence:
+                details.append(ReportItem(kind="result", text=
+                    f"Saved external confirmation dataset: {evidence[C+'confirmation/dataset']}; "
+                    f"evaluable origins: {evidence[C+'confirmation/evaluable_origins']}.",
+                    evidence=(C+'confirmation/dataset',C+'confirmation/evaluable_origins')))
+    else:
+        scope_items.append(ReportItem(kind="reference", text=f"Family: {result.family}; scope: {record.scope}; graph: {record.graph_id}"))
+        if 'community_bridge.json#/summary/metric' in evidence:
+            details.append(ReportItem(kind="text", text="The connector score counts a participant's neighbours whose "
+                "community differs from their own in the saved partition. Cross-community degree counts each "
+                "neighbour once; cross fraction divides that count by total degree."))
+        if 'node_centrality.json#/summary/approximate' in evidence:
+            approximate = evidence['node_centrality.json#/summary/approximate']
+            details.append(ReportItem(kind="result", text=f"Betweenness approximate: {approximate}; source nodes: "
+                f"{evidence['node_centrality.json#/summary/sample_sources']}.", evidence=(
+                'node_centrality.json#/summary/approximate','node_centrality.json#/summary/sample_sources')))
+        if R+'metric' in evidence:
+            metric = 'degree and betweenness' if R+'degree_mean_top_jaccard' in evidence else str(evidence[R+'metric'])
+            details.append(ReportItem(kind="result", text=f"Ranking sensitivity covers {metric}; top-set size "
+                f"{evidence[R+'top_k']} including boundary ties, over {evidence[R+'replicates']} removals, "
+                f"removal fraction {evidence[R+'removal_fraction']} under {evidence[R+'mechanism']} missingness.",
+                evidence=tuple(R+k for k in ('metric','top_k','replicates','removal_fraction','mechanism'))))
+            for name in ('degree','betweenness'):
+                key=R+name+'_mean_top_jaccard'
+                if key in evidence:
+                    details.append(ReportItem(kind="result", text=f"Mean tie-inclusive top-set Jaccard for {name}: {evidence[key]}.", evidence=(key,)))
+    return Report(title="BLACKGRID question review" if result.family == 'clarify' else
+                  "BLACKGRID forecast" if forecast else "BLACKGRID structural investigation",
                   case_id=result.case_id, condition=result.condition,
                   status=result.status.value, verdict=result.verdict, sections=(
-        ReportSection(title="Question and scope", items=(ReportItem(kind="reference", text=question),
-            ReportItem(kind="reference", text=f"Family: {result.family}; scope: {record.scope}; graph: {record.graph_id}"))),
+        ReportSection(title="Question and scope", items=tuple(scope_items)),
         ReportSection(title="Outcome", items=(ReportItem(kind="reference", text=f"Run status: {result.status.value}; "
             + outcome_text),) + reasons +
             ((ReportItem(kind="reference", text=result.failure_reason),) if result.failure_reason else ())),
-        ReportSection(title="Checked aggregate findings", items=items or
-                      (ReportItem(kind="text", text="No structural claim passed review."),)),
+        ReportSection(title="Checked aggregate findings", items=(items or
+                      (ReportItem(kind="text", text="No structural claim passed review."),)) + tuple(details)),
         ReportSection(title="Local ranking artifacts", items=(ReportItem(kind="reference", text=local_text),)),
         ReportSection(title="Limitations", items=(ReportItem(kind="text", text=limits_text),)),
         ReportSection(title="Reproduction", items=(ReportItem(kind="reference", text=f"Run: {run_id}; {reproduce}"),)),

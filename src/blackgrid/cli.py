@@ -171,6 +171,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
              "first-week window (preregistered exp-v1.1); first run takes about 2 minutes")
     if config.investigation_family != "community":
         scope = f"{config.scope}, exploratory structural investigation; no community significance claim"
+    from blackgrid.agent.inquiry import family
+    if family(inp.question, inp.request) == "research":
+        scope = "saved synthetic research evidence; selected graph is context only"
     print(f"running {config.condition} investigation in {config.mode.value} mode on the {scope}...",
           file=sys.stderr)
     try:
@@ -506,6 +509,22 @@ def _cmd_predict_confirm(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="blackgrid", description="BLACKGRID bounded investigations.")
     sub = parser.add_subparsers(dest="command", required=True)
+    def sprint7_run(args):
+        from blackgrid.evaluation.sprint7 import run, verify
+        if not args.output.resolve().is_relative_to((REPO_ROOT / "runs").resolve()):
+            print("Sprint 7 output must be under runs/", file=sys.stderr)
+            return EXIT_INVALID
+        try:
+            result = verify(args.output) if args.replay else run(args.output)
+        except (OSError, ValueError) as exc:
+            print(f"Sprint 7 failed: {type(exc).__name__}", file=sys.stderr)
+            return EXIT_RUN_FAILED
+        print(json.dumps(result, indent=2))
+        return EXIT_OK if result["status"] in ("completed", "verified") else EXIT_RUN_FAILED
+    sprint7 = sub.add_parser("sprint7", help="offline synthetic reliability, beliefs and experiment decisions")
+    sprint7.add_argument("--output", type=Path, required=True, help="fresh directory under runs/")
+    sprint7.add_argument("--replay", action="store_true", help="verify existing evidence without new observations")
+    sprint7.set_defaults(func=sprint7_run)
     def sprint5_run(args):
         from blackgrid.evaluation.sprint5 import run_suite
         try:
@@ -591,7 +610,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("config", type=Path)
     run.add_argument("--data-root", type=Path, default=REPO_ROOT, help="base for the config's relative dataset path")
     run.add_argument("--mode", choices=["mock", "live", "replay"])
-    run.add_argument("--family", choices=["community", "centrality", "bridge", "forecast", "auto"], help="question-specific investigation")
+    run.add_argument("--family", choices=["community", "centrality", "bridge", "forecast", "research", "auto"], help="question-specific investigation")
     run.add_argument("--question", help="structural research question (treat as untrusted data)")
     run.add_argument("--planning-mode", choices=["adaptive", "single"], help="permit one follow-up or use one plan")
     run.add_argument("--condition", choices=["validated", "tool_only"])

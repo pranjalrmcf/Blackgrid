@@ -14,6 +14,17 @@ Start with `PROJECT_CONTEXT.md`, `sprints/SPRINT_01.md`, `sprints/SPRINT_02.md`,
 
 ## Status
 
+**Sprint 7's initial synthetic uncertainty/decision slice is implemented.**
+`blackgrid sprint7 --output runs/NEW` demonstrates reliability diagnostics,
+Bayesian belief updates, exact one-step experiment value and causal identification
+checks in free mock mode. Open the run's `report.html` or inspect it in the console.
+Real forecast probabilities and real-world causal effects remain unsupported.
+The main console/planner can now review that evidence: select **Review research
+evidence**, or ask about posterior beliefs, calibration uncertainty or the next
+experiment. It inspects the completed `runs/sprint7-final` reference with pinned
+evidence identity; it does not execute new model-directed experiments.
+See the [guide](docs/sprint07_guide.md) and [results and remaining scope](docs/sprint07_report.md).
+
 **Sprint 6 is implemented: baseline-first temporal link prediction** ([report](docs/sprint06_report.md),
 [simple guide](docs/sprint06_guide.md)).
 - `blackgrid predict-eval` runs the frozen, sealed-test evaluation; `blackgrid forecast` produces a known-node

@@ -98,7 +98,7 @@ def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | No
         raise LiveNotAuthorized("no OPEN_ROUTER_API_KEY (or OPENROUTER_API_KEY) in the environment or .env")
     return OpenRouterProvider(config.llm.model, key, timeout_s=config.llm.request_timeout_s,
                               reasoning_max_tokens=config.llm.reasoning_max_tokens,
-                              provider_ignore=config.llm.provider_ignore)
+                              provider_ignore=config.llm.provider_ignore, provider_sort=config.llm.provider_sort)
 
 
 def model_name(config: RunConfig, replay_from: Path | None) -> str:
@@ -114,6 +114,18 @@ def model_name(config: RunConfig, replay_from: Path | None) -> str:
 
 
 def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
+    inp = _load_input(input_ref, run_dir)
+    if "inquiry" in input_ref:
+        inp.question = input_ref["inquiry"]["question"]
+        inp.request = dict(input_ref["inquiry"]["request"])
+    elif "research_evidence" in input_ref:
+        config = RunConfig.model_validate_json((run_dir / "config.json").read_text(encoding="utf-8"))
+        inp.question = config.question
+        inp.request = {"method": "auto", "family": "research", "planning_mode": config.planning_mode}
+    return inp
+
+
+def _load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
     """Rebuild the scientific input from its approved local source (never from the checkpoint)."""
     kind = input_ref.get("kind")
     if kind == "collegemsg":
@@ -161,6 +173,8 @@ def load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
 
 
 KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json", "full_scope.json",
+                   "research_contract.json", "reliability_audit.json", "belief_update.json", "experiment_decision.json",
+                   "causal_identification_check.json",
                    "structural_contract.json", "forecast_contract.json", "temporal_profile.json", "link_prediction.json",
                    "prediction_compare.json", "local_ranking.json",
                    "node_centrality.json", "community_partition.json", "community_bridge.json", "ranking_sensitivity.json",
@@ -183,6 +197,11 @@ def finalizer(config: RunConfig, reproduce: str):
                 "version": PREDICTION_VERSION, "claim_checker": PRED_CRITIC_VERSION, "evaluation": FORECAST_EVALUATION,
                 "evaluation_protocol_sha256": protocol, "cutoff": "last observed event (fixed by the system)",
                 "pair_rankings": "local_ranking.json, local only; never sent to a model or exported"})
+        elif result.family == "research":
+            write_json(run_dir / "research_contract.json", {
+                "version": "research-v1", "scope": "saved synthetic demonstration only",
+                "source": state.get("input_ref", {}).get("research_evidence"),
+                "new_experiments_executed": False, "real_forecast_voi": "unavailable"})
         elif result.family != "community":
             from blackgrid.analysis.structural import StructuralSpec
             write_json(run_dir / "structural_contract.json", StructuralSpec(family=result.family,
@@ -213,7 +232,8 @@ def finalizer(config: RunConfig, reproduce: str):
             input_hashes={"graph_projection": inp.record.projection_sha256}
             | ({inp.record.source.dataset_id: inp.record.source.sha256} if inp.record.source else {}),
             tool_calls=result.tool_calls, cost=result.cost, artifacts=artifacts,
-            claims=to_claims(result, artifacts, DataOrigin(inp.record.origin.value)))
+            claims=to_claims(result, artifacts, DataOrigin.SYNTHETIC if result.family == "research"
+                             else DataOrigin(inp.record.origin.value)))
         atomic_write(run_dir / "manifest.json", manifest.model_dump_json(indent=2).encode("utf-8"))
         return (status.value, reason) if violations else None
     return on_finalize
@@ -265,6 +285,16 @@ def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Prov
     run_id = f"{run_prefix}{started:%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:6]}"
     run_dir = runs_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
+    from blackgrid.agent.inquiry import family
+    input_ref = input_ref | {"inquiry": {"question": inp.question, "request": dict(inp.request)}}
+    config = config.model_copy(update={"question": inp.question})
+    if inp.request.get("family") == "auto" or family(inp.question, inp.request) == "research":
+        # Trusted system choice, never taken from question/model arguments. Pin identity before planning.
+        reference = (REPO_ROOT / "runs" / "sprint7-final").resolve()
+        manifest = reference / "sprint7_manifest.json"
+        input_ref = input_ref | {"research_evidence": {
+            "path": str(reference), "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest()
+            if manifest.is_file() else "unavailable"}}
     write_json(run_dir / "config.json", config.model_dump(mode="json"))
     write_json(run_dir / "graph_record.json", inp.record.model_dump(mode="json"))
     for name, payload in (extra_artifacts or {}).items():

@@ -135,6 +135,8 @@ class PredictionTools:
             local_out.write_text(json.dumps([{"rank": r + 1, "pair": list(pairs[j]), "score": float(scores_[j])}
                                              for r, j in enumerate(order)], indent=1), encoding="utf-8")
         return {"task": task, "method": name, "cutoff": self.cutoff, "horizon_s": self.horizon,
+                "scope": "full_observed_history", "history_nodes": len(hist.nodes),
+                "history_pairs": len(hist.pair_count),
                 "horizon_days": round(self.horizon / 86400, 2),
                 "candidates": snap.size, "candidate_policy": "complete known-node universe",
                 "scores": "uncalibrated ranking scores", "refit": refit,

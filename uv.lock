@@ -47,6 +47,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pydantic" },
     { name = "scikit-learn" },
+    { name = "scipy" },
 ]
 
 [package.optional-dependencies]
@@ -70,6 +71,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pydantic", specifier = ">=2.7" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
+    { name = "scipy", specifier = ">=1.17.1" },
 ]
 provides-extras = ["methods"]
 

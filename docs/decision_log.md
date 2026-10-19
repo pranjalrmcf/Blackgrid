@@ -9,6 +9,14 @@ Append-only. Each entry: ID, date (UTC), decision, rationale, status. Never edit
 - **Scope of authorization:** Day 1 documentation and read-only provenance checks only. Repository scaffolding, environment locking, and code (Day 2+) wait for a separate request.
 - **Status:** active.
 
+### D-087 — Real-provider routing and HTTP-deadline repair (2026-10-19)
+- **Authorization:** user requested code repair using the real LLM, no mock LLM, within approximately USD 3.
+- **Observed:** production hashes were unchanged by Claude. Three actual model calls chose valid tools, but the keyword controller rejected them. Initial repaired verification then exposed HTTP exchanges exceeding their socket timeout.
+- **Repair:** checkpointed semantic family selection from bounded real planner metadata/registered tool calls; deterministic scientific scope guards; actual process-enforced HTTP deadlines; preserved tool network restrictions; latency/price-constrained provider selection; correct refusal labels/reasons; console live settings aligned with real verification and explicit reasoning limits preserved.
+- **Evidence:** baseline 0/3; original verification stopped with four timeouts and 20 undispatched; prospective sample 5/6 strict passes with one safe-but-mislabeled refusal; subsequent known-billed development confirmation 4/4. Old outcomes are preserved and not pooled/rescored. Independent numerical/artifact checks found no mismatch in completed analyses.
+- **Checks:** 45 direct tests passed; no mock/replay LLM executed. New task cost USD 0.0080195069 known plus USD 0.0446780832 reserved for four uncertain calls. Total project conservative accounting USD 1.3260259185, below USD 3. Historical allowances/charges remain intact.
+- **Versions:** wf-v3.1, prompts-v12, critic-v10 semantic-routing-v1 research-v2. See `docs/current_system_repairs_v3.md` and `runs/real-repairs-v3-audit/audit.json`.
+
 ### D-002 — Local CollegeMsg file accepted as consistent with the SNAP release (2026-10-17)
 - **Decision:** Treat `data/CollegeMsg.txt/CollegeMsg.txt` (SHA-256 `e00ba241…10740f`) as the Sprint 1 input.
 - **Rationale:** An aggregate streaming check found 59,835 valid rows, 0 malformed rows, and 1,899 distinct node IDs. Span is 193.71 days, and the file is time-sorted. This matches SNAP's published 59,835 temporal edges, 1,899 nodes, and 193 days. Duplicates, self-loops, and the static-edge count are deferred to the Day 3 tested loader.
@@ -1059,4 +1067,76 @@ All four findings were reproduced as failing tests before fixing.
   - Historical documents and frozen protocols keep their old paths, as a record of when they were written.
   - Archived source snapshots and freeze receipts still verify against their own saved copies. A freeze taken from now on records the new paths.
   - Runs paused before this change resume normally: version identities depend on recorded versions, not module paths.
+- **Status:** active.
+
+### D-083 — Sprint 7 initial synthetic uncertainty/decision slice (2026-10-19)
+- **Authorization:** user requested Sprint 7 implementation and execution, following D-082's organization.
+- **Protocol:** `protocols/sprint07_decisions_v1.md`, frozen before numerical execution. CPU/offline/USD 0.
+- **Delivered:** exact Beta–Bernoulli updates and one-step EVSI, bounded synthetic controller, deduplicated
+  SQLite receipts, calibration diagnostics and graph-level paired bootstrap, causal assumption/backdoor gate,
+  aggregate-only mock research facade, `blackgrid sprint7`, console sections and clean-copy verification.
+- **Evidence:** initial `runs/sprint7-v1` preserved; integration/reproduction runs reuse its registered seeds.
+  Current demonstration `runs/sprint7-final`; aggregate results `results/sprint07-v1/summary.json`.
+  No sigmoid-calibration improvement established. Myopic EVSI improves toy net utility while retaining
+  greater terminal regret than fixed ten-experiment policies. No real-world effect follows.
+- **Boundary:** first synthetic slice, not full completion of every Sprint 7 research extension. Analytic
+  Bernoulli task success is not measured graph-algorithm AP success. Main free-form planner integration,
+  incomplete-comparison crash-resume and real-data calibrated probabilities remain deferred.
+- **Verification:** focused numerical/failure checks, full regression, clean offline numerical reproduction
+  and browser inspection. Exact executed counts and limits are in `docs/sprint07_report.md`.
+- **Dependency:** declare SciPy directly; already present in the existing locked dependency closure.
+- **Status:** initial slice implemented; full plan limitations remain explicit.
+
+### D-084 — Integrate Sprint 7 evidence into the main planner/workflow (2026-10-19)
+- **Authorization:** user requested integration after the initial synthetic slice.
+- **Change:** research question routing; four typed, empty-argument tools; planner/analyst/reviser prompts;
+  exact synthetic claim checking; durable main-workflow tool execution and source identity pinning;
+  synthetic claim provenance; dedicated reports and console evidence sections/example question.
+- **Scope:** inspect `runs/sprint7-final`, not create new numerical observations or tune a utility.
+  The selected real graph is context only. Missing/changed source evidence fails closed.
+- **Verification:** 15 new integration checks passed, plus 65 focused checks; a main CLI mock review
+  and replay completed at USD 0. Final regression/clean-reproduction counts are in the Sprint 7 report.
+- **Versions:** prompts-v10, critic-v7/research-v1, tools-v3/research-v1. Historical snapshots unchanged.
+- **Status:** main-workflow evidence integration implemented; graph-algorithm experiment-source extension deferred.
+
+### D-085 — Degree-sequence context misrouted a valid community experiment (2026-10-19)
+- **Observed:** live run `20261018T191056Z-a78ed3` rejected a valid community-test/sensitivity plan as incompatible.
+  The model selected the right tools; automatic routing interpreted “degree sequence” as node centrality.
+- **Fix:** remove degree-sequence/distribution baseline phrases from centrality matching when the question
+  explicitly concerns communities/clustering/modularity. Explicit degree rankings and betweenness still
+  route to centrality; causal questions still refuse. Tool validation remains strict.
+- **Version:** critic-v8 records the plan-routing change; historical run artifacts are unchanged.
+- **Verification:** the exact saved live plan now routes to community and validates both required tools;
+  95 focused routing, workflow-integration, agent and critic tests passed in 27.99 seconds. No paid rerun.
+- **Use:** restart the existing console to load the changed router, then submit the same question as a new run.
+- **Status:** fixed.
+
+### D-086 — Repair inspected current-system evaluation failures (2026-10-19)
+- **Authorization:** user asked whether to fix the five answer failures and two forecast timeouts after the 24-case evaluation.
+- **Protocol:** `protocols/current_system_repairs_v2.md`, explicitly development evidence after inspecting v1 outcomes.
+- **Changes:** preserve community-baseline intent around contact counts; deterministic refusal of unsupported real probabilities and synthetic-to-real scope transfer; complete saved research cost/assumption explanations; retain attributed planner refusal reasons. Validated forecasts use existing local factual templates and their critic instead of a redundant interpretation provider call.
+- **Versions:** wf-v2, prompts-v11, critic-v9 structural-v1 research-v2. Existing numerical contracts and old receipts are unchanged.
+- **Verification:** seven previously exposed cases passed offline end-to-end at USD 0 in 21.15 seconds; 125 focused regression checks passed. Final full suite: 453 passed in 247.61 seconds. Limitations are recorded in `docs/current_system_repairs_v2.md`.
+- **Accounting:** no paid calls or renewed allowance. The initial mock recheck hit the main sprint ledger limit; its failures remain recorded. Successful rechecks use a separate zero-USD mock ledger, leaving live reservations intact.
+- **Limits:** no new live pass-rate claim; old billing remains unresolved. A live planner can still experience provider/network failures. Historical paused runs cannot silently adopt the new workflow.
+
+### D-083 — Fresh v2 evaluation frozen; free plumbing check exposes routing generalization failure (2026-10-19)
+- **Request (pasted by the user):** reconcile uncertain billing, freeze 20–25 fresh paraphrases, and run a parallel live evaluation, without assuming a fresh allowance.
+- **User decisions:**
+  - Billing: "I'll check the dashboard". The user will supply OpenRouter figures; no account query was made.
+  - Budget: "make all parallel, budget is around $2-3". The hard ceiling is set at USD 3.00 above recorded spend.
+- **Billing state** (read-only, `runs/workflow.sqlite`):
+  - 18 planner calls from the v1 parallel batch timed out, all dispatched within one second; they are charged at reservation, USD 0.781 in total.
+  - 6 analyst calls are in runs stuck as running, holding USD 0.260 of reservations.
+  - Settled spend is USD 0.227. The live allowance is exhausted.
+  - **Unresolved**, pending the user's figures.
+- **Frozen:** `protocols/current_system_eval_v2.json` (sha256 `f64dffce…2087e0`).
+  - 24 new paraphrases in v1's categories, with no wording overlap with the v1 or test questions.
+  - Independent scoring of correctness, scope, refusal, latency and cost; tool completion is not success. One attempt per case, no pooling.
+  - Harness: `scripts/evaluate_current_v2.py` (all parallel with 1 s stagger, USD 0.14 per case, USD 3.00 batch ceiling, protocol hash check, `--mock` zero-cost ledger).
+- **Mock plumbing check** (`runs/current-system-eval-v2-mock`, USD 0; scripted roles; not evaluation evidence):
+  - The deterministic keyword router misroutes **10/24** fresh paraphrases: V-C01, C02, C03, N01, N02, B01, B02, R04, X05, X06. Routing is identical in live mode.
+  - The forecast "partial" results come from the mock ledger lacking the forecast evaluation folder; this is a harness artifact.
+- **Consequence:** these 24 questions have now been exposed to the router. If routing is changed using them, they become development cases, and a fresh live measurement then needs a new frozen set.
+- **No paid calls were made.** The decision on how to proceed is with the user.
 - **Status:** active.

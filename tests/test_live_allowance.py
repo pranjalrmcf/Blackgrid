@@ -38,6 +38,13 @@ def test_restart_retains_ceiling_and_counts_other_spend(tmp_path):
     assert bounded.llm.reasoning_max_tokens==12000
 
 
+@pytest.mark.parametrize('reasoning',[0,1024])
+def test_allowance_never_increases_an_explicit_reasoning_budget(tmp_path,reasoning):
+    path=ensure_allowance(tmp_path)
+    cfg=config().model_copy(update={'llm':config().llm.model_copy(update={'max_tokens_per_call':4096,'reasoning_max_tokens':reasoning})})
+    assert constrain(cfg,path,tmp_path).llm.reasoning_max_tokens==reasoning
+
+
 def test_exhaustion_and_reservations_stop_before_dispatch(tmp_path):
     path=ensure_allowance(tmp_path)
     add_spend(tmp_path,.49,"spent")

@@ -1,0 +1,12 @@
+{
+  "version":"real-repairs-v3-confirmation",
+  "purpose":"Development-only real-provider confirmation after prospective checks. Three baseline calls completed with known billing and showed valid model plans rejected by the old router. Re-execute those three after repair plus the known-billed refusal labeling case. None of the four unknown-billing verification requests is resent. Preserve every previous result and its denominator.",
+  "authorization":"Continuation of the user's code-repair request under the unchanged USD 3 project ceiling; maximum USD 0.16 across four disjoint case caps. This separately frozen confirmation supersedes the transport-followup protocol's no-further-batch limit only for these four known-billed development cases.",
+  "grading":"Required semantic family, complete validated evidence and responsive report. A refusal must be explicitly labeled clarify, preserve the causal reason, and execute no numerical tool. Independent numerical/artifact checks remain required. Do not pool this development confirmation into the six-question prospective score.",
+  "cases":[
+    {"id":"D-C","expected_family":"community","required_tools":["community_test","edge_removal_sensitivity"],"question":"Is the grouping in this network stronger than what people's contact counts alone would produce by chance?"},
+    {"id":"D-N","expected_family":"centrality","required_tools":["node_centrality"],"question":"Who in this network has messaged the largest number of distinct people?"},
+    {"id":"D-B","expected_family":"bridge","required_tools":["community_partition","community_bridge"],"question":"Who has the most ties reaching outside their own detected community?"},
+    {"id":"D-X","expected_family":"clarify","expected_outcome":"refuse","required_tools":[],"question":"Can you infer which participant makes other people more active just by examining who communicates with whom?"}
+  ]
+}

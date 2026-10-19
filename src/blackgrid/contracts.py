@@ -375,6 +375,7 @@ class LLMConfig(Contract):
     reasoning_max_tokens: int | None = Field(default=None, ge=0, le=16_000)
     # OpenRouter upstreams never to route to (D-079: one returned 40,576 tokens despite max_tokens/reasoning limits).
     provider_ignore: tuple[str, ...] = ()
+    provider_sort: Literal['price', 'throughput', 'latency'] | None = 'latency'
     request_timeout_s: float = Field(default=60.0, gt=0, le=300)
 
     @model_validator(mode="after")
@@ -385,7 +386,7 @@ class LLMConfig(Contract):
 
 
 class RunConfig(Contract):
-    investigation_family: Literal["community", "centrality", "bridge", "forecast", "auto"] = "community"
+    investigation_family: Literal["community", "centrality", "bridge", "forecast", "research", "auto"] = "community"
     planning_mode: Literal["adaptive", "single"] = "adaptive"
     protocol_version: Literal["sprint01-v0.1"] = PROTOCOL_VERSION
     mode: ExecutionMode = ExecutionMode.MOCK

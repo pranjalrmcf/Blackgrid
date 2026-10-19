@@ -1,0 +1,69 @@
+{
+  "version": "error-repairs-v5",
+  "purpose": "Development verification of inspected v4 errors after fixes, not a fresh held-out evaluation. Preserve v4 scores unchanged. Real provider only.",
+  "execution": {
+    "workers": 4,
+    "attempts": 1,
+    "retries": 0,
+    "max_tokens": 8192,
+    "reasoning_tokens": 1024,
+    "case_cap_usd": 0.05,
+    "sum_caps_usd": 0.25,
+    "project_ceiling_including_history_usd": 3
+  },
+  "grading": "Pass requires completion, correct semantic target/family/task, required evidence, independently matching numerical facts and resolvable evidence links, plus useful answer addressing criterion or justified refusal for X cases. All dimensions required. Refusing a supported request fails. Tool completion or model self-rating alone never suffices. Timeouts/provider failures are incomplete. Automated numerical checks plus disclosed AI semantic review; no human or independent-LLM judge claimed. No production changes, retries, threshold changes or selective pooling after inspecting answers.",
+  "cases": [
+    {
+      "id": "Q-C4",
+      "expected_family": "community",
+      "required_tools": [
+        "community_test",
+        "edge_removal_sensitivity"
+      ],
+      "question": "Give the observed-versus-null evidence for modularity in the fixed message window and explain the limitations of that evidence.",
+      "criterion": "Prespecified window and null; numerical evidence and limitations; no causal or latent-label verification."
+    },
+    {
+      "id": "Q-N3",
+      "expected_family": "centrality",
+      "required_tools": [
+        "node_centrality",
+        "ranking_sensitivity"
+      ],
+      "question": "Check whether the degree and betweenness rankings are stable when a random tenth of recorded connections is removed.",
+      "criterion": "Centrality ranking sensitivity for stated uniform 10% mechanism, not merely community significance."
+    },
+    {
+      "id": "Q-B2",
+      "expected_family": "bridge",
+      "required_tools": [
+        "community_partition",
+        "community_bridge"
+      ],
+      "question": "Identify the strongest cross-community connectors in the message graph and state how their connector score is calculated.",
+      "criterion": "Saved partition and bridge metric consistent with graph; no claim of verified brokerage or influence."
+    },
+    {
+      "id": "Q-F1",
+      "expected_family": "forecast",
+      "task": "new_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "Produce a ranked shortlist of previously unconnected pairs among known users for the standard forecast horizon.",
+      "criterion": "New-pair candidate set and fixed horizon; uncalibrated scores not probabilities."
+    },
+    {
+      "id": "Q-F2",
+      "expected_family": "forecast",
+      "task": "repeat_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "Restrict the forecast to pairs that already exchanged messages and rank which are likely to interact again.",
+      "criterion": "Repeat-pair task, observed prior pair membership and fixed horizon; no certain individual outcome."
+    }
+  ]
+}

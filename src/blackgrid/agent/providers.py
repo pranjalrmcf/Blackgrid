@@ -10,15 +10,14 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import socket
-import urllib.error
-import urllib.request
+import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from blackgrid.agent.budget import FREE, Pricing
+from blackgrid.agent.budget import FREE, Pricing, PRICE_SAFETY
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 KEY_NAMES = ("OPEN_ROUTER_API_KEY", "OPENROUTER_API_KEY")
@@ -64,6 +63,37 @@ class Provider(Protocol):
 
 def prompt_sha256(messages: list[dict]) -> str:
     return hashlib.sha256(json.dumps(messages, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _http_json(url: str, *, timeout_s: float, body: dict | None = None, headers: dict | None = None) -> dict:
+    """Enforce a total wall-clock deadline, including DNS, headers and a trickling response body."""
+    from blackgrid.agent.tools import network_is_denied, NetworkDenied
+    if network_is_denied():
+        raise NetworkDenied('network access is denied inside tool execution')
+    payload = {'url': url, 'method': 'POST' if body is not None else 'GET',
+               'headers': headers or {}, 'body': body, 'timeout_s': timeout_s}
+    try:
+        result = subprocess.run([sys.executable, '-m', 'blackgrid.agent.http_transport'],
+            input=json.dumps(payload).encode('utf-8'), capture_output=True, timeout=timeout_s, check=False)
+    except subprocess.TimeoutExpired:
+        raise ProviderError('OpenRouter wall-clock deadline exceeded; billing may be unknown', 'uncertain') from None
+    except OSError:
+        raise ProviderError('Could not start trusted HTTP transport', 'permanent') from None
+    try:
+        reply = json.loads(result.stdout.decode('utf-8'))
+        if result.returncode != 0 or not isinstance(reply, dict):
+            raise ValueError
+        if not reply.get('ok'):
+            category = reply.get('category')
+            if category not in ('permanent','transient','uncertain'):
+                raise ValueError
+            raise ProviderError(str(reply.get('error', 'HTTP transport failed'))[:200], category)
+        response = reply['response']
+        if not isinstance(response, dict):
+            raise ValueError
+        return response
+    except (ValueError, KeyError, UnicodeError):
+        raise ProviderError('Trusted HTTP transport returned an invalid response', 'uncertain') from None
 
 
 # --- Secrets ------------------------------------------------------------------------------------
@@ -218,12 +248,14 @@ class OpenRouterProvider:
     name = "openrouter"
 
     def __init__(self, model: str, api_key: str, timeout_s: float = 60.0,
-                 reasoning_max_tokens: int | None = None, provider_ignore: tuple[str, ...] = ()) -> None:
+                 reasoning_max_tokens: int | None = None, provider_ignore: tuple[str, ...] = (),
+                 provider_sort: str | None = 'latency') -> None:
         self.model = model
         self._key = api_key  # never logged
         self.timeout_s = timeout_s
         self.reasoning_max_tokens = reasoning_max_tokens
         self.provider_ignore = tuple(provider_ignore)
+        self.provider_sort = provider_sort
         self._pricing: Pricing | None = None
 
     def __repr__(self) -> str:  # keep the key out of any accidental repr
@@ -232,9 +264,8 @@ class OpenRouterProvider:
     def pricing(self) -> Pricing:
         if self._pricing is None:
             try:
-                with urllib.request.urlopen(f"{OPENROUTER_BASE}/models", timeout=self.timeout_s) as resp:
-                    models = json.loads(resp.read().decode("utf-8")).get("data", [])
-            except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+                models = _http_json(f"{OPENROUTER_BASE}/models", timeout_s=self.timeout_s).get('data', [])
+            except (ProviderError, ValueError) as exc:
                 raise PricingUnavailable(f"could not fetch OpenRouter pricing: {exc}") from exc
             match = next((m for m in models if m.get("id") == self.model), None)
             if match is None:
@@ -260,27 +291,16 @@ class OpenRouterProvider:
         # D-075: one upstream ignored max_tokens/reasoning limits (40,576 tokens). Only route to upstream providers
         # that support every parameter sent; if none does, OpenRouter refuses instead of silently overrunning.
         request_body["provider"] = {"require_parameters": True}
+        if self.provider_sort:
+            request_body['provider']['sort'] = self.provider_sort
+        prices = self.pricing()
+        request_body['provider']['max_price'] = {
+            'prompt': prices.prompt_usd_per_token * PRICE_SAFETY * 1_000_000,
+            'completion': prices.completion_usd_per_token * PRICE_SAFETY * 1_000_000}
         if self.provider_ignore:
             request_body["provider"]["ignore"] = list(self.provider_ignore)
-        body = json.dumps(request_body).encode("utf-8")
-        request = urllib.request.Request(
-            f"{OPENROUTER_BASE}/chat/completions", data=body, method="POST",
-            headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json",
-                     "X-Title": "BLACKGRID Sprint 1"})
-        try:
-            with urllib.request.urlopen(request, timeout=self.timeout_s) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:  # body may echo the request; not kept
-            category = "permanent" if exc.code in (400, 401, 403, 404) else "transient"
-            raise ProviderError(f"OpenRouter HTTP {exc.code}", category) from None
-        except (TimeoutError, OSError) as exc:
-            # A timeout or reset after sending may still have been processed and billed.
-            reason = getattr(exc, "reason", exc)
-            not_sent = isinstance(reason, (ConnectionRefusedError, socket.gaierror))
-            raise ProviderError(f"OpenRouter request failed: {type(reason).__name__}",
-                                "transient" if not_sent else "uncertain") from None
-        except ValueError:
-            raise ProviderError("OpenRouter returned a non-JSON response", "uncertain") from None
+        data = _http_json(f"{OPENROUTER_BASE}/chat/completions", timeout_s=self.timeout_s, body=request_body,
+            headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json", "X-Title": "BLACKGRID"})
         try:
             choice = data["choices"][0]
             text = choice["message"]["content"] or ""

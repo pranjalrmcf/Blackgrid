@@ -45,10 +45,11 @@
     }
   },
   "llm": {
-    "model": "anthropic/claude-haiku-5.5",
-    "max_tokens_per_call": 16000,
-    "reasoning_max_tokens": 12000,
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "max_tokens_per_call": 8192,
+    "reasoning_max_tokens": 1024,
     "provider_ignore": ["Wafer"],
-    "request_timeout_s": 240
+    "provider_sort": "latency",
+    "request_timeout_s": 60
   }
 }

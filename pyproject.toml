@@ -11,6 +11,7 @@ dependencies = [
     "numpy>=2.4.6",
     "pydantic>=2.7",
     "scikit-learn>=1.9.1",
+    "scipy>=1.17.1",
 ]
 
 [project.scripts]

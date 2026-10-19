@@ -22,6 +22,7 @@ import json
 import os
 import socket
 import time
+from contextvars import ContextVar
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -44,7 +45,7 @@ from blackgrid.analysis.experiment import CommunityTestReport, DeadlineExceeded,
 from blackgrid.analysis.sensitivity import R_SENS, SensitivitySummary, run_replicate, summarise
 from blackgrid.analysis.structural import StructuralResult, compute as compute_structural
 
-TOOL_VERSION = "tools-v2 structural-v1 exp-v1.1 report-v2"
+TOOL_VERSION = "tools-v4 structural-v2 research-v1 exp-v1.1 report-v3"
 MAX_REQUEST_BYTES = 2_000
 ANSWER_KEY_MARKERS = ("answer", "truth", "label", "sealed", "case_key", "casekey", "evaluator", "planted",
                       "hidden_edge", "generator_spec")
@@ -60,6 +61,13 @@ class AnswerKeyAccess(Exception):
 
 class NetworkDenied(PermissionError):
     """A tool tried to open a network connection."""
+
+
+_NETWORK_DENIED = ContextVar('blackgrid_network_denied', default=False)
+
+
+def network_is_denied() -> bool:
+    return _NETWORK_DENIED.get()
 
 
 # --- Argument schemas (extra fields forbidden) --------------------------------------------------
@@ -102,12 +110,20 @@ TOOLS: dict[str, type[Contract]] = {
     "temporal_profile": _ForecastProfileArgs,
     "link_prediction": _LinkPredictionArgs,
     "prediction_compare": _PredictionCompareArgs,
+    "reliability_audit": ProfileArgs,
+    "belief_update": ProfileArgs,
+    "experiment_decision": ProfileArgs,
+    "causal_identification_check": ProfileArgs,
 }
 
 def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R_SENS) -> dict[str, str]:
     """What the planner is told about each tool, generated from the settings that will actually run (R4/§5.6)."""
     sens = spec.sensitivity
     return {
+        "reliability_audit": "Inspect verified synthetic calibration and graph-bootstrap evidence. Args: {}. Does not calibrate real forecasts.",
+        "belief_update": "Reconstruct the registered synthetic Beta beliefs from deduplicated trusted observations. Args: {}. Cannot accept new observations.",
+        "experiment_decision": "Inspect exact myopic next-experiment/stop decision in the saved synthetic loop. Args: {}. No real forecast VOI.",
+        "causal_identification_check": "Inspect registered synthetic causal assumptions and real-data non-identification. Args: {}. Does not estimate real influence.",
         "profile_graph": "Aggregate graph profile (sizes, components, degree summary). Args: {}.",
         "node_centrality": "Local degree and normalized betweenness rankings; aggregate summary only to model. Args: {}.",
         "community_partition": "Descriptive Louvain partition, five restarts; not a significance test. Args: {}.",
@@ -143,6 +159,7 @@ def network_denied() -> Iterator[None]:
         raise NetworkDenied("network access is denied inside tool execution")
 
     saved = socket.socket.connect, socket.socket.connect_ex, socket.create_connection
+    token = _NETWORK_DENIED.set(True)
     socket.socket.connect = refuse  # type: ignore[method-assign]
     socket.socket.connect_ex = refuse  # type: ignore[method-assign]
     socket.create_connection = refuse  # type: ignore[assignment]
@@ -150,6 +167,7 @@ def network_denied() -> Iterator[None]:
         yield
     finally:
         socket.socket.connect, socket.socket.connect_ex, socket.create_connection = saved  # type: ignore[assignment]
+        _NETWORK_DENIED.reset(token)
 
 
 # --- Context and results ------------------------------------------------------------------------
@@ -162,6 +180,7 @@ class ToolContext:
     spec: ExperimentSpec
     cache_dir: Path | None = None
     forecast: Any = None  # zero-argument factory -> prediction.service.PredictionTools (forecast family only)
+    research: Any = None  # bound, hash-verified Sprint 7 research tools (research family only)
     local_dir: Path | None = None  # where a local-only pair ranking may be written
     sensitivity_null_replicates: int = R_SENS  # exp-v2-full may lower it (runtime)
     outputs: dict[str, dict] = field(default_factory=dict)  # artifact name -> JSON payload
@@ -190,8 +209,13 @@ ARTIFACT_NAMES = {
     "temporal_profile": "temporal_profile.json",
     "link_prediction": "link_prediction.json",
     "prediction_compare": "prediction_compare.json",
+    "reliability_audit": "reliability_audit.json",
+    "belief_update": "belief_update.json",
+    "experiment_decision": "experiment_decision.json",
+    "causal_identification_check": "causal_identification_check.json",
 }
 FORECAST_TOOLS = ("temporal_profile", "link_prediction", "prediction_compare")
+RESEARCH_TOOLS = ("reliability_audit", "belief_update", "experiment_decision", "causal_identification_check")
 
 
 def _sha(payload: object) -> str:
@@ -229,7 +253,16 @@ def execute(raw: object, ctx: ToolContext) -> ToolResult:
     try:
         name, args = parse_request(raw)
         _check_prerequisites(name, args, ctx)
-        if name in FORECAST_TOOLS:  # Sprint 6: deterministic forecast tools; no cache, aggregates only
+        if name in RESEARCH_TOOLS:
+            cached = rejected = None
+            if ctx.research is None:
+                raise ToolRejected("research tools require a bound verified synthetic evaluation")
+            with network_denied():
+                try:
+                    output = ctx.research.call({"tool": name})
+                except OSError as exc:
+                    raise ToolRejected("research evidence unavailable; prepare a completed Sprint 7 evaluation") from exc
+        elif name in FORECAST_TOOLS:  # Sprint 6: deterministic forecast tools; no cache, aggregates only
             cached = rejected = None
             with network_denied():
                 output = _run_forecast(name, args, ctx)

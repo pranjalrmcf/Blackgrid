@@ -14,11 +14,11 @@ from pydantic import Field
 from blackgrid.contracts import Contract
 from blackgrid.analysis.experiment import DeadlineExceeded
 
-STRUCTURAL_VERSION = "structural-v1"
+STRUCTURAL_VERSION = "structural-v2"
 
 
 class StructuralSpec(Contract):
-    version: Literal["structural-v1"] = STRUCTURAL_VERSION
+    version: Literal["structural-v2"] = STRUCTURAL_VERSION
     family: Literal["centrality", "bridge", "clarify"]
     graph_sha256: str
     seed: int
@@ -53,7 +53,7 @@ class NodeRow(Contract):
 
 
 class StructuralResult(Contract):
-    version: Literal["structural-v1"] = STRUCTURAL_VERSION
+    version: Literal["structural-v2"] = STRUCTURAL_VERSION
     tool: Literal["node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"]
     graph_sha256: str
     nodes: int = Field(ge=0)
@@ -197,6 +197,25 @@ def compute(name: str, graph: nx.Graph, graph_sha: str, seed: int, seconds: floa
                    "top_k": 5, "boundary_ties_included": True, "mean_top_jaccard": sum(overlaps) / 3,
                    "mean_spearman": sum(correlations) / len(correlations) if correlations else None,
                    "defined_correlations": len(correlations), "interpretation": "sensitivity_not_uncertainty_interval"}
+        if not bridge:
+            # Use the identical reduced graphs for both centrality targets.
+            degree_base = dict(graph.degree())
+            degree_overlaps, degree_correlations = [], []
+            for i in range(3):
+                check_time(deadline)
+                reduced = graph.copy()
+                reduced.remove_edges_from(random.Random(seed + 10000 + i).sample(edges, removed))
+                degree_scores = dict(reduced.degree())
+                aa, bb = top_set(degree_base), top_set(degree_scores)
+                degree_overlaps.append(len(aa & bb) / len(aa | bb) if aa | bb else 1.0)
+                rho = spearman(degree_base, degree_scores)
+                if rho is not None:
+                    degree_correlations.append(rho)
+            summary.update(
+                degree_mean_top_jaccard=sum(degree_overlaps) / 3,
+                degree_mean_spearman=sum(degree_correlations) / len(degree_correlations) if degree_correlations else None,
+                betweenness_mean_top_jaccard=summary['mean_top_jaccard'],
+                betweenness_mean_spearman=summary['mean_spearman'])
     else:
         raise ValueError("unknown structural tool")
     check_time(deadline)

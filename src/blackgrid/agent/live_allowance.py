@@ -64,7 +64,9 @@ def constrain(config: RunConfig, path: Path, runs_dir: Path) -> RunConfig:
         raise ValueError("live allowance exhausted; no new paid call is permitted")
     raw = config.model_dump(mode="json")
     raw["llm"]["model"] = MODEL
-    raw["llm"]["reasoning_max_tokens"] = min(12000, raw["llm"]["max_tokens_per_call"] - 1)
+    configured_reasoning = raw["llm"]["reasoning_max_tokens"]
+    raw["llm"]["reasoning_max_tokens"] = min(12000 if configured_reasoning is None else configured_reasoning,
+                                                raw["llm"]["max_tokens_per_call"] - 1)
     raw["budget"]["max_usd_total"] = min(raw["budget"]["max_usd_total"], data["ceiling_project_usd"])
     raw["budget"]["max_usd_per_investigation"] = min(raw["budget"]["max_usd_per_investigation"], .15,
                                                     data["remaining_usd"])

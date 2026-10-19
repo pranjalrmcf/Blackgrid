@@ -23,6 +23,11 @@ RUN_FILES = {
     "bridges": "community_bridge.json", "ranking_sensitivity": "ranking_sensitivity.json",
     "forecast_profile": "temporal_profile.json", "link_prediction": "link_prediction.json",
     "prediction_compare": "prediction_compare.json", "local_ranking": "local_ranking.json",
+    "reliability": "reliability.json", "beliefs": "beliefs.json", "decisions": "decisions.json",
+    "causal": "causal.json", "sprint7_manifest": "sprint7_manifest.json",
+    "research_contract": "research_contract.json", "reliability_audit": "reliability_audit.json",
+    "belief_update": "belief_update.json", "experiment_decision": "experiment_decision.json",
+    "causal_identification_check": "causal_identification_check.json",
 }
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)?$")
 

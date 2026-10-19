@@ -1,0 +1,59 @@
+{
+  "bayesian_optimization": "skipped: expensive-search gate unmet",
+  "bootstrap": {
+    "interval": [
+      -0.0002674585265745269,
+      0.0008294950204205177
+    ],
+    "interval_type": "95% paired graph bootstrap confidence interval",
+    "mean_difference": 0.00030351189205061514,
+    "resamples": 1000,
+    "scope": "conditional on the registered graph generator",
+    "seed": 74000
+  },
+  "causal": {
+    "adjusted": {
+      "bias": -0.011455092630955647,
+      "rmse": 0.09945972277575177
+    },
+    "naive": {
+      "bias": -0.007551121793315046,
+      "rmse": 0.16910407021976812
+    }
+  },
+  "policy_comparison": {
+    "evsi": {
+      "expected_utility": 0.5585791970828324,
+      "realized_utility": 0.54,
+      "regret": 0.10896579932962838,
+      "steps": 1.0
+    },
+    "fixed": {
+      "expected_utility": 0.4419468242303285,
+      "realized_utility": 0.4299999999999999,
+      "regret": 0.04559817218213235,
+      "steps": 10.0
+    },
+    "greedy": {
+      "expected_utility": 0.42898411878868303,
+      "realized_utility": 0.39999999999999986,
+      "regret": 0.05856087762377781,
+      "steps": 10.0
+    },
+    "random": {
+      "expected_utility": 0.43905969740387574,
+      "realized_utility": 0.40999999999999986,
+      "regret": 0.048485299008585135,
+      "steps": 10.0
+    },
+    "stop": {
+      "expected_utility": 0.5141237477175762,
+      "realized_utility": 0.5,
+      "regret": 0.1734212486948845,
+      "steps": 0.0
+    }
+  },
+  "status": "completed",
+  "usd": 0,
+  "version": "decisions-v1"
+}

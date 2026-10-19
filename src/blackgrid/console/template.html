@@ -210,7 +210,7 @@ function renderIndex(data){
       (!filterText || JSON.stringify([r.question, r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
       const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
         h("td", {}, h("div", {cls:"run-question"}, r.question || (r.kind === "pilot" ? "Offline system check" : r.case || "Investigation")), h("div", {cls:"run-meta"}, r.id)),
-        h("td", {}, r.kind === "pilot" ? "System check" : (r.kind === "forecast" || r.family === "forecast") ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
+        h("td", {}, r.kind === "pilot" ? "System check" : r.family === "research" ? "Research evidence" : (r.kind === "forecast" || r.family === "forecast") ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
         h("td", {}, r.verdict==='rejected' ? h('span',{cls:'badge warn'},'Needs clarification') : badge(r.status)), h("td", {}, r.verdict==='rejected' ? 'Not answered' : r.status==='abstained' ? 'Withheld' : r.family && r.family !== "community" ? "Descriptive" : r.verdict ? badge(r.verdict) : "—"),
         h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
           ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
@@ -244,8 +244,9 @@ function actionsPanel(){
     "Which nodes have many contacts and high betweenness?",
     "Which nodes connect different groups, and are the rankings stable?",
     "Which pairs who have never messaged are most likely to message in the next few weeks?",
-    "Which pairs who already talked will message again soon?"
-  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; draft.question = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages"][i])));
+    "Which pairs who already talked will message again soon?",
+    "Review Sprint 7 uncertainty, posterior beliefs, next experiment and causal identification."
+  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; draft.question = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages", "Review research evidence"][i])));
   const scope = h("select", {"aria-label":"Data scope"}, h("option", {value: "first_window"}, "CollegeMsg · first week"), h("option", {value: "full_dataset"}, "CollegeMsg · full dataset"));
   const cond = h("select", {"aria-label":"Evidence checks"}, h("option", {value: "validated"}, "Evidence checks on"), h("option", {value: "tool_only"}, "Unchecked comparison"));
   const mode = h("select", {id:"ai-mode", "aria-label":"AI mode"},
@@ -301,6 +302,7 @@ function stepper(ws, status){
 }
 
 function renderRun(d){
+  if (d.beliefs && d.decisions) return renderDecisions(d);
   const inv = d.investigation || {}, ws = d.workflow || {}, sum = d.summary || {};
   const status = sum.status;
   document.getElementById("title").replaceChildren(h("span", {cls:"quiet"}, "Investigation"));
@@ -310,13 +312,15 @@ function renderRun(d){
   const allTabs = [["overview", "Answer"], ["rankings", "People & positions"], ["network", "Network"],
                 ["claims", "Evidence"], ["agent", "Activity"], ["report", "Full report"], ["budget", "Cost"],
                 ["experiment", "Statistics"], ["sensitivity", "Edge sensitivity"]];
+  if (sum.family === "research") allTabs.push(["research", "Reliability & decisions"]);
   // Forecast runs have no graph statistics, node rankings or edge-removal checks: show only what applies.
   const forecastTabs = new Set(["overview", "claims", "agent", "report", "budget"]);
-  const tabs = sum.family === "forecast" ? allTabs.filter(([k]) => forecastTabs.has(k)) : allTabs;
+  const tabs = sum.family === "forecast" ? allTabs.filter(([k]) => forecastTabs.has(k)) :
+    sum.family === "research" ? allTabs.filter(([k]) => forecastTabs.has(k) || k === "research") : allTabs;
   if (!tabs.some(([k]) => k === tab)) tab = "overview";
   const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); window.scrollTo(0,0); }}}, label)));
   const views = {overview: viewAnswer, rankings: viewRankings, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
-                 agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget};
+                 agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget, research: viewResearch};
   app.replaceChildren(head, stepper(ws, status), bar, h("div", {cls: "grid"}, views[tab](d)));
   if (LIVE && (status === "running" || status === "paused")) timer = setTimeout(route, 2500);
 }
@@ -376,7 +380,10 @@ function viewAnswer(d){
     title='The agent withheld a final answer.';
     explanation=inv.follow_up?.reason || inv.failure_reason || 'The available evidence did not support the requested answer. Any completed calculations remain available in the other tabs.';
   } else if(status==='completed'){
-    if(d.link_prediction){
+    if(inv.family === "research"){
+      title="The saved synthetic research evidence has been reviewed.";
+      explanation="Inspect Reliability & decisions for the registered beliefs, uncertainty and next-action decision. No new experiment was executed, and these results do not establish calibration or causal influence in the selected real network.";
+    } else if(d.link_prediction){
       const p=d.link_prediction, c=d.prediction_compare || {}, m=p.method, cut=c.cutoffs || {};
       const ap=k=>{ const v=((cut[k]||{})[m]||{}).average_precision; return typeof v==='number' ? (v<0.01 ? v.toExponential(2) : v.toFixed(3)) : '—'; };
       title=p.task==='repeat_pair'?'Here are the past pairs most likely to message again.':'Here are the unconnected pairs most likely to message next.';
@@ -401,7 +408,9 @@ function viewAnswer(d){
   }
   const output=[panel('Your question','',h('p',{cls:'answer-copy',style:'margin:0'},String(question).replace(/^> /,''))),
     panel('Answer','',h('p',{cls:'answer-lead'},title),h('p',{cls:'answer-copy'},explanation),runActions(d))];
-  if((inv.cost || {}).mode==='mock') output.push(panel('About this demo','',h('p',{cls:'quiet',style:'margin:0'},'Graph calculations are real. The planner and writer are scripted stand-ins, so this run does not test a real language model.')));
+  if((inv.cost || {}).mode==='mock') output.push(panel('About this demo','',h('p',{cls:'quiet',style:'margin:0'},
+    inv.family==='research'?'Numerical research evidence is real. This run inspects saved synthetic results; its planner and writer are scripted stand-ins.':
+    'Graph calculations are real. The planner and writer are scripted stand-ins, so this run does not test a real language model.')));
   if(status==='completed' && d.link_prediction && (d.local_ranking || []).length){
     output.push(panel('Top forecast pairs (local only)','',h('p',{cls:'quiet'},'These local identifiers stay on this computer; the AI only saw aggregate numbers.'),
       h('div',{cls:'tablewrap'},h('table',{},h('thead',{},h('tr',{},['Rank','Pair','Score'].map(t=>h('th',{},t)))),
@@ -414,7 +423,7 @@ function viewAnswer(d){
       h('div',{cls:'stat'},h('span',{},'Checks'),h('b',{},sen.replicates))),
     h('p',{cls:'quiet'},'Overlap compares the top-five sets, including tied nodes. These checks assume uniform missing connections. They are a sensitivity test, not a confidence score.',
       sen.removed_edges_per_replicate===0?' At this graph size, rounding removed no edges.':'')));
-  output.push(panel('Data used','',h('div',{cls:'stats'},
+  output.push(panel(inv.family==='research'?'Context graph (not research evidence)':'Data used','',h('div',{cls:'stats'},
     ...[['Nodes',rec.active_nodes],['Connections',rec.unique_edges],['Scope',rec.scope==='full_dataset'?'Full recording':'Selected window']].map(([name,value])=>h('div',{cls:'stat'},h('span',{},name),h('b',{},value ?? '—')))),
     h('p',{cls:'quiet'},'An undirected connection means at least one observed interaction. Timing, direction and repeat-message counts are omitted.')));
   output.push(h('section',{cls:'panel'},h('details',{cls:'advanced'},h('summary',{},'Run details and reproducibility'),h('div',{cls:'advanced-body'},...viewOverview(d)))));
@@ -673,6 +682,90 @@ function renderPilot(p){
 }
 
 // ---- Sprint 6: forecast connections (retrospective evaluation kept separate from the prospective forecast) ----
+function viewResearch(d){
+  const rel=d.reliability_audit || {}, b=d.belief_update || {}, decision=d.experiment_decision || {}, causal=d.causal_identification_check || {};
+  return [panel("Evidence source", "", kv([["Scope", (d.research_contract || {}).scope],
+    ["Source identity", ((d.research_contract || {}).source || {}).manifest_sha256], ["New experiments executed", "no"]])),
+    panel("Reliability", "", kv([["Scope", rel.scope], ["Independent graphs", rel.graphs],
+    ["Interval type", (rel.paired_brier || {}).interval_type], ["Lower bound", rel.bootstrap_confidence_lower],
+    ["Upper bound", rel.bootstrap_confidence_upper], ["Real probability display", "not validated"]])),
+    panel("Beliefs", "", h("p", {}, b.target || "Not requested"),
+      h("table", {}, h("thead", {}, h("tr", {}, ["Method", "Posterior mean", "Credible interval"].map(t => h("th", {}, t)))),
+        h("tbody", {}, Object.entries(b.methods || {}).map(([name,m]) => h("tr", {}, h("td", {}, name),
+          h("td", {}, f3(m.mean)), h("td", {}, `${f3(m.credible_lower)} – ${f3(m.credible_upper)}`))))),
+      h("p", {cls:"quiet"}, "Posterior uncertainty under the registered synthetic model; not a message probability.")),
+    panel("Next experiment", "", kv([["Action", (decision.decision || {}).action], ["Abstention", decision.abstention],
+      ["Real forecast VOI", decision.real_forecast_voi], ["Scope", "saved synthetic loop only"]]),
+      h("table", {}, h("thead", {}, h("tr", {}, ["Action", "Expected improvement", "Cost", "Net value"].map(t => h("th", {}, t)))),
+        h("tbody", {}, ((decision.decision || {}).candidates || []).map(r => h("tr", {}, h("td", {}, r.action),
+          h("td", {}, f3(r.evsi)), h("td", {}, f3(r.cost)), h("td", {}, f3(r.net_value)))))),
+      h("p", {cls:"quiet"}, "One-step expected utility in artificial units, not dollars. Stop if no feasible action has positive net value.")),
+    panel("Causal assumptions", "", kv([["Synthetic verdict", (causal.synthetic || {}).verdict], ["Real-data verdict", (causal.real || {}).verdict]]),
+      h("p", {}, (causal.synthetic || {}).limitation || "Not requested"))];
+}
+
+function reliabilityPlot(rows){
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 360 280");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Synthetic test reliability diagram: predicted probability versus observed frequency");
+  svg.setAttribute("style", "width:100%;max-width:460px");
+  const add = (tag, attrs, text) => {
+    const el = document.createElementNS(svg.namespaceURI, tag);
+    for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, String(value));
+    if (text) el.textContent = text;
+    svg.appendChild(el); return el;
+  };
+  add("line", {x1:45,y1:235,x2:325,y2:25,stroke:"#999","stroke-dasharray":"4 4"});
+  add("line", {x1:45,y1:235,x2:325,y2:235,stroke:"#555"});
+  add("line", {x1:45,y1:235,x2:45,y2:25,stroke:"#555"});
+  add("text", {x:100,y:270,fill:"currentColor","font-size":12}, "Mean predicted probability (0–1)");
+  add("text", {x:48,y:16,fill:"currentColor","font-size":12}, "Observed fraction (0–1), pooled synthetic test bins");
+  for (let i=0;i<10;i++) {
+    const bins = rows.map(r => (((r.periods || {}).test || {}).sigmoid || {}).bins?.[i]).filter(b => b && b.count);
+    const n = bins.reduce((s,b) => s+b.count, 0);
+    if (!n) continue;
+    const p = bins.reduce((s,b) => s+b.count*b.mean_probability,0)/n;
+    const y = bins.reduce((s,b) => s+b.count*b.observed_fraction,0)/n;
+    const dot = add("circle", {cx:45+280*p,cy:235-210*y,r:5,fill:n<30?"#b7791f":"#216e56"});
+    const title = document.createElementNS(svg.namespaceURI,"title");
+    title.textContent = `Bin ${i+1}: n=${n}, predicted=${p.toFixed(3)}, observed=${y.toFixed(3)}`;
+    dot.appendChild(title);
+  }
+  return svg;
+}
+
+function renderDecisions(d){
+  const b = d.beliefs || {}, dec = d.decisions || {}, rel = d.reliability || {};
+  const last = (dec.trace || []).at(-1) || {}, sens = dec.sensitivity || {};
+  document.getElementById("title").replaceChildren(h("h1", {}, "Synthetic research decisions"));
+  const methods = Object.entries(b.methods || {}).map(([name, m]) =>
+    h("tr", {}, h("td", {}, name), h("td", {}, f3(m.mean)),
+      h("td", {}, (m.credible_interval_95 || []).map(f3).join(" – "))));
+  const windows = (rel.rows || []).flatMap(g => Object.entries(g.periods || {}).map(([period, v]) =>
+    h("tr", {}, h("td", {}, String(g.seed)), h("td", {}, period), h("td", {}, f3(v.raw.brier)),
+      h("td", {}, f3(v.sigmoid.brier)), h("td", {}, f3(v.sigmoid.log_loss)))));
+  app.replaceChildren(h("a", {href: href("index")}, "← all runs"), h("div", {cls:"grid"},
+    panel("Reliability", "", h("p", {}, "Synthetic evidence only. Real forecast probabilities remain unavailable."),
+      reliabilityPlot(rel.rows || []),
+      kv([["Independent graphs", rel.graphs], ["Interval", (rel.paired_test_brier || {}).interval_type],
+          ["Calibrated − raw Brier", JSON.stringify((rel.paired_test_brier || {}).interval)],
+          ["Real-data confidence interval", (rel.real_data_interval || {}).reason]]),
+      h("details", {}, h("summary", {}, "Calibration assessment and test metrics"),
+        h("table", {}, h("thead", {}, h("tr", {}, ["Graph seed", "Period", "Raw Brier", "Sigmoid Brier", "Log loss"].map(x => h("th", {}, x)))), h("tbody", {}, windows))),
+      h("details", {}, h("summary", {}, "Reliability diagram data: bin counts and observed rates"),
+        h("pre", {}, JSON.stringify(((rel.rows || [])[0] || {}).periods || {}, null, 2)))),
+    panel("Beliefs", "", h("p", {}, b.target || "Unavailable"), h("p", {}, b.interval_type || ""),
+      h("table", {}, h("thead", {}, h("tr", {}, ["Method", "Posterior mean", "95% credible interval"].map(x => h("th", {}, x)))), h("tbody", {}, methods)),
+      kv([["Verified observations", b.observations], ["Belief identity", b.identity]])),
+    panel("Next experiment", "", kv([["Action", last.action], ["Reason", last.reason], ["Terminal method", last.terminal_method],
+      ["Steps", last.steps], ["Utility/prior sensitivity", sens.stable_action ? "stable action" : "action changes: autonomous recommendation withheld"],
+      ["Real forecast VOI", dec.real_forecast_voi]]), h("details", {}, h("summary", {}, "All decisions and candidate values"), h("pre", {}, JSON.stringify(dec, null, 2)))),
+    panel("Causal assumptions", "", kv([["Synthetic verdict", ((d.causal || {}).gate || {}).verdict],
+      ["CollegeMsg", ((d.causal || {}).collegemsg || {}).verdict]]),
+      h("p", {}, "Assumptions are supplied, not verified by a DAG. No real-world causal effect is established."))));
+}
+
 function renderForecast(d){
   const f = d.forecast || {}, p = f.prediction || {}, c = f.compare || {}, prof = f.profile || {};
   const day = t => (typeof t === "number" ? new Date(t * 1000).toISOString().slice(0, 10) : "—");

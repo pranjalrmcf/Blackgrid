@@ -47,7 +47,7 @@ from blackgrid.agent.tools import AnswerKeyAccess, ToolRejected, parse_request
 # v4: R9 rejects unestablished "preregistered" wording (s4-v2, D-061).
 # v5: label variants, secondary scope, flags, null range and delta/null pairing, from the live-pilot review
 #     (D-064, D-065). Written after inspecting those claims: development evidence until fresh cases test it.
-CRITIC_VERSION = "critic-v6 structural-v1"
+CRITIC_VERSION = "critic-v10 semantic-routing-v1 research-v2"
 
 CAUSAL = re.compile(r"\b(caus\w*|effects? of|drives?|driven by|leads? to|influenc\w*|impacts? of|because of|"
                     r"due to|results? in)\b", re.I)
@@ -264,7 +264,7 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
 
     Raises AnswerKeyAccess if the plan reaches for evaluator-only data.
     """
-    from blackgrid.agent.inquiry import family, validate_structural
+    from blackgrid.agent.inquiry import family, validate_structural, planner_refusal
     if family(question, request) != "community":
         allowed, calls, reason = validate_structural(question, request, plan)
         return PlanDecision(allowed=allowed, tool_calls=tuple(calls), reasons=(reason,))
@@ -278,7 +278,7 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
                             reasons=(f"Requested method {method[:40]!r} is not allowlisted for the preregistered "
                                      f"experiment.",))
     if plan.get("decision") == "refuse":
-        return PlanDecision(allowed=False, refusal_flag=None, reasons=("planner refused the task",))
+        return PlanDecision(allowed=False, refusal_flag=None, reasons=(planner_refusal(plan, "planner refused the task"),))
     calls = plan.get("tool_calls")
     if not isinstance(calls, list) or not calls:
         return PlanDecision(allowed=False, reasons=("plan contains no tool calls",))

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import pytest
 
@@ -95,12 +96,29 @@ def test_probability_and_scope_violations_are_rejected_by_the_forecast_critic(tm
          "evidence": ["link_prediction.json#/candidates"], "scope": {"split": "prospective"}},
         {"text": "The forecast covers new students too.", "evidence_level": "descriptive",
          "evidence": ["link_prediction.json#/candidates"], "scope": {"split": "prospective", "task": "repeat_pair"}}]}
-    out = run(tmp_path, NEW_Q, MockProvider(script={"analyst": [json.dumps(bad)]}))
+    out = run(tmp_path, NEW_Q)
     inv = json.loads((out.run_dir / "investigation.json").read_text(encoding="utf-8"))
-    first = inv["critic_decisions"][:2]
+    # Validated forecast summaries are now local. Exercise the same critic directly with hostile prose,
+    # rather than asserting that an unnecessary writer request still occurs.
+    ctx = SimpleNamespace(outputs={name: json.loads((out.run_dir / name).read_text())
+                                  for name in ("link_prediction.json", "prediction_compare.json")})
+    first = [engine.forecast_decision(c, ctx) for c in bad["claims"]]
     assert not first[0]["accepted"] and any(r.startswith("P4") for r in first[0]["reasons"])
     assert not first[1]["accepted"] and any("disagrees with the forecast" in r for r in first[1]["reasons"])
     assert all("80%" not in c["text"] for c in inv["reported_claims"])  # only checked claims are reported
+
+
+def test_forecast_finishes_without_waiting_for_an_interpretation_provider(tmp_path, forecast_env):
+    class PlannerOnly(MockProvider):
+        def complete(self, role, payload, messages, max_tokens):
+            if role != "planner":
+                raise AssertionError("Forecast interpretation must not depend on another provider response")
+            return super().complete(role, payload, messages, max_tokens)
+    out = run(tmp_path, REPEAT_Q, PlannerOnly())
+    assert out.outcome.status == "completed"
+    assert out.result.reported_claims
+    assert [c.role for c in out.result.llm_calls] == ["planner"]
+    assert all(d.accepted for d in out.result.critic_decisions)
 
 
 def test_forecast_tools_unavailable_without_a_frozen_evaluation(tmp_path, monkeypatch):
@@ -138,6 +156,32 @@ def test_clarify_messages_say_what_actually_happened():
     causal = validate_structural("Why do people message?", {"family": "auto"}, {})[2]
     assert "could not match" in unmatched and "causes" not in unmatched
     assert "causes, influence or persuasion" in causal
+
+
+@pytest.mark.parametrize("question", [
+    "Does the observed community structure exceed what the degree sequence alone would explain, and does that "
+    "conclusion remain stable when 10% of observed connections are removed?",
+    "Does clustering exceed what the degree distribution would explain?",
+    "Is modularity unusual given the degree-sequence null?",
+])
+def test_community_degree_baseline_is_not_node_centrality(question):
+    from blackgrid.agent.critic import validate_plan
+    request = {"family": "auto", "method": "auto"}
+    assert family(question, request) == "community"
+    # Exact valid plan recorded in the rejected real-provider run.
+    plan = {"decision": "run", "tool_calls": [
+        {"tool": "community_test", "args": {"method": "louvain"}},
+        {"tool": "edge_removal_sensitivity", "args": {}}]}
+    decision = validate_plan(question, request, plan)
+    assert decision.allowed
+    assert [c["tool"] for c in decision.tool_calls] == ["community_test", "edge_removal_sensitivity"]
+
+
+def test_degree_baseline_context_does_not_hide_explicit_centrality_or_causal_requests():
+    assert family("Which nodes have the highest degree in each community?", {"family": "auto"}) == "centrality"
+    assert family("Compare node betweenness within communities given the degree sequence.",
+                  {"family": "auto"}) == "centrality"
+    assert family("Does degree cause community structure?", {"family": "auto"}) == "clarify"
 
 
 def test_inapplicable_extra_tool_is_dropped_not_fatal():

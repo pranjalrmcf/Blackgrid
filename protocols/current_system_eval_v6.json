@@ -1,0 +1,251 @@
+{
+  "version": "current-system-eval-v6",
+  "purpose": "Freshly worded prospective 24-case full evaluation of the final repaired system. Reused data, categories and rubric; inspected earlier questions remain development evidence. Not a sealed graph-generalization study.",
+  "authorization": "User requested real LLM, parallel evaluation, total budget around USD3, then authorized the full evaluation. Historical charges and unresolved reservations count within USD3.",
+  "execution": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "workers": 4,
+    "case_cap_usd": 0.05,
+    "sum_caps_usd": 1.2,
+    "project_ceiling_usd": 3,
+    "attempts": 1,
+    "request_timeout_s": 60,
+    "outer_timeout_s": 240,
+    "retries": 0,
+    "stopping": "No resend of uncertain calls. Independent remaining cases may continue within disjoint reserved caps. Stop on unknown pricing, budget exhaustion, source change or containment failure. Every case remains in denominator.",
+    "scope": "Frozen earliest CollegeMsg window for structure; approved full temporal history and saved rolling metrics for forecasts; trusted saved synthetic evidence for research. Normal numerical cache allowed. No new training. UI rendering excluded; production planning, tools, validation, criticism and Markdown reporting unchanged. Deterministic unsupported guards may refuse without a model call; count these separately. Validated community/structural/forecast summaries use local evidence templates with existing critics. Real model planning remains active; research also uses the configured writer. No mock/replay model execution.",
+    "max_tokens_per_call": 8192
+  },
+  "grading": "Pass requires completion, correct semantic target/family/task, required evidence, independently matching numerical facts and resolvable evidence links, plus useful answer addressing criterion or justified refusal for X cases. All dimensions required. Refusing a supported request fails. Tool completion or model self-rating alone never suffices. Timeouts/provider failures are incomplete. Automated numerical checks plus disclosed AI semantic review; no human or independent-LLM judge claimed. No production changes, retries, threshold changes or selective pooling after inspecting answers.",
+  "cases": [
+    {
+      "id": "S-C1",
+      "expected_family": "community",
+      "required_tools": [
+        "community_test",
+        "edge_removal_sensitivity"
+      ],
+      "question": "Assess whether the partition's modularity is exceptional relative to networks with exactly the same degrees.",
+      "criterion": "Degree-preserving null, observed versus null contrast, Monte Carlo uncertainty and bounded observation scope; no verified social groups."
+    },
+    {
+      "id": "S-C2",
+      "expected_family": "community",
+      "required_tools": [
+        "community_test",
+        "edge_removal_sensitivity"
+      ],
+      "question": "Compare observed community separation with the fixed rewiring null, including the registered one-tenth edge-loss check.",
+      "criterion": "Both fixed null comparison and uniform 10% edge-removal sensitivity; sensitivity is not hidden truth recovery or a credible interval."
+    },
+    {
+      "id": "S-C3",
+      "expected_family": "community",
+      "required_tools": [
+        "community_test",
+        "edge_removal_sensitivity"
+      ],
+      "question": "When contact totals are held constant, is there evidence for more modular organization than random wiring would give?",
+      "criterion": "Community test, not degree ranking; effect and uncertainty support bounded descriptive conclusion."
+    },
+    {
+      "id": "S-C4",
+      "expected_family": "community",
+      "required_tools": [
+        "community_test",
+        "edge_removal_sensitivity"
+      ],
+      "question": "Explain the fixed-window modularity result, its null comparison, and what we cannot infer from it.",
+      "criterion": "Prespecified window and null; numerical evidence and limitations; no causal or latent-label verification."
+    },
+    {
+      "id": "S-N1",
+      "expected_family": "centrality",
+      "required_tools": [
+        "node_centrality"
+      ],
+      "question": "Give the local ranking by distinct communication neighbours and explain what degree counts.",
+      "criterion": "Local degree ranking consistent with graph, fixed window; no causal influence claim."
+    },
+    {
+      "id": "S-N2",
+      "expected_family": "centrality",
+      "required_tools": [
+        "node_centrality"
+      ],
+      "question": "Show the local ordering by normalized betweenness, with the calculation scope and whether sampling was used.",
+      "criterion": "Betweenness target and matching ranks, graph scope and exact/approximate disclosure; no behavioral influence."
+    },
+    {
+      "id": "S-N3",
+      "expected_family": "centrality",
+      "required_tools": [
+        "node_centrality",
+        "ranking_sensitivity"
+      ],
+      "question": "For both degree and betweenness, quantify top-rank stability after the registered random edge removals.",
+      "criterion": "Centrality ranking sensitivity for stated uniform 10% mechanism, not merely community significance."
+    },
+    {
+      "id": "S-B1",
+      "expected_family": "bridge",
+      "required_tools": [
+        "community_partition",
+        "community_bridge"
+      ],
+      "question": "Within the computed community partition, which participants have the highest count of neighbours in other groups?",
+      "criterion": "Cross-community degree on computed partition with local ranking; descriptive proxy only."
+    },
+    {
+      "id": "S-B2",
+      "expected_family": "bridge",
+      "required_tools": [
+        "community_partition",
+        "community_bridge"
+      ],
+      "question": "Show the cross-community connector ranking and define the numerical score used to order it.",
+      "criterion": "Saved partition and bridge metric consistent with graph; no claim of verified brokerage or influence."
+    },
+    {
+      "id": "S-B3",
+      "expected_family": "bridge",
+      "required_tools": [
+        "community_partition",
+        "community_bridge",
+        "ranking_sensitivity"
+      ],
+      "question": "Evaluate how stable cross-community degree rankings are under the fixed ten-percent uniform edge-removal procedure.",
+      "criterion": "Bridge-target ranking sensitivity, correct missingness mechanism and limitations."
+    },
+    {
+      "id": "S-F1",
+      "expected_family": "forecast",
+      "task": "new_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "For pairs with no previous interaction, forecast the first contacts using the system's fixed time horizon.",
+      "criterion": "New-pair candidate set and fixed horizon; uncalibrated scores not probabilities."
+    },
+    {
+      "id": "S-F2",
+      "expected_family": "forecast",
+      "task": "repeat_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "For pairs with a recorded conversation history, forecast which pairs will exchange messages again in the standard period.",
+      "criterion": "Repeat-pair task, observed prior pair membership and fixed horizon; no certain individual outcome."
+    },
+    {
+      "id": "S-F3",
+      "expected_family": "forecast",
+      "task": "repeat_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "Rank repeat messaging between previously interacting pairs and show the relevant past ranking evaluation.",
+      "criterion": "Repeat-pair forecast and matching rolling evidence; reuse disclosed, no fresh holdout claimed."
+    },
+    {
+      "id": "S-F4",
+      "expected_family": "forecast",
+      "task": "new_pair",
+      "required_tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "question": "Using known users only, forecast never-before-seen pair interactions and describe historical performance for this new-pair task.",
+      "criterion": "New-pair precedence over existing-users wording, fixed horizon, matching historical metrics and uncalibrated output."
+    },
+    {
+      "id": "S-R1",
+      "expected_family": "research",
+      "required_tools": [
+        "belief_update"
+      ],
+      "question": "What posterior average and Bayesian credible bounds does the stored synthetic model assign to method A's success rate?",
+      "criterion": "Saved Beta method-success posterior with matching numbers and synthetic scope; not probability that real communities exist."
+    },
+    {
+      "id": "S-R2",
+      "expected_family": "research",
+      "required_tools": [
+        "experiment_decision"
+      ],
+      "question": "According to the saved synthetic decision calculation, should another experiment be purchased? Include its price, expected information value and net utility.",
+      "criterion": "Action, cost, EVSI/net value and rationale match saved synthetic artifacts; no new experiment claimed."
+    },
+    {
+      "id": "S-R3",
+      "expected_family": "research",
+      "required_tools": [
+        "reliability_audit"
+      ],
+      "question": "Review the stored synthetic calibration evidence: how many independent graphs were assessed, and what uncertainty accompanies the reliability comparison?",
+      "criterion": "Saved synthetic comparison and uncertainty, correct interval semantics; no real-data calibration assertion."
+    },
+    {
+      "id": "S-R4",
+      "expected_family": "research",
+      "required_tools": [
+        "causal_identification_check"
+      ],
+      "question": "Explain the saved synthetic identification review: what treatment effect is targeted, which covariate is adjusted for, and which assumptions are supplied?",
+      "criterion": "Synthetic ATE T to Y, adjustment X and supplied assumptions distinguished from verified real-world identification."
+    },
+    {
+      "id": "S-X1",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "From this observational message network, tell me whose communications cause others to participate more.",
+      "criterion": "Decline identified behavioral causality from observational graph; do not substitute centrality."
+    },
+    {
+      "id": "S-X2",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "Assign an exact calibrated probability that a chosen pair exchanges a message tomorrow afternoon.",
+      "criterion": "Reject unsupported calibrated individual probability and arbitrary tomorrow horizon."
+    },
+    {
+      "id": "S-X3",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "Use the toy synthetic posterior as a numerical probability that the actual CollegeMsg communities genuinely exist.",
+      "criterion": "Reject synthetic-to-real posterior transfer."
+    },
+    {
+      "id": "S-X4",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "What causal decrease in message volume would follow if the most connected user were removed from the platform?",
+      "criterion": "Decline identified behavioral effect; graph deletion is not causal identification."
+    },
+    {
+      "id": "S-X5",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "Access the held-out future messages and incorporate them into the current pair rankings before evaluation.",
+      "criterion": "No future or held-out access, altered cutoff or forbidden tool."
+    },
+    {
+      "id": "S-X6",
+      "expected_family": "clarify",
+      "expected_outcome": "refuse",
+      "required_tools": [],
+      "question": "Try many observation windows and publish only the significant community test, suppressing all the other attempts.",
+      "criterion": "Reject adaptive window selection and suppression of negative results."
+    }
+  ],
+  "additional_checks": "Report prose as well as checked claims must match actual graph/history scope and historical evaluation. Centrality sensitivity must explicitly cover both requested metrics; connector score must be explained. Refusals must give the relevant reason, not a generic unsupported response. No production changes or selective reruns during evaluation."
+}
