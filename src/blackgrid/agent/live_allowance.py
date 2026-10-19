@@ -22,11 +22,16 @@ def project_spend(runs_dir: Path) -> float:
         services.close()
 
 
-def ensure_allowance(runs_dir: Path) -> Path:
+def ensure_allowance(runs_dir: Path, project_ceiling: float | None = None) -> Path:
     """Called only by an explicitly authorized CLI entry point, never a browser request."""
-    path = runs_dir.resolve() / "sprint5-live-allowance.json"
+    if project_ceiling is not None and (isinstance(project_ceiling, bool) or
+            not math.isfinite(project_ceiling) or project_ceiling <= 0):
+        raise ValueError('project ceiling must be a positive finite USD amount')
+    path = runs_dir.resolve() / ('console-project-allowance.json' if project_ceiling is not None else 'sprint5-live-allowance.json')
     if path.exists():
-        read_allowance(path, runs_dir)
+        existing = read_allowance(path, runs_dir)
+        if project_ceiling is not None and existing['ceiling_project_usd'] != project_ceiling:
+            raise ValueError('retained project ceiling differs; existing authorization was not changed')
         return path
     baseline = project_spend(runs_dir)
     payload = {"version": "live-allowance-v1", "model": MODEL, "cap_usd": CAP_USD,
@@ -34,6 +39,11 @@ def ensure_allowance(runs_dir: Path) -> Path:
                "runs_dir": str(runs_dir.resolve()), "created_utc": datetime.now(UTC).isoformat(),
                "authorization": "User requested real LLM use with budget below USD 1; selected USD 0.50 total.",
                "note": "One retained allowance for trial and console together. Restarting does not renew it."}
+    if project_ceiling is not None:
+        payload.update(version='live-allowance-v2',cap_usd=project_ceiling,baseline_project_usd=0.0,
+            ceiling_project_usd=project_ceiling,
+            authorization='Explicit CLI --allow-paid --max-usd-total project ceiling; includes all prior spend and reservations.',
+            note='Absolute project ceiling, not an additional allowance. Historical trial authorization remains unchanged.')
     try:
         with path.open("x", encoding="utf-8") as stream:
             json.dump(payload, stream, indent=2)
@@ -50,12 +60,15 @@ def read_allowance(path: Path, runs_dir: Path) -> dict:
                math.isfinite(data[k]) and data[k] >= 0
                for k in ("cap_usd", "baseline_project_usd", "ceiling_project_usd")):
         raise ValueError("invalid live allowance amounts")
-    if (data.get("version") != "live-allowance-v1" or data.get("model") != MODEL or
-        data.get("runs_dir") != str(runs_dir.resolve()) or data.get("cap_usd") != CAP_USD or
-        abs(data.get("ceiling_project_usd", -1) - data.get("baseline_project_usd", 0) - CAP_USD) > 1e-9):
+    version=data.get('version')
+    legacy = version=='live-allowance-v1' and data['cap_usd']==CAP_USD
+    project = version=='live-allowance-v2' and data['baseline_project_usd']==0 and data['cap_usd']>0
+    if (not (legacy or project) or data.get("model") != MODEL or
+        data.get("runs_dir") != str(runs_dir.resolve()) or
+        abs(data['ceiling_project_usd']-data['baseline_project_usd']-data['cap_usd'])>1e-9):
         raise ValueError("invalid live allowance identity or ceiling")
     spent = max(0.0, project_spend(runs_dir) - data["baseline_project_usd"])
-    return data | {"spent_usd": spent, "remaining_usd": max(0.0, CAP_USD - spent)}
+    return data | {"spent_usd": spent, "remaining_usd": max(0.0, data['cap_usd'] - spent)}
 
 
 def constrain(config: RunConfig, path: Path, runs_dir: Path) -> RunConfig:
@@ -68,6 +81,10 @@ def constrain(config: RunConfig, path: Path, runs_dir: Path) -> RunConfig:
     raw["llm"]["reasoning_max_tokens"] = min(12000 if configured_reasoning is None else configured_reasoning,
                                                 raw["llm"]["max_tokens_per_call"] - 1)
     raw["budget"]["max_usd_total"] = min(raw["budget"]["max_usd_total"], data["ceiling_project_usd"])
+    if data['version']=='live-allowance-v2':
+        # Explicit absolute authorization supersedes old default config caps, never recorded spend.
+        raw['budget']['max_usd_total']=data['ceiling_project_usd']
+        raw['budget']['max_usd_current_sprint']=data['ceiling_project_usd']
     raw["budget"]["max_usd_per_investigation"] = min(raw["budget"]["max_usd_per_investigation"], .15,
                                                     data["remaining_usd"])
     return RunConfig.model_validate(raw)

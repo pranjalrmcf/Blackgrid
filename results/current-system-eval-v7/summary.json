@@ -1,0 +1,70 @@
+{
+  "evaluation": "current-system-eval-v7",
+  "date": "2026-10-19",
+  "status": "Frozen evaluation after the 493-test regression repairs",
+  "protocol_sha256": "178e50e6bfc27cfec4b8315e83c9ba2aeb439c524f4e307f8fa6221b5803681b",
+  "summary": {
+    "pass": 23,
+    "fail": 0,
+    "incomplete": 1,
+    "total": 24,
+    "strict_success_percent": 95.83333333333333,
+    "supported_request_pass": 17,
+    "supported_request_total": 18,
+    "refusal_pass": 6,
+    "refusal_total": 6
+  },
+  "categories": {
+    "community": {
+      "passed": 4,
+      "total": 4
+    },
+    "centrality": {
+      "passed": 3,
+      "total": 3
+    },
+    "bridge": {
+      "passed": 3,
+      "total": 3
+    },
+    "forecast": {
+      "passed": 4,
+      "total": 4
+    },
+    "research": {
+      "passed": 3,
+      "total": 4
+    },
+    "clarify": {
+      "passed": 6,
+      "total": 6
+    }
+  },
+  "execution": {
+    "elapsed_s": 107.6551119999931,
+    "workers": 4,
+    "attempts_per_case": 1,
+    "source_unchanged": true,
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "questions_with_real_model_calls": 19,
+    "deterministic_refusals_without_model_calls": 5
+  },
+  "latency": {
+    "median_s": 6.216488699996262,
+    "p90_s": 29.91942379999091,
+    "max_s": 55.74678970000241
+  },
+  "cost": {
+    "known_receipted_usd": 0.008903260000000001,
+    "unresolved_reserved_usd": 0.0,
+    "unresolved_calls": 0,
+    "recorded_llm_operations": 23
+  },
+  "failure": "T-R4: causal review numerical tool completed; research-writing response truncated at 8192 tokens; no final accepted claims.",
+  "limitations": [
+    "Fresh wording on reused graph data and normal numerical caches; not graph-level generalization.",
+    "Independent numerical checks plus assistant semantic review, not human judging.",
+    "No new predictive-model benchmark or calibration result.",
+    "UI rendering excluded; no retry or production fix during this evaluation."
+  ]
+}

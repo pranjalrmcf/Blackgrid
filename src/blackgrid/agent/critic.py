@@ -267,7 +267,9 @@ def validate_plan(question: str, request: dict, plan: dict) -> PlanDecision:
     from blackgrid.agent.inquiry import family, validate_structural, planner_refusal
     if family(question, request) != "community":
         allowed, calls, reason = validate_structural(question, request, plan)
-        return PlanDecision(allowed=allowed, tool_calls=tuple(calls), reasons=(reason,))
+        causal_refusal = not allowed and family(question, request)=='clarify' and CAUSAL.search(question)
+        return PlanDecision(allowed=allowed, tool_calls=tuple(calls), reasons=(reason,),
+                            refusal_flag='causal_not_identified' if causal_refusal else None)
     if CAUSAL.search(question) or str(request.get("claim_type", "")).lower() == "causal":
         return PlanDecision(allowed=False, refusal_flag="causal_not_identified",
                             reasons=("Causal effects are not identified: static observational graph, no estimand, "

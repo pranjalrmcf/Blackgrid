@@ -35,6 +35,15 @@ def test_mixed_registered_tool_families_are_not_auto_promoted():
             {'tool':'belief_update','args':{}},{'tool':'community_test','args':{}}]})
 
 
+@pytest.mark.parametrize('question,selected,tool',[
+    ('Which pairs will message next?', 'community','community_test'),
+    ('Check cross-community degree ranking stability.', 'centrality','node_centrality')])
+def test_clear_target_cannot_be_silently_replaced(question,selected,tool):
+    with pytest.raises(ToolRejected):
+        resolve_plan_family(question,{'family':'auto'},{'decision':'run','family':selected,
+            'tool_calls':[{'tool':tool,'args':{}}]})
+
+
 def test_refusal_does_not_claim_that_a_research_review_was_performed():
     q='Can communication logs establish who makes others more active?'
     plan={'decision':'refuse','family':'research','reason':'Observational messages do not identify causal influence.','tool_calls':[]}

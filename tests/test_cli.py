@@ -66,7 +66,7 @@ def test_full_mock_investigation_completes_with_linked_artifacts(tmp_path):
     for claim in manifest.claims:  # every manifest claim links to a real artifact hash
         for link in claim.evidence:
             assert manifest.artifacts[link.artifact] == link.sha256
-    assert manifest.cost.actual_usd == 0 and manifest.cost.llm_calls >= 2
+    assert manifest.cost.actual_usd == 0 and manifest.cost.llm_calls == 1  # planner; summary is evidence-bound
     assert (run_dir / "report.md").is_file() and (run_dir / "report.html").is_file()
     assert (tmp_path / "runs" / "index.html").is_file()
     inv = json.loads((run_dir / "investigation.json").read_text(encoding="utf-8"))

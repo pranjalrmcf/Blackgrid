@@ -120,7 +120,9 @@ def test_complete_structural_workflow_without_community_test(tmp_path, kind, que
 def test_unknown_prose_is_not_accepted(tmp_path):
     provider = MockProvider(script={"analyst": [json.dumps({"verdict": "supported", "claims": [
         {"text": "These people are important.", "evidence": ["node_centrality.json#/summary/max_degree"], "evidence_level": "descriptive"}]})]})
-    result, _ = Controller(provider, BudgetLedger(BudgetLimits(), FREE, ExecutionMode.MOCK), ExecutionMode.MOCK, tmp_path).investigate(input_for(), "validated")
+    inp=input_for()
+    inp.request=inp.request | {'summary_mode':'model'}
+    result, _ = Controller(provider, BudgetLedger(BudgetLimits(), FREE, ExecutionMode.MOCK), ExecutionMode.MOCK, tmp_path).investigate(inp, "validated")
     assert any(not d.accepted for d in result.critic_decisions)
     assert all(c["text"] != "These people are important." for c in result.reported_claims)
 
@@ -136,7 +138,7 @@ def test_follow_up_cannot_repeat_or_execute_arbitrary_tools(tmp_path):
 def test_ambiguous_influence_and_invalid_plan():
     assert family("Who is influential?", {"family": "auto"}) == "clarify"
     ok, _, reason = validate_structural("Who is influential?", {"family": "centrality"}, {"decision": "run", "tool_calls": [{"tool": "node_centrality", "args": {}}]})
-    assert not ok and "Clarify" in reason
+    assert not ok and 'cannot identify' in reason and not _
 
 
 @pytest.mark.parametrize("baseline", ["degree-preserving", "degree preserving", "degree–preserving"])

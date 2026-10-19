@@ -85,6 +85,31 @@ def test_pilot_requires_explicit_paid_authorization(tmp_path):
     assert not (tmp_path/"trial").exists()
 
 
+def test_explicit_project_ceiling_counts_history_without_renewing_trial(tmp_path):
+    legacy=ensure_allowance(tmp_path)
+    original=legacy.read_bytes()
+    add_spend(tmp_path,1.36,'historical-paid-and-reserved')
+    path=ensure_allowance(tmp_path,project_ceiling=3)
+    assert path!=legacy and legacy.read_bytes()==original
+    assert read_allowance(path,tmp_path)['remaining_usd']==pytest.approx(1.64)
+    bounded=constrain(config(),path,tmp_path)
+    assert bounded.budget.max_usd_current_sprint==3
+    assert bounded.budget.max_usd_total==3
+    assert bounded.budget.max_usd_per_investigation<=.15
+    saved=path.read_bytes()
+    assert ensure_allowance(tmp_path,project_ceiling=3)==path
+    assert path.read_bytes()==saved
+    with pytest.raises(ValueError,match='differs'):ensure_allowance(tmp_path,project_ceiling=4)
+    add_spend(tmp_path,1.64,'rest-of-project-budget')
+    with pytest.raises(ValueError,match='exhausted'):constrain(config(),path,tmp_path)
+
+
+@pytest.mark.parametrize('value',[float('nan'),float('inf'),0,-1,True])
+def test_invalid_absolute_project_ceiling_rejected(tmp_path,value):
+    with pytest.raises(ValueError):ensure_allowance(tmp_path,project_ceiling=value)
+    assert not (tmp_path/'console-project-allowance.json').exists()
+
+
 def test_bridge_plan_can_include_supplementary_centrality():
     from blackgrid.agent.inquiry import validate_structural
     ok, calls, _ = validate_structural("Which nodes connect groups and are rankings stable?", {"family":"bridge"},

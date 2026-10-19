@@ -89,7 +89,7 @@ def test_selected_forecasts_always_compare_against_their_own_evidence():
     assert validate_forecast("Which pairs will message next?", {"family": "auto"}, plan)[1][-1]["args"]["split"] == "test"
 
 
-def test_mean_ap_difference_is_ap_evidence_and_upstreams_can_be_excluded(monkeypatch):
+def test_mean_ap_difference_is_ap_evidence_and_upstreams_can_be_excluded(capture_openrouter_http):
     import io
 
     from blackgrid.agent import providers
@@ -111,6 +111,7 @@ def test_mean_ap_difference_is_ap_evidence_and_upstreams_can_be_excluded(monkeyp
         sent.update(json.loads(request.data.decode("utf-8")))
         return Response(json.dumps({"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
                                     "usage": {"prompt_tokens": 1, "completion_tokens": 1}}).encode())
-    monkeypatch.setattr(providers.urllib.request, "urlopen", fake)
+    capture_openrouter_http(fake)
     providers.OpenRouterProvider("m", "sk-test", provider_ignore=("Wafer",)).complete("planner", {}, [], 100)
-    assert sent["provider"] == {"require_parameters": True, "ignore": ["Wafer"]}
+    assert sent['provider'].pop('max_price')==pytest.approx({'prompt':.2,'completion':.6})
+    assert sent["provider"] == {"require_parameters": True, "ignore": ["Wafer"], "sort":"latency"}

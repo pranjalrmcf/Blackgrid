@@ -47,7 +47,7 @@ def test_live_workflow_survives_a_provider_that_ignores_max_tokens(tmp_path):
     assert not any(e["event"] == "reservation_exceeded" for e in budget["events"])
 
 
-def test_openrouter_request_bounds_reasoning_tokens(monkeypatch):
+def test_openrouter_request_bounds_reasoning_tokens(capture_openrouter_http):
     sent = {}
 
     class Response(io.BytesIO):
@@ -62,7 +62,7 @@ def test_openrouter_request_bounds_reasoning_tokens(monkeypatch):
         return Response(json.dumps({"choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
                                     "usage": {"prompt_tokens": 1, "completion_tokens": 1}}).encode())
 
-    monkeypatch.setattr(providers.urllib.request, "urlopen", fake_urlopen)
+    capture_openrouter_http(fake_urlopen)
     OpenRouterProvider("m", "sk-test", reasoning_max_tokens=12_000).complete("analyst", {}, [], 16_000)
     assert sent["max_tokens"] == 16_000 and sent["reasoning"] == {"max_tokens": 12_000}
     sent.clear()

@@ -1,0 +1,72 @@
+{
+  "evaluation": "current-system-eval-v6",
+  "date": "2026-10-19",
+  "status": "historical snapshot; precedes final regression repairs",
+  "protocol_sha256": "dc58bbde27c2acb299981b5b02f92bb4fc1d0b72d8973240ba3e521b2eccbbe8",
+  "scoring": "Independent local numerical/artifact checks plus assistant semantic review; no human review claimed.",
+  "summary": {
+    "pass": 23,
+    "fail": 1,
+    "incomplete": 0,
+    "total": 24,
+    "strict_success_percent": 95.83333333333333,
+    "supported_request_pass": 17,
+    "supported_request_total": 18,
+    "refusal_pass": 6,
+    "refusal_total": 6
+  },
+  "categories": {
+    "community": {
+      "passed": 4,
+      "total": 4
+    },
+    "centrality": {
+      "passed": 3,
+      "total": 3
+    },
+    "bridge": {
+      "passed": 2,
+      "total": 3
+    },
+    "forecast": {
+      "passed": 4,
+      "total": 4
+    },
+    "research": {
+      "passed": 4,
+      "total": 4
+    },
+    "clarify": {
+      "passed": 6,
+      "total": 6
+    }
+  },
+  "execution": {
+    "elapsed_s": 68.5644508000114,
+    "workers": 4,
+    "attempts_per_case": 1,
+    "source_unchanged": true,
+    "incomplete": 0,
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "real_planner_requests": 18,
+    "deterministic_refusals_without_model_calls": 6
+  },
+  "latency": {
+    "median_s": 4.358983099999023,
+    "p90_s": 18.91507439999259,
+    "max_s": 28.052143399996567
+  },
+  "cost": {
+    "known_receipted_usd": 0.00747418,
+    "unresolved_reserved_usd": 0.0,
+    "unresolved_calls": 0,
+    "recorded_llm_operations": 22
+  },
+  "remaining_failure": "Cross-community degree stability substituted with ordinary centrality stability.",
+  "limitations": [
+    "Reused graphs and numerical caches; not independent graph-level generalization.",
+    "UI rendering excluded.",
+    "No fresh prediction-model benchmark or retraining.",
+    "Later regression repairs have not been rerun on this live question set."
+  ]
+}

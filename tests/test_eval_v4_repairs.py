@@ -61,7 +61,7 @@ def test_bridge_report_explains_score():
 def test_closed_community_summary_preserves_negative_evidence():
     from blackgrid.workflow.engine import community_summary
     from blackgrid.agent.critic import CriticContext,critique
-    outputs={'experiment_report.json':{'verdict':'not_supported','primary':{'result':{
+    outputs={'experiment_report.json':{'verdict':'not_supported','secondary':None,'primary':{'result':{
         'observed_statistic':.3,'null':{'mean':.4},'p_value':.8}}},
         'sensitivity.json':{'removal_fraction':.1,'replicates':20,'agreement_fraction':1.0}}
     ctx=CriticContext(evidence=flatten(outputs),verdict='not_supported',delta_q=-.1,p_value=.8,alpha=.05)
@@ -69,3 +69,26 @@ def test_closed_community_summary_preserves_negative_evidence():
     assert claims and all(critique(c,ctx).accepted for c in claims)
     assert any('not_supported' in c['text'] for c in claims)
     assert all('exceeds' not in c['text'] for c in claims)
+
+
+def test_default_evidence_summary_completes_without_a_writer(tmp_path):
+    from collections import Counter
+    from tests.test_workflow import Counting,start
+    class PlannerOnly(Counting):
+        def complete(self,role,*args,**kwargs):
+            assert role=='planner', 'Evidence summary must not dispatch an interpretation call'
+            return super().complete(role,*args,**kwargs)
+    provider=PlannerOnly()
+    out=start(tmp_path,provider,None,summary_mode='evidence')
+    assert out.outcome.status=='completed'
+    assert out.result.verdict=='not_supported'
+    assert out.result.reported_claims and all(c.accepted for c in out.result.critic_decisions)
+    assert provider.calls==Counter(planner=1)
+
+
+def test_unknown_summary_policy_fails_before_provider_dispatch(tmp_path):
+    from tests.test_workflow import Counting,start
+    provider=Counting()
+    out=start(tmp_path,provider,None,summary_mode='unrestricted')
+    assert out.outcome.status=='failed' and 'summary_mode' in out.outcome.reason
+    assert not provider.calls

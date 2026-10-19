@@ -265,9 +265,11 @@ def _cmd_console(args: argparse.Namespace) -> int:
 
     args.runs_dir.mkdir(parents=True, exist_ok=True)
     allowance = None
+    if args.max_usd_total is not None and not args.allow_paid:
+        raise ValueError('--max-usd-total requires --allow-paid')
     if args.allow_paid:
         from blackgrid.agent.live_allowance import ensure_allowance
-        allowance = ensure_allowance(args.runs_dir)
+        allowance = ensure_allowance(args.runs_dir, project_ceiling=args.max_usd_total)
     console = Console(args.runs_dir, args.cache_dir, args.config, args.data_root, args.port, live_allowance=allowance)
     try:
         httpd = serve(console)
@@ -642,6 +644,7 @@ def build_parser() -> argparse.ArgumentParser:
     con = sub.add_parser("console", parents=[common], help="serve the interactive console on 127.0.0.1")
     con.add_argument("--port", type=int, default=8765)
     con.add_argument("--allow-paid", action="store_true", help="enable retained USD 0.50 live allowance; restarts do not renew it")
+    con.add_argument('--max-usd-total', type=float, help='explicit absolute project USD ceiling including all prior spend; requires --allow-paid')
     con.add_argument("--config", type=Path, default=REPO_ROOT / "configs" / "collegemsg_sprint01.json",
                      help="config used by the console's 'Start mock run' action (always run in mock mode)")
     con.add_argument("--data-root", type=Path, default=REPO_ROOT)

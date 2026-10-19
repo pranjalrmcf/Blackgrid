@@ -153,7 +153,8 @@ def run_pilot(output: Path, *, cap_usd: float = 0.50, allow_paid: bool = False, 
                 append(attempts, {"attempt": label, "state": "started", "remaining_usd": round(remaining, 6)})
                 before = time.perf_counter()
                 try:
-                    inp = InvestigationInput(case_id=cid, question=case.public.question, request=case.public.request,
+                    inp = InvestigationInput(case_id=cid, question=case.public.question,
+                                             request=case.public.request | {'summary_mode':'model'},
                                              graph=case.graph, record=case.record, spec=validation_spec(cid))
                     config = _config(cid, arm, min(cap_usd, remaining))
                     use = RuleBaselineProvider() if arm == "baseline" else provider

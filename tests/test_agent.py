@@ -51,7 +51,7 @@ def odd_id_input(question: str = "Is community structure stronger than a suitabl
                          active_nodes=graph.number_of_nodes(), unique_edges=graph.number_of_edges(),
                          edge_status_counts={EdgeStatus.OBSERVED: graph.number_of_edges()},
                          projection_sha256=graph_sha256(graph))
-    return InvestigationInput(case_id="adv", question=question, request=request or {"method": "auto"}, graph=graph,
+    return InvestigationInput(case_id="adv", question=question, request=(request or {"method": "auto"}) | {'summary_mode':'model'}, graph=graph,
                               record=record, spec=spec())
 
 
@@ -167,7 +167,7 @@ def test_budget_exhaustion_is_a_recorded_outcome(tmp_path):
 
 def test_unaffordable_revision_drops_rejected_claims_but_completes(tmp_path):
     dev = dev_cases()["dev-002"]  # naive draft is rejected, so a revision is wanted
-    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request,
+    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request | {"summary_mode":"model"},
                              graph=dev.graph, record=dev.record, spec=spec())
     result, _ = controller(tmp_path, max_llm_calls=2).investigate(inp, "validated")  # planner + analyst only
     assert result.status is RunStatus.COMPLETED and result.verdict == "not_supported"
@@ -201,7 +201,7 @@ def test_truncated_reply_is_not_parsed_and_retry_asks_for_less(tmp_path):
 
 def test_validated_run_rejects_naive_claims_then_accepts_revision(tmp_path):
     dev = dev_cases()["dev-002"]  # random graph: naive analyst over-claims structure
-    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request,
+    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request | {"summary_mode":"model"},
                              graph=dev.graph, record=dev.record, spec=spec())
     result, _ = controller(tmp_path).investigate(inp, "validated")
     assert result.verdict == "not_supported"
@@ -213,7 +213,7 @@ def test_validated_run_rejects_naive_claims_then_accepts_revision(tmp_path):
 
 def test_tool_only_keeps_the_over_claim(tmp_path):
     dev = dev_cases()["dev-002"]
-    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request,
+    inp = InvestigationInput(case_id="dev-002", question=dev.public.question, request=dev.public.request | {"summary_mode":"model"},
                              graph=dev.graph, record=dev.record, spec=spec())
     result, _ = controller(tmp_path).investigate(inp, "tool_only")
     assert result.verdict == "supported"  # the naive analyst's verdict, unchecked

@@ -1,18 +1,64 @@
-# Blackgrid
+# BLACKGRID
 
-Bounded, evidence-grounded network-science investigations. Sprint 1 delivers one offline, reproducible vertical slice. It runs a preregistered community-vs-null experiment on a bounded CollegeMsg window, plus synthetic known-truth checks. The work is driven by a constrained planner/analyst, an allowlisted tool executor, and a rule-based critic. It produces an evidence-linked report or abstains.
+BLACKGRID turns network-science questions into bounded, reproducible investigations. A constrained LLM planner chooses registered tools for community testing, centrality, cross-community bridges and temporal link prediction; trusted numerical code executes the analysis, and evidence checks constrain the answer to what the artifacts support. A local console exposes reports, private rankings, uncertainty, refusals and costs. Durable checkpoints, verified receipts and explicit spending caps keep interrupted investigations auditable. Separate synthetic studies demonstrate Bayesian beliefs, experiment decisions and causal-identification limits.
 
-System map: [flowchart.md](flowchart.md). Sprint plans: [sprints/](sprints/README.md).
+[Technical summary: two-page PDF](output/pdf/blackgrid_technical_summary.pdf) · [Markdown](docs/technical_summary.md) · [Detailed system flowcharts](flowchart.md) · [MIT license](LICENSE)
 
-Start with `PROJECT_CONTEXT.md`, `sprints/SPRINT_01.md`, `sprints/SPRINT_02.md`, `sprints/SPRINT_03.md`, and `AGENTS.md`.
+## Architecture
 
-- Study rules: `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`.
-- Workflow contract: `protocols/sprint02_workflow.md`.
-- How a run works, in plain English: `docs/workflow_guide.md`.
-- Every decision: `docs/decision_log.md`.
-- Sprint outcomes: `docs/sprint01_report.md` and `docs/sprint02_report.md`.
+```mermaid
+flowchart LR
+    Q["Question + validated config"] --> G["Scope and authorization guards"]
+    G --> P["LLM planner"]
+    P --> V["Validate family, tools and obligations"]
+    V --> T["Trusted numerical tools"]
+    T --> S["Evidence summary / bounded research writer"]
+    S --> C["Critic: numbers, links and scope"]
+    C --> R["Report, local rankings or explicit abstention"]
+    D["Local events + bound synthetic evidence"] --> T
+    P -.-> L["SQLite ledger + checkpoints + receipts"]
+    T -.-> L
+    R -.-> L
+```
 
-## Status
+Models receive aggregate evidence, not raw event rows or local identifier tables. Validated structural and forecast summaries use evidence templates by default; model-written summaries remain bounded by the same critics. See the [full architecture](flowchart.md) for recovery, follow-up and evaluation paths.
+
+## Headline results
+
+| Measurement | Observed result | Scope and evidence |
+|---|---|---|
+| Current complete regression | **493 passed; 0 failures, errors or skips** in 4m26s | Engineering and numerical checks, including offline instrumented providers. [Test status](docs/current_test_status.md). |
+| Most recent real-LLM system evaluation | **23/24 strict passes (95.8%)** in 108s; batch cost **$0.0089** | Current post-repair snapshot: 17/18 supported questions passed; all 6 unsupported requests were refused (5 guards, 1 model). One research-writing response truncated. [Evaluation and limitations](docs/current_system_evaluation.md). |
+| CollegeMsg repeat-pair prediction | **40.8 correct per top 100**; mean AP **0.2883** | Logistic model averaged across 5 inspected rolling development windows. [Saved results](results/sprint06-v2/summary.json). |
+| CollegeMsg first-time pair prediction | **4.4 correct per top 100**; mean AP **0.00757** | Same development protocol; first contacts remain difficult. These scores are not calibrated probabilities. [Saved results](results/sprint06-v2/summary.json). |
+| External prediction confirmation | Logistic model beat its registered reference in **5/5 windows for each task** on Bitcoin OTC | Dataset/task-specific confirmation, not universal transfer. [Saved results](results/sprint06-v3-bitcoin/summary.json). |
+
+The latest live evaluation used reused data and warm numerical caches, with independent numerical checks plus assistant semantic review. All bridge cases passed; one saved synthetic research answer failed when the model hit its output cap. Earlier evaluations remain separate. These measurements do not establish autonomous scientific discovery, causal influence, calibrated individual probabilities or a statistically demonstrated benefit from an LLM. The [technical summary](docs/technical_summary.md) separates the thesis, method, results and limitations.
+
+## Start here
+
+```powershell
+uv sync --frozen
+uv run --frozen pytest
+uv run --frozen blackgrid console
+```
+
+The default console is local and uses scripted AI with real numerical tools. CollegeMsg must be supplied locally with the recorded checksum and usage decision; raw datasets are not redistributed. For explicitly authorized live operation under an absolute $3 project ceiling:
+
+```powershell
+uv run --frozen blackgrid console --allow-paid --max-usd-total 3
+```
+
+That ceiling includes previous spending and unresolved reservations; it is not a fresh $3 grant. Refresh the console and select **Real AI**. Setup, dataset requirements and recovery commands follow below.
+
+## License
+
+Original BLACKGRID code and documentation are available under the [MIT License](LICENSE). Third-party datasets, dependencies and assets retain their own terms; this license grants no rights to CollegeMsg, Bitcoin OTC or other third-party data. Raw data, credentials and private run artifacts are excluded from version control.
+
+<details>
+<summary>Historical sprint implementation notes</summary>
+
+These notes retain the results and status of their respective revisions. Historical test counts, spending and capability statements are not the current project totals. Sprint plans remain local under ignored `sprints/`; implementation reports are versioned in `docs/`.
 
 **Sprint 7's initial synthetic uncertainty/decision slice is implemented.**
 `blackgrid sprint7 --output runs/NEW` demonstrates reliability diagnostics,
@@ -87,6 +133,9 @@ Fixes from an external review are in, but none has been exercised live yet:
 - a `partial` status for incomplete answers (D-040).
 
 See `docs/sprint01_report.md` for acceptance criteria, results, and limitations.
+
+
+</details>
 
 ## 1. Setup (once)
 
@@ -165,6 +214,11 @@ Then open http://127.0.0.1:8765.
 - **It can act on runs:** start **mock** runs and the pilot, and resume, cancel, deny, or reconcile runs.
 - **Paid calls are disabled by default.** Starting with `uv run --frozen blackgrid console --allow-paid` enables a retained
   USD 0.50 allowance shared with the live trial. Restarting does not refill it. The browser cannot create a new allowance.
+  To explicitly authorize an absolute project ceiling instead, use
+  `uv run --frozen blackgrid console --allow-paid --max-usd-total 3`.
+  This includes all previous project charges and unresolved reservations within USD 3; it does not add USD 3
+  or reset spending. It uses a separate retained project authorization and preserves the historical trial allowance.
+  Refresh the page and select **Real AI** before starting a paid investigation.
 - **It is local only.** It listens on 127.0.0.1 and protects actions with a per-session token.
 
 Every finished run also saves the same console as an **interactive offline snapshot**:

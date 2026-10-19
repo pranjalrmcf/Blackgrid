@@ -41,7 +41,9 @@ def test_tools_return_aggregates_and_reject_unregistered_methods(evaluated):
     profile = tools.call({"tool": "temporal_profile", "args": {}})
     assert profile["history_nodes"] > 0 and isinstance(profile["candidates"]["new_pair"], int)
     result = tools.call({"tool": "link_prediction", "args": {"task": "new_pair", "method": "jaccard"}})
-    assert "pair" not in json.dumps(result).replace("new_pair", "").replace("repeat_pair", "")  # no pair identifiers
+    # Aggregate history_pairs is allowed; identifiers and ranked rows must remain local.
+    assert not {'pair','pairs','rows','local_ranking'} & result.keys()
+    assert all(v is None or isinstance(v,(str,int,float,bool,dict)) for v in result.values())
     with pytest.raises(PredictionToolRejected, match="not registered"):
         tools.call({"tool": "link_prediction", "args": {"task": "new_pair", "method": "gnn"}})
     with pytest.raises(PredictionToolRejected, match="not registered"):

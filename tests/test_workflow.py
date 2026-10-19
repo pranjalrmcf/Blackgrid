@@ -66,12 +66,13 @@ def dev_config(mode: str = "mock", **budget) -> RunConfig:
     return RunConfig.model_validate(data)
 
 
-def start(runs: Path, provider, cache_dir, case="dev-002", config=None, **kw):
+def start(runs: Path, provider, cache_dir, case="dev-002", config=None, summary_mode="model", **kw):
     dev = dev_cases()[case]
     public, graph, record = dev.planner_view()
     from blackgrid.agent.roles import InvestigationInput
 
-    inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request, graph=graph,
+    # Exercise actual writer/reviser dispatch for crash/receipt/authorization invariants.
+    inp = InvestigationInput(case_id=public.case_id, question=public.question, request=public.request | {'summary_mode':summary_mode}, graph=graph,
                              record=record, spec=dev_spec(dev))
     return run_investigation(inp, config or dev_config(), provider, runs, cache_dir=cache_dir,
                              input_ref={"kind": "dev", "case_id": case}, **kw)

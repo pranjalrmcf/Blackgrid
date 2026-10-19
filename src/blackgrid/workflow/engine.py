@@ -641,6 +641,8 @@ def _node(rt: Runtime, name: str, fn: Callable[[WFState], dict], check_cancel: b
 def build(rt: Runtime):
     def initialize(state: WFState) -> dict:
         rt.inputs(state)  # reload and verify the graph before anything else
+        if state['request'].get('summary_mode','evidence') not in ('evidence','model'):
+            raise _Terminal('failed','summary_mode must be evidence or model')
         return {"required": list(REQUIRED_TOOLS) if family(state["question"], state["request"]) == "community"
                 else list(requirements(state["question"], state["request"]))}
 
@@ -725,15 +727,16 @@ def build(rt: Runtime):
     def analyst(state: WFState) -> dict:
         ctx = tool_context(rt, state)
         inp = rt.inputs(state)
-        if state["condition"] == "validated" and family(inp.question, inp.request) == "forecast":
+        local_summary = inp.request.get('summary_mode','evidence') == 'evidence'
+        if state["condition"] == "validated" and local_summary and family(inp.question, inp.request) == "forecast":
             # This is a closed factual summary, not an additional model inference. The forecast critic
             # still checks every template and finalization still enforces evidence/number bindings.
             return {"drafts": forecast_suggestions(ctx), "analyst_verdict": state.get("verdict", "abstain")}
-        if state["condition"] == "validated" and family(inp.question, inp.request) in ("centrality", "bridge"):
+        if state["condition"] == "validated" and local_summary and family(inp.question, inp.request) in ("centrality", "bridge"):
             # The same closed claim vocabulary already enforced by the critic needs no model rewrite.
             return {"drafts": factual_claims(flatten(safe_outputs(ctx.outputs))),
                     "analyst_verdict": state.get("verdict", "abstain")}
-        if state["condition"] == "validated" and family(inp.question, inp.request) == "community":
+        if state["condition"] == "validated" and local_summary and family(inp.question, inp.request) == "community":
             return {"drafts": community_summary(ctx.outputs), "analyst_verdict": state.get("verdict", "abstain")}
         drafted = llm(rt, state, "analyst", _analysis_payload(inp, ctx, state), index=0)
         claims = drafted.get("claims") if isinstance(drafted.get("claims"), list) else []
@@ -922,7 +925,7 @@ def community_summary(outputs: dict) -> list[dict]:
         claims.append({'text': f"The saved decision-rule verdict is '{report['verdict']}' for this graph only.",
             'evidence_level': 'descriptive', 'evidence': ['experiment_report.json#/verdict']})
     for name in ('primary','secondary'):
-        result=report.get(name,{}).get('result') or {}
+        result=(report.get(name) or {}).get('result') or {}
         null=result.get('null') or {}
         if all(result.get(k) is not None for k in ('observed_statistic','p_value')) and null.get('mean') is not None:
             prefix=f'experiment_report.json#/{name}/result/'

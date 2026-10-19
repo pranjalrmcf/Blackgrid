@@ -43,7 +43,7 @@ def test_unexpected_error_leaves_a_resumable_pause_not_running(tmp_path, monkeyp
     assert done.outcome.status == "completed"  # after the fix, resume finishes from the checkpoint
 
 
-def test_openrouter_requires_parameter_support_and_records_the_upstream(monkeypatch):
+def test_openrouter_requires_parameter_support_and_records_the_upstream(capture_openrouter_http):
     sent = {}
 
     class Response(io.BytesIO):
@@ -58,9 +58,10 @@ def test_openrouter_requires_parameter_support_and_records_the_upstream(monkeypa
         return Response(json.dumps({"provider": "SomeUpstream", "model": "m",
                                     "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}],
                                     "usage": {"prompt_tokens": 1, "completion_tokens": 1}}).encode())
-    monkeypatch.setattr(providers.urllib.request, "urlopen", fake_urlopen)
+    capture_openrouter_http(fake_urlopen)
     done = OpenRouterProvider("m", "sk-test", reasoning_max_tokens=12_000).complete("planner", {}, [], 16_000)
-    assert sent["provider"] == {"require_parameters": True} and sent["reasoning"] == {"max_tokens": 12_000}
+    assert sent['provider'].pop('max_price')==pytest.approx({'prompt':.2,'completion':.6})
+    assert sent["provider"] == {"require_parameters": True, "sort":"latency"} and sent["reasoning"] == {"max_tokens": 12_000}
     assert done.provider == "openrouter:SomeUpstream"
 
 

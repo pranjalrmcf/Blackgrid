@@ -72,7 +72,7 @@ def resolve_plan_family(question: str, request: dict, plan: dict) -> str:
     if plan.get("decision") == "refuse":
         return "clarify"
     if declared is not None:
-        return declared
+        return checked_family(question, declared)
     # Compatibility with real replies that omit family: their registered tools also encode intent.
     calls = plan.get("tool_calls")
     names = {c.get("tool") for c in calls if isinstance(c, dict) and isinstance(c.get("tool"), str)} if isinstance(calls, list) else set()
@@ -83,10 +83,22 @@ def resolve_plan_family(question: str, request: dict, plan: dict) -> str:
     if names & {"community_partition", "community_bridge"}: groups.add("bridge")
     if "node_centrality" in names and "bridge" not in groups: groups.add("centrality")
     if len(groups) == 1:
-        return groups.pop()
+        return checked_family(question, groups.pop())
     if len(groups) > 1:
         raise ToolRejected("Planner mixed incompatible analysis families; no tools were executed.")
     return family(question, request)
+
+
+def checked_family(question: str, selected: str) -> str:
+    """Reject clear target substitution while retaining semantic routing for ambiguous wording."""
+    q=question.lower()
+    saved=bool(re.search(r'\b(saved|stored|synthetic|posterior)\b',q))
+    if not saved and not CAUSAL_Q.search(q) and re.search(r'\bpairs?\b',q) and FORECAST.search(q):
+        if selected!='forecast':
+            raise ToolRejected('A messaging-pair forecast cannot be replaced by structural tools.')
+    if re.search(r'cross[ -](?:community|group)',q) and re.search(r'\brank\w*\b',q) and selected=='centrality':
+        raise ToolRejected('Cross-community rankings require the bridge family, not ordinary centrality.')
+    return selected
 
 
 def planner_refusal(plan: dict, fallback: str) -> str:
