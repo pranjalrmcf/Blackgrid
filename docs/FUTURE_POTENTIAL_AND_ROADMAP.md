@@ -354,9 +354,9 @@ project can grow from a reliable narrow tool into a broader research platform.
 ## 9. Source documents and status interpretation
 
 - [Project context](../PROJECT_CONTEXT.md): original ambition, research questions and scientific rules.
-- [Sprint 1](../SPRINT_01.md): initial vertical-slice plan and historical dataset contract.
-- [Sprint 2](../SPRINT_02.md): resumable workflow scope and acceptance requirements.
-- [Sprint 3](../SPRINT_03.md) and [report](sprint03_report.md): completed offline scope and measured limitations.
+- [Sprint 1](../sprints/SPRINT_01.md): initial vertical-slice plan and historical dataset contract.
+- [Sprint 2](../sprints/SPRINT_02.md): resumable workflow scope and acceptance requirements.
+- [Sprint 3](../sprints/SPRINT_03.md) and [report](sprint03_report.md): completed offline scope and measured limitations.
 - [Decision log](decision_log.md): recorded authorizations, changes, failures and evidence.
 - [Full-dataset protocol](../protocols/full_dataset_experiment.md): separate exploratory scope now present in the working tree.
 

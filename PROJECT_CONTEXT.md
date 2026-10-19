@@ -1,6 +1,6 @@
 # BLACKGRID — project context
 
-Status: planning handoff, 17 October 2026. This package defines future work; no platform implementation or experiment results are included. Read alongside `AGENTS.md` and `SPRINT_01.md`.
+Status: planning handoff, 17 October 2026. This package defines future work; no platform implementation or experiment results are included. Read alongside `AGENTS.md` and `sprints/SPRINT_01.md`.
 
 ## Purpose and provenance
 
@@ -152,4 +152,4 @@ BLACKGRID must contain **no proprietary ValueMatrix code or data**: no copied im
 
 Resolve during implementation planning: CollegeMsg usage/redistribution terms and suitability of its prespecified window, machine capacity, provider permissions, literature-based novelty, confirmatory sample size, and useful-effect threshold. A focused primary-source literature review should inform novelty claims; none is made here.
 
-Target eventual artifacts: a small working platform, frozen benchmark and ablations, reproducible runs, model/data documentation, an evidence-grounded demo, and a technical report including failures. A polished interface and preprint follow evidence, not the reverse. Begin with the bounded 14-day plan in `SPRINT_01.md` only after a separate request to implement.
+Target eventual artifacts: a small working platform, frozen benchmark and ablations, reproducible runs, model/data documentation, an evidence-grounded demo, and a technical report including failures. A polished interface and preprint follow evidence, not the reverse. Begin with the bounded 14-day plan in `sprints/SPRINT_01.md` only after a separate request to implement.

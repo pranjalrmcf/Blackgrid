@@ -26,7 +26,7 @@ BLACKGRID asks a narrow question about one small graph, then tries to answer it 
 
 The long-term research question is whether adding a statistical validator and critic to a tool-using agent reduces unsupported conclusions. Sprint 1 only builds the plumbing to measure that.
 
-Read in this order: [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) → [SPRINT_01.md](../SPRINT_01.md) → [protocols/sprint01_protocol.md](../protocols/sprint01_protocol.md) → [decision_log.md](decision_log.md).
+Read in this order: [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) → [sprints/SPRINT_01.md](../sprints/SPRINT_01.md) → [protocols/sprint01_protocol.md](../protocols/sprint01_protocol.md) → [decision_log.md](decision_log.md).
 
 ---
 
@@ -66,7 +66,7 @@ Read in this order: [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) → [SPRINT_01.m
 - **Half-open intervals `[t0, t0 + d)`.** Why they avoid double-counting at boundaries.
 - **The dataset itself.** Panzarasa, Opsahl & Carley (2009), *JASIST* 60(5). Skim how the data was collected and what the platform was.
 
-**In this repo:** [collegemsg.py](../src/blackgrid/collegemsg.py), [synthetic.py](../src/blackgrid/synthetic.py), [data/manifests/collegemsg.json](../data/manifests/collegemsg.json).
+**In this repo:** [collegemsg.py](../src/blackgrid/data/collegemsg.py), [synthetic.py](../src/blackgrid/data/synthetic.py), [data/manifests/collegemsg.json](../data/manifests/collegemsg.json).
 
 **Check yourself**
 
@@ -200,6 +200,6 @@ This is the most important day to study deeply.
 
 ## Suggested rhythm
 
-1. Before each day, read that day's row in `SPRINT_01.md` and this guide's section.
+1. Before each day, read that day's row in `sprints/SPRINT_01.md` and this guide's section.
 2. After the day's work, open the new code and answer the "check yourself" questions *without* looking. Then verify against the code or tests.
 3. Note any answer you got wrong in your own notes. Those are the concepts to revisit before Day 14's review.

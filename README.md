@@ -2,7 +2,9 @@
 
 Bounded, evidence-grounded network-science investigations. Sprint 1 delivers one offline, reproducible vertical slice. It runs a preregistered community-vs-null experiment on a bounded CollegeMsg window, plus synthetic known-truth checks. The work is driven by a constrained planner/analyst, an allowlisted tool executor, and a rule-based critic. It produces an evidence-linked report or abstains.
 
-Start with `PROJECT_CONTEXT.md`, `SPRINT_01.md`, `SPRINT_02.md`, `SPRINT_03.md`, and `AGENTS.md`.
+System map: [flowchart.md](flowchart.md). Sprint plans: [sprints/](sprints/README.md).
+
+Start with `PROJECT_CONTEXT.md`, `sprints/SPRINT_01.md`, `sprints/SPRINT_02.md`, `sprints/SPRINT_03.md`, and `AGENTS.md`.
 
 - Study rules: `protocols/sprint01_protocol.md` and `protocols/sprint01_experiment.md`.
 - Workflow contract: `protocols/sprint02_workflow.md`.

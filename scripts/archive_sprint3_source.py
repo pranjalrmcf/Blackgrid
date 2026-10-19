@@ -20,7 +20,7 @@ def archive(run: Path, target: Path, root: Path) -> dict:
         assert path.is_relative_to(root)
         assert hashlib.sha256(path.read_bytes()).hexdigest() == expected, name
         files[name] = path
-    for name in ("README.md", "AGENTS.md", "PROJECT_CONTEXT.md", "SPRINT_01.md", "SPRINT_02.md", "SPRINT_03.md"):
+    for name in ("README.md", "AGENTS.md", "PROJECT_CONTEXT.md", "sprints/SPRINT_01.md", "sprints/SPRINT_02.md", "sprints/SPRINT_03.md"):
         files[name] = root / name
     # Runtime rendering needs the HTML template too, not just Python modules.
     # These inherited assets were unchanged during the scientific execution;

@@ -4,7 +4,7 @@ This file is part of a handoff package. In this folder it governs package mainte
 
 ## Read first
 
-Read `PROJECT_CONTEXT.md`, then `SPRINT_01.md`, and the current user's request. The current deliverable is documentation only. Do not scaffold, install dependencies, run experiments, acquire datasets, or provision infrastructure unless subsequently asked to implement. Future sprint tasks are a plan, not actions to execute during this handoff.
+Read `PROJECT_CONTEXT.md`, then `sprints/SPRINT_01.md`, and the current user's request. The current deliverable is documentation only. Do not scaffold, install dependencies, run experiments, acquire datasets, or provision infrastructure unless subsequently asked to implement. Future sprint tasks are a plan, not actions to execute during this handoff.
 
 The parent project's `sources/` and synced project files are read-only. Never edit, move, rename, or delete them. Work in a separately authorized repository for implementation. Preserve user edits and existing instructions. If this package is relocated, resolve its sibling document links relative to its new location.
 

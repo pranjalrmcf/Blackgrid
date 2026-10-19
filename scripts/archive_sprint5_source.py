@@ -13,7 +13,7 @@ def archive(run: Path, target: Path) -> None:
         raise ValueError("snapshot must be a fresh directory under local runs/")
     receipt = json.loads((run / "freeze.json").read_text())
     files = dict(receipt["source_hashes"])
-    for name in ("README.md", "AGENTS.md", "PROJECT_CONTEXT.md", "SPRINT_01.md", "SPRINT_05.md"):
+    for name in ("README.md", "AGENTS.md", "PROJECT_CONTEXT.md", "sprints/SPRINT_01.md", "sprints/SPRINT_05.md"):
         files[name] = hashlib.sha256((root / name).read_bytes()).hexdigest()
     for path in (root / "configs").glob("*.json"):
         files[path.relative_to(root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()

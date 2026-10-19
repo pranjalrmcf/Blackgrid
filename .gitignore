@@ -27,5 +27,6 @@ __pycache__/
 build/
 dist/
 
-# Sprint plan files: kept locally, not version-controlled.
+# Root-level sprint plans stay local; the organized sprint folder is version-controlled.
 SPRINT_*.md
+!sprints/SPRINT_*.md
