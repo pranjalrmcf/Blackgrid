@@ -1,0 +1,41 @@
+name: blackgrid
+services:
+  blackgrid:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: blackgrid:phase2
+    init: true
+    user: "10001:10001"
+    read_only: true
+    network_mode: none
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    cpus: 1.0
+    mem_limit: 2g
+    pids_limit: 128
+    stop_grace_period: 40s
+    # No automatic restart/analysis loop; the operator inspects failures first.
+    restart: "no"
+    environment:
+      BLACKGRID_ENV: production
+      BLACKGRID_CONFIG: /app/configs/collegemsg_sprint01.json
+      BLACKGRID_DATA_ROOT: /app
+      BLACKGRID_RUNS_DIR: /app/runs
+      BLACKGRID_PORT: "8765"
+      BLACKGRID_SHUTDOWN_GRACE_SECONDS: "30"
+      BLACKGRID_CAPABILITIES: community
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+        read_only: true
+        bind:
+          create_host_path: false
+      - blackgrid-state:/app/runs
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    # No published port: the console stays on container loopback until Phase 3.
+volumes:
+  blackgrid-state:

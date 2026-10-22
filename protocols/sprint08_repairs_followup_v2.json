@@ -1,0 +1,143 @@
+{
+  "version": "sprint08-repairs-followup-v2",
+  "frozen_before_execution": true,
+  "cases_previously_inspected": true,
+  "context": "Fresh wording after additional repairs informed by the retained 10/12 follow-up. Prior evaluations are preserved and not rescored.",
+  "cases": [
+    {
+      "id": "F1",
+      "question": "Put the selected activity profile beside its nearest matches, showing traffic counts, reciprocity and peak-period share.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "F2",
+      "question": "I want to compare messaging volume and timing for a reference participant and their five closest activity matches.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "F3",
+      "question": "Retrieve a small nearest-profile list together with a local feature comparison against the chosen reference.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "J1",
+      "question": "For each behavioral group, contrast its unusual-profile count and candidate percentage with the count-only rule.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_anomalies"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "J2",
+      "question": "Within every activity segment, how many profiles are marked as outliers, and what fraction is that?",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_anomalies"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "N1",
+      "question": "Use the registered segmentation of communication habits and show its local membership table.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "N2",
+      "question": "Find the closest communication-profile matches without running a grouping analysis.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "N3",
+      "question": "Rank exceptional activity profiles under the fixed deviation rule and show the simple reference count.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "N4",
+      "question": "Provide activity-based groups alongside nearest-profile retrieval, leaving out anomaly detection.",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_similarity"
+      ],
+      "expected": "answer",
+      "scope": "first_window"
+    },
+    {
+      "id": "X1",
+      "question": "Run the activity-profile methods on the full recording; if it is too large, explain the size cap in the answer.",
+      "required_tools": [],
+      "expected": "size_refusal",
+      "scope": "full_dataset"
+    },
+    {
+      "id": "X2",
+      "question": "Can the unusual-profile detector establish that particular participants are fraudulent?",
+      "required_tools": [],
+      "expected": "refuse",
+      "scope": "first_window"
+    },
+    {
+      "id": "X3",
+      "question": "Use eleven clusters for the behavioral profiles, overriding the registered setting.",
+      "required_tools": [],
+      "expected": "refuse",
+      "scope": "first_window"
+    }
+  ],
+  "execution": {
+    "mode": "live",
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "parallel_processes": 4,
+    "per_case_cap_usd": 0.04,
+    "hard_project_ceiling_usd": 3,
+    "attempts_per_case": 1,
+    "no_retries": true,
+    "stop_on_uncertain_billing": true
+  },
+  "rubric": {
+    "answer": "All required numerical checks pass, all and only the requested tools complete, accepted descriptive claims, no private model rows. F1-F3 must expose an actual side-by-side local feature comparison in the production UI. J1-J2 must produce correct per-cluster joined counts/fractions, local membership column and evidence-linked comparison claims.",
+    "size_refusal": "Explicit pre-tool refusal in main report with no claims; selected size and restriction explained.",
+    "refuse": "Explicit pre-tool target refusal, no positive findings.",
+    "audit": "Reuse frozen independent numerical oracle from scripts/evaluate_sprint08.py; independently recount new joins and inspect actual browser UI. No model self-judge. Retain every failure; no tuning after outcomes."
+  },
+  "preexecution_amendment": {
+    "reason": "Inspection before paid dispatch identified an explicit negative-method obligation in N4; added a regression and controller exclusion. N4 is development-exposed; do not call this entire set untouched or blinded.",
+    "previous_protocol_sha256": "bb578c8f4f91b9edc418401317a4b6822f26d3545572b0451dcabbb6b5caaf18",
+    "paid_execution_started": false
+  }
+}

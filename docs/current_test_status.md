@@ -1,10 +1,12 @@
 # Current automated test status
 
-Verified on 19 October 2026: **493 passed, 0 failed, 0 errors** in **266.64 seconds (4m26s)**.
+Verified on 19 October 2026 during Sprint 8 repairs: **530 passed, 0 failed, 0 errors, 0 skips** in **300.82 seconds (5m00s)**. After the last explicit anomaly-exclusion refinement, **71 focused tests passed in 6.28 seconds**.
 
-This is the complete collected regression suite, including four new regression cases. The previous full run had 445 passes and 44 failures across 489 tests. Earlier report counts describe earlier revisions; they are not the current suite total.
+The complete suite includes 18 repair cases in addition to the prior 512 cases. Local execution evidence: [repair full log](../runs/sprint08-repairs-v2-regression.log), [repair JUnit results](../runs/sprint08-repairs-v2-regression.xml). That full run started before the final negative-method refinement; the 71 focused behavioral, routing and intent checks verify that last change. The intermediate repair run also passed 523 tests in 307.83 seconds. A restricted-sandbox focused attempt failed Windows atomic replacements; the same focused checks passed outside it. No tests were skipped or relaxed to obtain the results.
 
-## Repairs
+The [repair report](sprint08_repairs_report.md) records separate real-LLM results, including the preserved 10/12 intermediate follow-up and the final 12/12 targeted confirmation. Offline providers here test engineering contracts; they are not evidence of model quality. Historical repair and execution notes below describe the earlier 493-test revision.
+
+## Prior repairs (493-test revision)
 
 - Fixed a real community-summary crash when the optional secondary analysis is `None`. Direct numerical and end-to-end coverage now exercise that case.
 - Retained evidence-bound summaries as the default. Added a validated `request.summary_mode` choice of `evidence` or `model` for programmatic investigation inputs. Both paths use the same existing authorization, budget, scientific tool validation and critics. Unknown policies fail before model dispatch.

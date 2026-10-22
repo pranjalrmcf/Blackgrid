@@ -517,10 +517,28 @@ def forecast_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
     return build
 
 
+def behavior_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
+    """Bind only checksum-verified events and the exact recorded graph window."""
+    source = inp.record.source
+    start, end = inp.record.window_start_ts, inp.record.window_end_ts
+    if source is None or start is None or end is None:
+        return None
+    data_root = Path(state.get("input_ref", {}).get("data_root") or ".")
+
+    def build():
+        from blackgrid.analysis.behavior import BehaviorTools
+        from blackgrid.data.collegemsg import load_events
+        table = load_events(data_root / source.path, source.sha256)
+        return BehaviorTools(table.events, inp.graph, start, end, timeout_s=inp.spec.limits.tool_timeout_s)
+    return build
+
+
 def tool_context(rt: Runtime, state: WFState) -> ToolContext:
     """Rebuild tool outputs from verified artifacts of succeeded tool operations."""
     inp = rt.inputs(state)
     ctx = ToolContext(graph=inp.graph, record=inp.record, spec=inp.spec, cache_dir=rt.cache_dir)
+    if family(state["question"], state["request"]) == "behavior":
+        ctx.behavior = behavior_factory(rt, state, inp)
     if family(state["question"], state["request"]) == "forecast":
         ctx.forecast = forecast_factory(rt, state, inp)
         ctx.local_dir = rt.run_dir
@@ -681,6 +699,16 @@ def build(rt: Runtime):
             if not decision.allowed:
                 return update | {"verdict": "rejected",
                                  "flags": [decision.refusal_flag] if decision.refusal_flag else []}
+            if selected == "behavior":
+                # Semantic tool choices are completion obligations even without exact keywords.
+                update["required"] = [c["tool"] for c in decision.tool_calls]
+                inp = rt.inputs(state)
+                if len(inp.graph) > 1000 or inp.graph.number_of_edges() > 10000:
+                    reason = (f"Behavioral analysis supports at most 1,000 nodes and 10,000 pairs; "
+                              f"the selected graph has {len(inp.graph):,} nodes and {inp.graph.number_of_edges():,} pairs. "
+                              "Select the approved first-window scope to stay within these limits.")
+                    return update | {"plan_decision": {"allowed": False, "reasons": [reason],
+                                     "refusal_flag": None, "tool_calls": []}, "verdict": "rejected"}
             return update | {"planned": [dict(c) for c in decision.tool_calls]}
         if proposal.get("decision") == "refuse":
             return routing | {"verdict": "rejected"}
@@ -705,6 +733,12 @@ def build(rt: Runtime):
         missing = [t for t in state["required"] if ARTIFACT_NAMES[t] not in ctx.outputs]
         artifacts = {name: file_sha(rt.run_dir / name) for name in ctx.outputs}
         if family(state["question"], state["request"]) != "community":
+            if family(state["question"], state["request"]) == "behavior":
+                abstentions = [p.get("reason", "insufficient behavioral evidence") for t in state["required"]
+                               if (p := ctx.outputs.get(ARTIFACT_NAMES[t], {})).get("verdict") == "abstain"]
+                if abstentions:
+                    return {"missing": missing, "artifacts": artifacts, "flags": [], "verdict": "abstain",
+                            "abstain_reason": "; ".join(abstentions), "experiment_verdict": None}
             return {"missing": missing, "artifacts": artifacts, "flags": [],
                     "verdict": "abstain" if state.get("abstain_reason") else
                     ("supported" if not missing and state["required"] else "abstain"),
@@ -732,7 +766,7 @@ def build(rt: Runtime):
             # This is a closed factual summary, not an additional model inference. The forecast critic
             # still checks every template and finalization still enforces evidence/number bindings.
             return {"drafts": forecast_suggestions(ctx), "analyst_verdict": state.get("verdict", "abstain")}
-        if state["condition"] == "validated" and local_summary and family(inp.question, inp.request) in ("centrality", "bridge"):
+        if state["condition"] == "validated" and local_summary and family(inp.question, inp.request) in ("centrality", "bridge", "behavior"):
             # The same closed claim vocabulary already enforced by the critic needs no model rewrite.
             return {"drafts": factual_claims(flatten(safe_outputs(ctx.outputs))),
                     "analyst_verdict": state.get("verdict", "abstain")}
@@ -858,7 +892,7 @@ def build(rt: Runtime):
             return "finalize"
         if s.get("missing"):  # supervisor: an incomplete answer never reaches analysis
             return "finalize"
-        if family(s["question"], s["request"]) not in ("community", "forecast", "research") and not s.get("follow_up_done") \
+        if family(s["question"], s["request"]) not in ("community", "forecast", "research", "behavior") and not s.get("follow_up_done") \
                 and s["request"].get("planning_mode") != "single":
             return "follow_up"
         return "analyst"

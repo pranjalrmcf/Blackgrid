@@ -4,9 +4,11 @@ from __future__ import annotations
 import re
 
 from blackgrid.agent.tools import ARTIFACT_NAMES, FORECAST_TOOLS, RESEARCH_TOOLS, AnswerKeyAccess, ToolRejected, parse_request
+from blackgrid.analysis.behavior import TOOLS as BEHAVIOR_TOOLS, public_output
 
 STRUCTURAL_TOOLS = {"profile_graph", "node_centrality", "community_partition", "community_bridge", "ranking_sensitivity"}
-ANALYSIS_FAMILIES = frozenset({"community", "centrality", "bridge", "forecast", "research", "clarify"})
+ANALYSIS_FAMILIES = frozenset({"community", "centrality", "bridge", "forecast", "research", "behavior", "clarify"})
+BEHAVIOR = re.compile(r"behavio\w*\s+cluster|similarity|similar\s+(?:users?|nodes?|profiles?|behavio\w*|activity)|anomal\w*|unusual\s+(?:activity|behavio\w*|profiles?)", re.I)
 
 
 CAUSAL_Q = re.compile(r"\b(influen\w*|caus\w*|persuad\w*|why)\b")
@@ -31,6 +33,10 @@ RESEARCH = re.compile(r"\b(sprint\s*7|uncertainty|calibrat\w*|credible|confidenc
 def unsupported_scope(question: str) -> str | None:
     """Reject unavailable targets instead of substituting saved synthetic evidence."""
     q = question.lower()
+    criminal_proof = re.search(r"\b(prov\w*|confirm\w*|verif\w*|identify|determin\w*|establish\w*)\b.{0,100}\b(fraud\w*|scamm?\w*|malicious|criminal\w*)\b", q)
+    if criminal_proof and not re.search(r"\bwithout(?:\s+\w+){0,3}\s+$", q[:criminal_proof.start()]):
+        return ("Behavioral outlier flags cannot prove fraud, scamming or malicious intent. "
+                "Observed messages support descriptive unusual-profile candidates only; independent verified labels are unavailable.")
     if (re.search(r"\b(look|read|use|peek|access)\b.{0,100}\b(held[ -]out|answer[ -]keys?|"
                   r"future (?:messages|events|labels)|next (?:week|month)(?:['’]s)? (?:actual )?messages)", q)):
         return "Future messages and held-out answers cannot be accessed to improve a forecast. The recorded cutoff and information boundary remain fixed."
@@ -80,6 +86,7 @@ def resolve_plan_family(question: str, request: dict, plan: dict) -> str:
     if names & {"community_test", "edge_removal_sensitivity"}: groups.add("community")
     if names & set(FORECAST_TOOLS): groups.add("forecast")
     if names & set(RESEARCH_TOOLS): groups.add("research")
+    if names & set(BEHAVIOR_TOOLS): groups.add("behavior")
     if names & {"community_partition", "community_bridge"}: groups.add("bridge")
     if "node_centrality" in names and "bridge" not in groups: groups.add("centrality")
     if len(groups) == 1:
@@ -93,6 +100,8 @@ def checked_family(question: str, selected: str) -> str:
     """Reject clear target substitution while retaining semantic routing for ambiguous wording."""
     q=question.lower()
     saved=bool(re.search(r'\b(saved|stored|synthetic|posterior)\b',q))
+    if BEHAVIOR.search(q) and selected != "behavior" and not FORECAST.search(q):
+        raise ToolRejected("Behavioral analysis requires the behavior family and directed-event tools.")
     if not saved and not CAUSAL_Q.search(q) and re.search(r'\bpairs?\b',q) and FORECAST.search(q):
         if selected!='forecast':
             raise ToolRejected('A messaging-pair forecast cannot be replaced by structural tools.')
@@ -115,6 +124,8 @@ def family(question: str, request: dict) -> str:
     if selected != "auto":
         return selected
     q = question.lower()
+    if BEHAVIOR.search(q) and not FORECAST.search(q) and not CAUSAL_Q.search(q):
+        return "behavior"
     if FORECAST.search(q) and not re.search(r"\b(synthetic|saved|sprint\s*7)\b", q) and not CAUSAL_Q.search(q):
         return "forecast"
     if RESEARCH.search(q):
@@ -153,6 +164,19 @@ def forecast_task(question: str) -> str:
 
 def requirements(question: str, request: dict) -> dict[str, dict]:
     kind = family(question, request)
+    if kind == "behavior":
+        q = question.lower()
+        names = ["behavior_features"]
+        if re.search(r"cluster", q): names.append("behavior_clustering")
+        if re.search(r"similar", q): names.append("behavior_similarity")
+        if re.search(r"anomal|unusual", q) and not excludes_anomaly_analysis(q):
+            names.append("behavior_anomalies")
+        grouped = re.search(r"\b(?:per|each|every|by|within|across|break\s+down)\b(?:\s+[\w-]+){0,4}\s+(?:clusters?|groups?|segments?)\b", q)
+        if grouped and not excludes_anomaly_analysis(q) and re.search(r"\b(?:outlier\w*|anomal\w*|unusual|flags?|flagged|candidates?)\b", q):
+            names += ["behavior_clustering", "behavior_anomalies"]
+        # For implicit wording the validated semantic plan selects the analysis.
+        # Missing keyword obligations must not expand a narrow plan to every method.
+        return {name: {} for name in names}
     if kind == "research":
         q = question.lower()
         names = []
@@ -179,10 +203,37 @@ def requirements(question: str, request: dict) -> dict[str, dict]:
     return required
 
 
+def excludes_anomaly_analysis(question: str) -> bool:
+    """Respect an explicit analysis exclusion, not just the presence of a method keyword."""
+    return bool(re.search(r"\b(?:without|leaving\s+out|excluding|omit(?:ting)?)\s+(?:an?\s+)?(?:anomal\w*|outlier\w*)\b", question, re.I))
+
+
 def validate_structural(question: str, request: dict, plan: dict) -> tuple[bool, list[dict], str]:
     scope_problem = unsupported_scope(question)
     if scope_problem:
         return False, [], scope_problem
+    if family(question, request) == "behavior":
+        if plan.get("decision") == "refuse":
+            return False, [], planner_refusal(plan, "Planner refused this behavioral question.")
+        calls = plan.get("tool_calls")
+        if not isinstance(calls, list) or not 1 <= len(calls) <= 4:
+            return False, [], "A behavioral plan needs one to four registered calls."
+        names = set()
+        for call in calls:
+            try:
+                name, _ = parse_request(call)
+            except ToolRejected as exc:
+                return False, [], str(exc)
+            if name not in BEHAVIOR_TOOLS or name in names:
+                return False, [], "Incompatible or duplicate behavioral tool."
+            names.add(name)
+        names.update(requirements(question, request))
+        if excludes_anomaly_analysis(question):
+            names.discard("behavior_anomalies")
+        names.add("behavior_features")
+        if names == {"behavior_features"}:
+            return False, [], "A behavioral investigation requires at least one registered analysis, not features alone."
+        return True, [{"tool": name, "args": {}} for name in BEHAVIOR_TOOLS if name in names], "Fixed descriptive behavioral methods; no causal or probability claims."
     if family(question, request) == "research":
         if plan.get("decision") == "refuse":
             return False, [], planner_refusal(plan, "Planner refused the research question.")
@@ -293,7 +344,8 @@ def validate_forecast(question: str, request: dict, plan: dict) -> tuple[bool, l
 
 def safe_outputs(outputs: dict[str, dict]) -> dict[str, dict]:
     """No node rows, IDs or partition membership in external model evidence."""
-    return {name: {k: v for k, v in payload.items() if k != "rows"} if name in
+    return {name: public_output(payload) if name in {ARTIFACT_NAMES[t] for t in BEHAVIOR_TOOLS} else
+            {k: v for k, v in payload.items() if k != "rows"} if name in
             {ARTIFACT_NAMES[t] for t in STRUCTURAL_TOOLS - {"profile_graph"}} else payload
             for name, payload in outputs.items()}
 
@@ -301,6 +353,24 @@ def safe_outputs(outputs: dict[str, dict]) -> dict[str, dict]:
 def factual_claims(evidence: dict[str, object]) -> list[dict]:
     """Local exact claim vocabulary; unknown structural prose is unassessed, not auto-approved."""
     claims = []
+    for i in range(3):
+        base = f"behavior_anomalies.json#/summary/cluster_comparison/{i}/"
+        fields = ("cluster", "size", "candidates", "count_baseline_candidates")
+        if all(base + f in evidence for f in fields):
+            k, size, candidates, baseline = (evidence[base + f] for f in fields)
+            claims.append({"text": f"Behavioral cluster {k} contains {size} profiles, with {candidates} unusual-profile candidates and {baseline} count-only baseline candidates; these are descriptive flags, not confirmed anomalies.",
+                           "evidence_level": "descriptive", "evidence": [base + f for f in fields]})
+    for tool, field, wording in (
+        ("behavior_features", "nonzero_profiles", "The observed window has this many nonzero behavioral profiles:"),
+        ("behavior_clustering", "clusters", "Fixed k=3 KMeans produced this many descriptive behavioral clusters:"),
+        ("behavior_clustering", "silhouette", "Within-window standardized behavioral silhouette is"),
+        ("behavior_similarity", "neighbor_rows", "Local cosine search returned this many non-self neighbor rows:"),
+        ("behavior_anomalies", "candidates", "The fixed robust-deviation rule flagged this many unusual-profile candidates, not confirmed anomalies:"),
+        ("behavior_anomalies", "count_baseline_candidates", "The count-only deviation baseline flagged this many candidates:"),
+    ):
+        path = f"{ARTIFACT_NAMES[tool]}#/summary/{field}"
+        if path in evidence and evidence[path] is not None:
+            claims.append({"text": f"{wording} {evidence[path]}.", "evidence_level": "descriptive", "evidence": [path]})
     for tool, field, wording in (
         ("node_centrality", "max_degree", "The maximum observed degree is"),
         ("node_centrality", "max_betweenness", "The maximum normalized betweenness estimate is"),

@@ -18,6 +18,7 @@ import secrets
 import threading
 import traceback
 import uuid
+import time
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -51,6 +52,20 @@ class Console:
         self.jobs: dict[str, dict] = {}
         self.lock = threading.Lock()
         self.busy: str | None = None
+        self.stopping = False
+        self._workers: set[threading.Thread] = set()
+
+    def stop_admission(self) -> None:
+        with self.lock:
+            self.stopping = True
+
+    def drain(self, timeout: float) -> bool:
+        deadline = time.monotonic() + timeout
+        with self.lock:
+            workers = list(self._workers)
+        for worker in workers:
+            worker.join(max(0, deadline - time.monotonic()))
+        return all(not worker.is_alive() for worker in workers)
 
     # --- actions (all through the CLI's own code paths and gates) ---------------------------------
 
@@ -110,6 +125,8 @@ class Console:
         # working right now, cancel only raises its flag and the worker stops at its next boundary.
         exclusive = body.get("action") != "cancel"
         with self.lock:
+            if self.stopping:
+                raise RuntimeError("console is shutting down")
             if exclusive and self.busy is not None:
                 raise RuntimeError("another action is still running (cancel is always allowed)")
             job_id = uuid.uuid4().hex[:12]
@@ -131,11 +148,21 @@ class Console:
                 traceback.print_exc()
             finally:
                 job["finished_utc"] = datetime.now(UTC).isoformat()
-                if exclusive:
-                    with self.lock:
+                with self.lock:
+                    if exclusive:
                         self.busy = None
+                    self._workers.discard(threading.current_thread())
 
-        threading.Thread(target=work, name=f"console-job-{job_id}", daemon=True).start()
+        worker = threading.Thread(target=work, name=f"console-job-{job_id}", daemon=True)
+        with self.lock:
+            # Shutdown may have begun since validation; do not launch new work.
+            if self.stopping:
+                self.jobs[job_id].update(state="error", message="console is shutting down")
+                if exclusive:
+                    self.busy = None
+                raise RuntimeError("console is shutting down")
+            self._workers.add(worker)
+            worker.start()
         return self.jobs[job_id]
 
     def live_run(self, run_id: str) -> dict:
@@ -194,7 +221,10 @@ def make_handler(console: Console):
             url = urlparse(self.path)
             query = {k: v[0] for k, v in parse_qs(url.query).items()}
             try:
-                if url.path == "/":
+                if url.path == "/health/live":
+                    self._json(503 if console.stopping else 200,
+                               {"status": "stopping" if console.stopping else "live"})
+                elif url.path == "/":
                     self._send(200, live_page(console.token).encode("utf-8"), "text/html; charset=utf-8")
                 elif url.path == "/api/index":
                     data = index_payload(console.runs_dir)
@@ -260,4 +290,7 @@ def make_handler(console: Console):
 
 def serve(console: Console) -> ThreadingHTTPServer:
     """Create (not start) the server; bound to loopback only."""
-    return ThreadingHTTPServer(("127.0.0.1", console.port), make_handler(console))
+    server = ThreadingHTTPServer(("127.0.0.1", console.port), make_handler(console))
+    # Client connections must not extend shutdown beyond the action drain budget.
+    server.daemon_threads = True
+    return server

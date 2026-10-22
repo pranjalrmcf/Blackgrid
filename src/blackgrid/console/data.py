@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 
 RUN_FILES = {
+    **{name: f"{name}.json" for name in ("behavior_features", "behavior_clustering", "behavior_similarity", "behavior_anomalies")},
     "manifest": "manifest.json", "investigation": "investigation.json", "experiment": "experiment_report.json",
     "sensitivity": "sensitivity.json", "record": "graph_record.json", "profile": "graph_profile.json",
     "layout": "layout.json", "budget": "budget.json", "report": "report.json", "workflow": "workflow_status.json",

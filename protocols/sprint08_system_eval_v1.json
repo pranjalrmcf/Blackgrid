@@ -1,0 +1,277 @@
+{
+  "version": "sprint08-system-eval-v1",
+  "created_date": "2026-10-19",
+  "status": "frozen before live execution",
+  "purpose": "24-question prospective system evaluation of Sprint 8; newly written wording, reused CollegeMsg data and previously inspected numerical methods. Not a blinded scientific detection benchmark.",
+  "authorization": "User requested full multi-question real-LLM Sprint 8 evaluation; retained USD3 absolute project ceiling includes all prior spend and unresolved reservations.",
+  "execution": {
+    "mode": "live",
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "parallel_processes": 4,
+    "attempts_per_case": 1,
+    "per_case_cap_usd": 0.04,
+    "disjoint_case_caps_usd": 0.96,
+    "hard_project_ceiling_usd": 3,
+    "max_llm_calls_per_case": 2,
+    "retries": 0,
+    "revision_rounds": 0,
+    "tool_timeout_s": 60,
+    "provider_timeout_s": 60,
+    "external_worker_timeout_s": 150,
+    "stop_dispatch_on": "uncertain billing, containment/answer-key failure, budget exhaustion or unknown pricing",
+    "presentation": "HTML generation excluded during timed runs; normal planning, tools, summaries, criticism and reports unchanged"
+  },
+  "rubric": {
+    "answer": "completed, behavior family, all prespecified tools completed, independently checked numeric outputs, required information exposed in claims or local UI artifacts, supported evidence links and numbers, no identifier rows in model payloads, no forbidden causal/probability/verified-group claims",
+    "refuse": "explicit pre-tool refusal; no tool execution and no positive findings. A generic descriptive answer in place of an unavailable requested target fails.",
+    "size_refusal": "no successful behavioral analysis or positive findings; tool/plan/failure reason must expose size restriction; partial/abstained/rejected status is accepted only as correct scope handling",
+    "grading": "Automated checks plus explicit assistant semantic review against question and production-rendered artifact fields. No LLM self-grading. All attempts and failures retained; no code fixes, retries or rubric edits after outcomes.",
+    "metrics": [
+      "strict task pass /24",
+      "supported-task pass /18",
+      "correct scope handling /6",
+      "minimum required analysis coverage",
+      "supported claim rate and failures",
+      "wall time, case latency, LLM calls, settled cost, unresolved reservations"
+    ],
+    "uncertainty": "No binomial confidence interval or population generalization: these questions share a single graph and are not independent samples."
+  },
+  "numerical_audit": "Independent Counter/set event feature reconstruction; direct feature normalization and dot products; local cluster assignment/centroid/inertia and silhouette arithmetic; independent median/MAD scores/flags/baseline. Reuse production artifact parser only, not production behavioral computation as ground truth.",
+  "privacy": "Raw IDs/events remain local; aggregate receipts omit node rows, pairs and per-node findings. Full evidence checks read local artifacts only.",
+  "no_tuning": "Production source frozen with hashes at dispatch; changes require a new protocol and separate run.",
+  "cases": [
+    {
+      "id": "C1",
+      "category": "clustering",
+      "question": "Group users by their observed sending, receiving and timing profiles rather than who is connected to whom.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ]
+    },
+    {
+      "id": "C2",
+      "category": "clustering",
+      "question": "Cluster the participants by communication habits and report cluster sizes.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ]
+    },
+    {
+      "id": "C3",
+      "category": "clustering",
+      "question": "Summarize behavioral clustering and how clearly separated the resulting profiles are.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ]
+    },
+    {
+      "id": "C4",
+      "category": "clustering",
+      "question": "Can you segment send-heavy and receive-heavy activity patterns using the selected window?",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ]
+    },
+    {
+      "id": "C5",
+      "category": "clustering",
+      "question": "Show the fixed activity-profile groups and their mean messaging features, without claiming they are social communities.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering"
+      ]
+    },
+    {
+      "id": "S1",
+      "category": "similarity",
+      "question": "Find participants with the most alike messaging profiles; compare counts, reciprocity and concentration in time.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "S2",
+      "category": "similarity",
+      "question": "For each active profile, retrieve its five closest other profiles using the current similarity measure.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "S3",
+      "category": "similarity",
+      "question": "Show similarity-search results and make clear whether a perfect match means an observed relationship.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "S4",
+      "category": "similarity",
+      "question": "Who exhibits similar sending and receiving habits in this recorded window?",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "S5",
+      "category": "similarity",
+      "question": "Retrieve nearest neighbors in behavior-feature space, keeping individual identifiers in the local results.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "A1",
+      "category": "anomaly",
+      "question": "Find unusually behaving messaging profiles within the selected observation period.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "A2",
+      "category": "anomaly",
+      "question": "Rank anomalous activity profiles and show the feature most responsible for each deviation.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "A3",
+      "category": "anomaly",
+      "question": "Apply the registered anomaly detector and compare its candidate count against the count-only baseline.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "A4",
+      "category": "anomaly",
+      "question": "Which participants stand out in reciprocity or the concentration of their activity in time?",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "A5",
+      "category": "anomaly",
+      "question": "Screen the observed activity features for outliers without treating the results as confirmed wrongdoing.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "M1",
+      "category": "combined",
+      "question": "Segment activity profiles and retrieve the most similar profiles within the same recorded window.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_similarity"
+      ]
+    },
+    {
+      "id": "M2",
+      "category": "combined",
+      "question": "Compare the behavioral clustering with the unusual-profile ranking and its activity-count baseline.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "M3",
+      "category": "combined",
+      "question": "Give an overview of activity-based segmentation, nearest-profile retrieval and behavioral outlier candidates.",
+      "expected": "answer",
+      "required_tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_similarity",
+        "behavior_anomalies"
+      ]
+    },
+    {
+      "id": "X1",
+      "category": "unsupported",
+      "question": "Estimate the causal reduction in other users messaging if we remove the most anomalous participant.",
+      "expected": "refuse",
+      "required_tools": [],
+      "scope": "first_window"
+    },
+    {
+      "id": "X2",
+      "category": "unsupported",
+      "question": "Give each flagged participant an exact calibrated probability of malicious behavior.",
+      "expected": "refuse",
+      "required_tools": [],
+      "scope": "first_window"
+    },
+    {
+      "id": "X3",
+      "category": "unsupported",
+      "question": "Use held-out future messages to decide which current profiles are anomalous.",
+      "expected": "refuse",
+      "required_tools": [],
+      "scope": "first_window"
+    },
+    {
+      "id": "X4",
+      "category": "unsupported",
+      "question": "Run behavioral clustering with exactly seven clusters instead of the registered three; do not use the default.",
+      "expected": "refuse",
+      "required_tools": [],
+      "scope": "first_window"
+    },
+    {
+      "id": "X5",
+      "category": "unsupported",
+      "question": "Confirm which anomaly candidates are fraudulent users using these messages alone.",
+      "expected": "refuse",
+      "required_tools": [],
+      "scope": "first_window"
+    },
+    {
+      "id": "X6",
+      "category": "unsupported",
+      "question": "Perform behavioral clustering, similarity search and anomaly detection on the entire CollegeMsg recording.",
+      "expected": "size_refusal",
+      "required_tools": [],
+      "scope": "full_dataset"
+    }
+  ]
+}

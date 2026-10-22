@@ -44,6 +44,7 @@ from blackgrid.contracts import (
 from blackgrid.analysis.experiment import CommunityTestReport, DeadlineExceeded, GraphProfile, profile, run_community_test
 from blackgrid.analysis.sensitivity import R_SENS, SensitivitySummary, run_replicate, summarise
 from blackgrid.analysis.structural import StructuralResult, compute as compute_structural
+from blackgrid.analysis.behavior import TOOLS as BEHAVIOR_TOOLS
 
 TOOL_VERSION = "tools-v4 structural-v2 research-v1 exp-v1.1 report-v3"
 MAX_REQUEST_BYTES = 2_000
@@ -100,6 +101,7 @@ class _PredictionCompareArgs(Contract):
 
 
 TOOLS: dict[str, type[Contract]] = {
+    **{name: ProfileArgs for name in BEHAVIOR_TOOLS},
     "profile_graph": ProfileArgs,
     "community_test": CommunityTestArgs,
     "edge_removal_sensitivity": SensitivityArgs,
@@ -120,6 +122,11 @@ def tool_descriptions(spec: ExperimentSpec, sensitivity_null_replicates: int = R
     """What the planner is told about each tool, generated from the settings that will actually run (R4/§5.6)."""
     sens = spec.sensitivity
     return {
+        **{name: description for name, description in zip(BEHAVIOR_TOOLS, (
+            "Shared directed-event behavioral features in the selected observation window. Args: {}.",
+            "Behavioral clustering of activity profiles with fixed k=3 KMeans. Not graph communities. Args: {}.",
+            "Cosine similarity search: five nearest behavioral profiles per node, shown locally only. Args: {}.",
+            "Robust median/MAD deviations and count-only baseline; heuristic unusual-profile candidates. Args: {}."))},
         "reliability_audit": "Inspect verified synthetic calibration and graph-bootstrap evidence. Args: {}. Does not calibrate real forecasts.",
         "belief_update": "Reconstruct the registered synthetic Beta beliefs from deduplicated trusted observations. Args: {}. Cannot accept new observations.",
         "experiment_decision": "Inspect exact myopic next-experiment/stop decision in the saved synthetic loop. Args: {}. No real forecast VOI.",
@@ -185,6 +192,7 @@ class ToolContext:
     sensitivity_null_replicates: int = R_SENS  # exp-v2-full may lower it (runtime)
     outputs: dict[str, dict] = field(default_factory=dict)  # artifact name -> JSON payload
     calls: list[ToolCallRecord] = field(default_factory=list)
+    behavior: Any = None  # approved event-window factory; never reconstructed from topology
 
     @property
     def unknown_pairs(self) -> int:
@@ -199,6 +207,7 @@ class ToolResult:
 
 
 ARTIFACT_NAMES = {
+    **{name: f"{name}.json" for name in BEHAVIOR_TOOLS},
     "profile_graph": "graph_profile.json",
     "community_test": "experiment_report.json",
     "edge_removal_sensitivity": "sensitivity.json",
@@ -253,7 +262,16 @@ def execute(raw: object, ctx: ToolContext) -> ToolResult:
     try:
         name, args = parse_request(raw)
         _check_prerequisites(name, args, ctx)
-        if name in RESEARCH_TOOLS:
+        if name in BEHAVIOR_TOOLS:
+            cached = rejected = None  # graph-only cache cannot identify temporal behavior
+            if ctx.behavior is None:
+                raise ToolRejected("behavior tools require approved, window-bound directed events")
+            with network_denied():
+                output = ctx.behavior().call(name)
+                if name == "behavior_anomalies" and "behavior_clustering.json" in ctx.outputs:
+                    from blackgrid.analysis.behavior import compare_clusters
+                    output = compare_clusters(ctx.outputs["behavior_clustering.json"], output)
+        elif name in RESEARCH_TOOLS:
             cached = rejected = None
             if ctx.research is None:
                 raise ToolRejected("research tools require a bound verified synthetic evaluation")

@@ -173,6 +173,8 @@ def _load_input(input_ref: dict, run_dir: Path) -> InvestigationInput:
 
 
 KNOWN_ARTIFACTS = ("config.json", "graph_record.json", "input_profile.json", "window_selection.json", "full_scope.json",
+                   "behavior_contract.json", "behavior_features.json", "behavior_clustering.json",
+                   "behavior_similarity.json", "behavior_anomalies.json",
                    "research_contract.json", "reliability_audit.json", "belief_update.json", "experiment_decision.json",
                    "causal_identification_check.json",
                    "structural_contract.json", "forecast_contract.json", "temporal_profile.json", "link_prediction.json",
@@ -202,6 +204,14 @@ def finalizer(config: RunConfig, reproduce: str):
                 "version": "research-v1", "scope": "saved synthetic demonstration only",
                 "source": state.get("input_ref", {}).get("research_evidence"),
                 "new_experiments_executed": False, "real_forecast_voi": "unavailable"})
+        elif result.family == "behavior":
+            from blackgrid.analysis.behavior import VERSION, FEATURES, SEED, LIMITATIONS
+            write_json(run_dir / "behavior_contract.json", {
+                "version": VERSION, "protocol": "protocols/sprint08_behavior_v1.md", "seed": SEED,
+                "comparison_contract": "protocols/sprint08_repairs_v1.md",
+                "feature_names": list(FEATURES), "graph_sha256": inp.record.projection_sha256,
+                "window": [inp.record.window_start_ts, inp.record.window_end_ts],
+                "limitations": list(LIMITATIONS), "node_rows": "local only; excluded from model evidence"})
         elif result.family != "community":
             from blackgrid.analysis.structural import StructuralSpec
             write_json(run_dir / "structural_contract.json", StructuralSpec(family=result.family,

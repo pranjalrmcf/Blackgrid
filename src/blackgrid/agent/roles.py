@@ -44,7 +44,7 @@ VERDICTS = ("supported", "not_supported", "inconclusive", "abstain", "rejected")
 # v3: tool descriptions generated from the configured replicates and scope (Sprint 4, D-057).
 # v4: neutral verdict wording; no 'preregistered' or strength words in claims (s4-v2, D-061).
 # v5: flags appear in the evidence map (#/flags/N) and can be cited (D-065).
-PROMPT_VERSION = "prompts-v13"  # Compact bounded plans; no explanatory essays.
+PROMPT_VERSION = "prompts-v16"  # Grouped outlier obligations and unsupported verification targets.
 RETRY_TRUNCATED = ("Your previous reply was cut off because it exceeded the length limit. Reply again with "
                    "JSON only, at most 3 claims, each under 30 words.")
 RETRY_INVALID = "Your previous reply was not valid JSON. Reply again with a single JSON object only."
@@ -88,7 +88,7 @@ SYSTEM["planner"] += (" A structural family uses its own tools, not community si
                        "candidates.")
 SYSTEM["planner"] += (" When task.request.family is auto, select intent from the meaning of the whole question, "
                        "not individual keywords. Include a top-level family field: community, centrality, bridge, "
-                       "forecast, research, or clarify. Contact counts can describe a community null model; "
+                       "forecast, research, behavior, or clarify. Contact counts can describe a community null model; "
                        "ties outside one's detected community ask for bridges. Existing users may form first-time "
                        "contacts: that is new_pair; prior conversations resuming are repeat_pair. "
                        "Causal identification reviews of the saved synthetic study are research. "
@@ -102,6 +102,15 @@ SYSTEM["planner"] += (" Research questions about uncertainty, calibration, Bayes
                        "observations or establish real-data calibration/influence. The source scope is supplied. "
                        "Refuse requests for exact real pair probabilities, arbitrary horizons, or transferring a "
                        "synthetic posterior to a probability of real community structure; do not substitute synthetic findings.")
+SYSTEM["planner"] += (" Behavioral clustering, similarity search and anomaly detection use family behavior. "
+                       "Choose behavior_features then behavior_clustering, behavior_similarity or behavior_anomalies "
+                       "as needed. Combined clustering/anomaly requests include joined per-cluster candidate counts. "
+                       "Per-group or per-segment outlier counts/shares require both behavior_clustering and "
+                       "behavior_anomalies, because group memberships and denominators are needed. "
+                       "Keep implicit requests narrow by selecting only the requested analyses. Use the tools "
+                       "as requested, each with empty args. Use directed-event profiles in the selected window, "
+                       "not community partitions. Similarity and anomaly scores are not probabilities. Node rows "
+                       "remain local. Do not claim verified social groups, malicious behavior or causal influence.")
 for _role in ("analyst", "reviser"):
     SYSTEM[_role] += (" For research investigations copy claims exactly from allowed_claims. Preserve the words "
                       "synthetic and saved, interval types and evidence paths. Do not transfer synthetic beliefs "

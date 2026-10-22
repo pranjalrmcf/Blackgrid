@@ -1,0 +1,77 @@
+{
+  "baseline_tests": {
+    "tests": 530,
+    "failures": 10,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 294.347,
+    "failure_details": [
+      {
+        "test": "tests.test_console::test_page_is_served_with_strict_headers_and_foreign_hosts_are_refused",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body0-None-application/json-403]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body1-wrong-application/json-403]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body2-OK-text/plain-415]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body3-OK-application/json-400]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body4-OK-application/json-400]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body5-OK-application/json-400]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_actions_are_guarded[body6-OK-application/json-400]",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_cancel_is_accepted_while_another_job_is_running",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      },
+      {
+        "test": "tests.test_console::test_browser_can_deny_but_never_approve_paid_execution",
+        "message": "PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"
+      }
+    ],
+    "timestamp": "2026-10-22T13:06:27.595147+05:30"
+  },
+  "console_unrestricted": {
+    "tests": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 19.209,
+    "failure_details": [],
+    "timestamp": "2026-10-22T13:08:04.275260+05:30"
+  },
+  "integrity": {
+    "files_checked": 111,
+    "changed_files": []
+  },
+  "source_revision": "e043496720445ac2f0ac79db51532f52159b0071",
+  "billing": {
+    "paid_workloads_initiated": false,
+    "api_or_cloud_spend_usd": 0,
+    "basis": "Reviewed existing tests use mock/replay/fake transport providers. No authorized live analysis or paid benchmark was launched."
+  },
+  "combined_coverage": {
+    "initial_distinct_cases": 530,
+    "failed_cases_covered_by_successful_rerun": 10,
+    "unresolved_failed_cases": [],
+    "single_full_unrestricted_pass_claimed": false
+  }
+}

@@ -238,6 +238,7 @@ def structural_report(result: InvestigationResult, evidence: dict, record: Graph
     reasons = tuple(ReportItem(kind="reference", text=r) for r in
                     (result.plan_decision.reasons if result.plan_decision else ()))
     forecast = result.family == "forecast"
+    behavior = result.family == "behavior"
     local_text = ("Ranked pairs are a local JSON artifact (local_ranking.json), shown in the console and never sent to a "
                   "model or exported." if forecast else
                   "Node tables are local JSON artifacts and are inspectable in the console Rankings tab. "
@@ -253,6 +254,14 @@ def structural_report(result: InvestigationResult, evidence: dict, record: Graph
     outcome_text = ("supported means the forecast and its frozen evaluation were produced and checked, not that any pair "
                     "will interact." if forecast else
                     "supported means the descriptive calculations completed, not significance or causal support.")
+    if behavior:
+        local_text = ("Behavioral feature rows, cluster memberships, nearest profiles and anomaly rankings are local "
+                      "JSON artifacts. Inspect Behavior & similarity in the console; models receive aggregate evidence only.")
+        limits_text = ("Descriptive, exploratory, transductive analysis of directed events inside the recorded window. "
+                       "Repeated events, direction and timing are preserved in fixed behavioral features. Clusters are "
+                       "activity profiles, not verified social groups. Cosine similarity is not evidence of a relationship. "
+                       "Robust-deviation candidates are not confirmed anomalies, malicious behavior or calibrated probabilities. "
+                       "Missing observations and unequal exposure can change the findings. No causal or future claim is supported.")
     if result.verdict == 'rejected':
         outcome_text = ('The request was refused before numerical tool execution.' if not result.tool_calls else
                         'The requested conclusion was withheld; inspect the completed evidence.')
@@ -304,7 +313,7 @@ def structural_report(result: InvestigationResult, evidence: dict, record: Graph
                 if key in evidence:
                     details.append(ReportItem(kind="result", text=f"Mean tie-inclusive top-set Jaccard for {name}: {evidence[key]}.", evidence=(key,)))
     return Report(title="BLACKGRID question review" if result.family == 'clarify' else
-                  "BLACKGRID forecast" if forecast else "BLACKGRID structural investigation",
+                  "BLACKGRID forecast" if forecast else "BLACKGRID behavioral investigation" if behavior else "BLACKGRID structural investigation",
                   case_id=result.case_id, condition=result.condition,
                   status=result.status.value, verdict=result.verdict, sections=(
         ReportSection(title="Question and scope", items=tuple(scope_items)),

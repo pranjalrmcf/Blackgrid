@@ -226,8 +226,15 @@ def run(output: Path) -> dict:
     started = datetime.now(UTC).isoformat()
     source = {p.relative_to(ROOT).as_posix(): digest(p) for area in ("src", "tests", "configs")
               for p in (ROOT / area).rglob("*") if p.is_file() and p.suffix in (".py", ".json", ".html")}
-    revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    dirty = bool(subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True).stdout)
+    try:
+        revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
+                                  text=True, check=True, timeout=10).stdout.strip()
+        dirty = bool(subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True,
+                                    text=True, check=True, timeout=10).stdout)
+    except (OSError, subprocess.SubprocessError):
+        # Source exports and runtime images may have neither Git nor a checkout.
+        # Keep source hashes above and report unavailable provenance explicitly.
+        revision, dirty = None, None
     save(output / "freeze.json", {"version": "decisions-v1", "protocol_sha256": digest(PROTOCOL),
                                  "source_hashes": source, "source_revision": revision, "dirty": dirty,
                                  "lock_sha256": digest(ROOT / "uv.lock"), "objective": Objective().model_dump(),

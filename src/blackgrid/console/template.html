@@ -210,7 +210,7 @@ function renderIndex(data){
       (!filterText || JSON.stringify([r.question, r.id, r.case, r.verdict, r.reason]).toLowerCase().includes(filterText))).map(r => {
       const tr = h("tr", {cls: "click", on: {click: () => { location.href = href(r.kind, r.id); }}},
         h("td", {}, h("div", {cls:"run-question"}, r.question || (r.kind === "pilot" ? "Offline system check" : r.case || "Investigation")), h("div", {cls:"run-meta"}, r.id)),
-        h("td", {}, r.kind === "pilot" ? "System check" : r.family === "research" ? "Research evidence" : (r.kind === "forecast" || r.family === "forecast") ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
+        h("td", {}, r.kind === "pilot" ? "System check" : r.family === "behavior" ? "Messaging behavior" : r.family === "research" ? "Research evidence" : (r.kind === "forecast" || r.family === "forecast") ? "Forecast connections" : (r.family === "clarify" ? "Outside current scope" : r.family === "bridge" ? "Group connections" : r.family === "centrality" ? "Network positions" : "Communities")),
         h("td", {}, r.verdict==='rejected' ? h('span',{cls:'badge warn'},'Needs clarification') : badge(r.status)), h("td", {}, r.verdict==='rejected' ? 'Not answered' : r.status==='abstained' ? 'Withheld' : r.family && r.family !== "community" ? "Descriptive" : r.verdict ? badge(r.verdict) : "—"),
         h("td", {cls: "mono small"}, r.kind === "pilot" && r.summary
           ? Object.entries(r.summary).map(([c, v]) => `${c}: useful ${v.useful_coverage}`).join(" · ")
@@ -245,8 +245,9 @@ function actionsPanel(){
     "Which nodes connect different groups, and are the rankings stable?",
     "Which pairs who have never messaged are most likely to message in the next few weeks?",
     "Which pairs who already talked will message again soon?",
-    "Review Sprint 7 uncertainty, posterior beliefs, next experiment and causal identification."
-  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; draft.question = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages", "Review research evidence"][i])));
+    "Review Sprint 7 uncertainty, posterior beliefs, next experiment and causal identification.",
+    "Find behavioral clusters, similar activity profiles and anomalous messaging behavior."
+  ].map((text,i) => h("button", {cls: "btn", on: {click: () => { question.value = text; draft.question = text; question.focus(); }}}, ["Find communities", "Find central nodes", "Find connections between groups", "Forecast new connections", "Forecast repeat messages", "Review research evidence", "Analyze behavior"][i])));
   const scope = h("select", {"aria-label":"Data scope"}, h("option", {value: "first_window"}, "CollegeMsg · first week"), h("option", {value: "full_dataset"}, "CollegeMsg · full dataset"));
   const cond = h("select", {"aria-label":"Evidence checks"}, h("option", {value: "validated"}, "Evidence checks on"), h("option", {value: "tool_only"}, "Unchecked comparison"));
   const mode = h("select", {id:"ai-mode", "aria-label":"AI mode"},
@@ -313,14 +314,16 @@ function renderRun(d){
                 ["claims", "Evidence"], ["agent", "Activity"], ["report", "Full report"], ["budget", "Cost"],
                 ["experiment", "Statistics"], ["sensitivity", "Edge sensitivity"]];
   if (sum.family === "research") allTabs.push(["research", "Reliability & decisions"]);
+  if (sum.family === "behavior") allTabs.push(["behavior", "Behavior & similarity"]);
   // Forecast runs have no graph statistics, node rankings or edge-removal checks: show only what applies.
   const forecastTabs = new Set(["overview", "claims", "agent", "report", "budget"]);
   const tabs = sum.family === "forecast" ? allTabs.filter(([k]) => forecastTabs.has(k)) :
-    sum.family === "research" ? allTabs.filter(([k]) => forecastTabs.has(k) || k === "research") : allTabs;
+    sum.family === "research" ? allTabs.filter(([k]) => forecastTabs.has(k) || k === "research") :
+    sum.family === "behavior" ? allTabs.filter(([k]) => forecastTabs.has(k) || k === "behavior") : allTabs;
   if (!tabs.some(([k]) => k === tab)) tab = "overview";
   const bar = h("div", {cls: "tabs"}, tabs.map(([k, label]) => h("button", {cls: "tab" + (tab === k ? " on" : ""), on: {click: () => { tab = k; renderRun(d); window.scrollTo(0,0); }}}, label)));
   const views = {overview: viewAnswer, rankings: viewRankings, experiment: viewExperiment, network: viewNetwork, sensitivity: viewSensitivity,
-                 agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget, research: viewResearch};
+                 agent: viewAgent, claims: viewClaims, report: viewReport, budget: viewBudget, research: viewResearch, behavior: viewBehavior};
   app.replaceChildren(head, stepper(ws, status), bar, h("div", {cls: "grid"}, views[tab](d)));
   if (LIVE && (status === "running" || status === "paused")) timer = setTimeout(route, 2500);
 }
@@ -380,7 +383,10 @@ function viewAnswer(d){
     title='The agent withheld a final answer.';
     explanation=inv.follow_up?.reason || inv.failure_reason || 'The available evidence did not support the requested answer. Any completed calculations remain available in the other tabs.';
   } else if(status==='completed'){
-    if(inv.family === "research"){
+    if(inv.family === "behavior"){
+      title="The selected window's messaging behavior has been analyzed.";
+      explanation="Open Behavior & similarity to inspect activity clusters, nearest profiles and unusual-profile candidates. These descriptive results do not establish social groups, causal influence or malicious behavior. Scores are not probabilities.";
+    } else if(inv.family === "research"){
       title="The saved synthetic research evidence has been reviewed.";
       explanation="Inspect Reliability & decisions for the registered beliefs, uncertainty and next-action decision. No new experiment was executed, and these results do not establish calibration or causal influence in the selected real network.";
     } else if(d.link_prediction){
@@ -425,7 +431,9 @@ function viewAnswer(d){
       sen.removed_edges_per_replicate===0?' At this graph size, rounding removed no edges.':'')));
   output.push(panel(inv.family==='research'?'Context graph (not research evidence)':'Data used','',h('div',{cls:'stats'},
     ...[['Nodes',rec.active_nodes],['Connections',rec.unique_edges],['Scope',rec.scope==='full_dataset'?'Full recording':'Selected window']].map(([name,value])=>h('div',{cls:'stat'},h('span',{},name),h('b',{},value ?? '—')))),
-    h('p',{cls:'quiet'},'An undirected connection means at least one observed interaction. Timing, direction and repeat-message counts are omitted.')));
+    h('p',{cls:'quiet'},inv.family==='behavior' ?
+      'The graph counts summarize the observation window. Behavioral features additionally preserve directed event frequency and timing.' :
+      'An undirected connection means at least one observed interaction. Timing, direction and repeat-message counts are omitted.')));
   output.push(h('section',{cls:'panel'},h('details',{cls:'advanced'},h('summary',{},'Run details and reproducibility'),h('div',{cls:'advanced-body'},...viewOverview(d)))));
   return output;
 }
@@ -587,6 +595,67 @@ function viewClaims(d){
 
 const EVIDENCE_FILES = {centrality: "node_centrality.json", partition: "community_partition.json", bridges: "community_bridge.json",
   ranking_sensitivity: "ranking_sensitivity.json", experiment: "experiment_report.json", sensitivity: "sensitivity.json", profile: "graph_profile.json"};
+
+function viewBehavior(d){
+  const panels=[];
+  const features=d.behavior_features;
+  if(features) panels.push(panel('Observed behavior','',
+    h('p',{},`${features.summary.nonzero_profiles} active profiles; ${features.summary.zero_profiles} zero profiles. ${features.summary.events} events in the recorded half-open window.`),
+    h('p',{cls:'quiet'},'Eight directed-event features describe volume, distinct contacts, timing and reciprocity. Repeated events are preserved. Identifiers below stay local; the AI receives aggregates.'),
+    h('details',{},h('summary',{},'Features and limitations'),h('pre',{},JSON.stringify({features:features.feature_names,window:features.window,limitations:features.limitations},null,2)))));
+  function table(headers,rows){
+    return h('div',{cls:'tablewrap'},h('table',{},h('thead',{},h('tr',{},headers.map(t=>h('th',{},t)))),
+      h('tbody',{},rows.map(row=>h('tr',{},row.map(v=>h('td',{cls:'mono'},String(v ?? 'unassigned'))))))));
+  }
+  const cluster=d.behavior_clustering;
+  if(cluster) panels.push(panel('Behavioral clusters','',h('p',{},cluster.method),
+    cluster.verdict==='abstain' ? h('p',{},cluster.reason) : h('div',{},
+      h('p',{},`Silhouette: ${f3(cluster.summary.silhouette)}. This is an internal separation diagnostic, not verified group accuracy.`),
+      table(['Cluster','Profiles'],(cluster.summary.cluster_profiles||[]).map(r=>[r.cluster,r.size])),
+      h('details',{},h('summary',{},'Local memberships'),table(['Node','Cluster'],(cluster.rows||[]).map(r=>[r.node,r.cluster]))),
+      h('details',{},h('summary',{},'Feature means by cluster'),h('pre',{},JSON.stringify(cluster.summary.cluster_profiles,null,2))))));
+  const similarity=d.behavior_similarity;
+  if(similarity){
+    const rows=similarity.rows||[], output=h('div',{});
+    const choose=h('select',{},[...new Set(rows.map(r=>r.node))].map(n=>h('option',{value:String(n)},String(n))));
+    const featureRows=new Map((features?.rows||[]).map(r=>[String(r.node),r]));
+    function draw(){
+      const neighbors=rows.filter(r=>String(r.node)===choose.value);
+      const matched=features && features.snapshot_sha256===similarity.snapshot_sha256;
+      const profiles=[{node:choose.value,role:'Selected profile',cosine:null},
+        ...neighbors.map(r=>({node:r.neighbor,role:'Neighbor '+r.rank,cosine:r.cosine}))];
+      const complete=matched && profiles.every(r=>featureRows.has(String(r.node)));
+      const comparison=complete ? table(
+        ['Node','Profile','Cosine','Sent events','Received events','Recipients','Senders','Reciprocity','Active bins share','Peak-bin share'],
+        profiles.map(r=>{
+          const f=featureRows.get(String(r.node));
+          return [r.node,r.role,r.cosine===null?'—':f3(r.cosine),
+            ...['log_sent','log_received','log_recipients','log_senders'].map(k=>Math.round(Math.expm1(f[k]))),
+            f3(f.reciprocal_fraction),f3(f.active_bin_fraction),f3(f.peak_bin_fraction)];
+        })) : h('p',{cls:'quiet'},'Same-window feature comparison is unavailable for this saved result.');
+      output.replaceChildren(table(['Node','Neighbor','Rank','Cosine'],
+        neighbors.map(r=>[r.node,r.neighbor,r.rank,f3(r.cosine)])),
+        h('h3',{},'Compare behavioral features'),comparison);
+    }
+    choose.addEventListener('change',draw);
+    if(rows.length){choose.value=String(rows[0].node);draw();}
+    panels.push(panel('Similarity search · local identifiers','',h('p',{},similarity.method),
+      similarity.verdict==='abstain' ? h('p',{},similarity.reason) : h('div',{},h('label',{},'Select a local node ',choose),output,
+        h('p',{cls:'quiet'},'Similarity compares observed profiles, including volume. It does not imply an observed connection or future interaction.'))));
+  }
+  const anomalies=d.behavior_anomalies;
+  if(anomalies?.summary?.cluster_comparison) panels.push(panel('Clusters compared with anomaly candidates','',
+    table(['Cluster','Profiles','Candidates','Candidate share','Count-only candidates','Count-only share'],
+      Object.values(anomalies.summary.cluster_comparison).map(r=>[r.cluster,r.size,r.candidates,
+        (100*r.candidate_fraction).toFixed(1)+'%',r.count_baseline_candidates,(100*r.count_baseline_fraction).toFixed(1)+'%'])),
+    h('p',{cls:'quiet'},'These within-window descriptive counts join the saved cluster memberships to heuristic flags. Shares are not probabilities of wrongdoing or significance tests.')));
+  if(anomalies) panels.push(panel('Unusual-profile candidates','',h('p',{},anomalies.method),
+    anomalies.verdict==='abstain' ? h('p',{},anomalies.reason) : h('div',{},
+      h('p',{},`${anomalies.summary.candidates} heuristic candidates; ${anomalies.summary.count_baseline_candidates} count-only baseline candidates. No real anomaly labels or calibrated false-positive rate are available.`),
+      table(['Node',...(anomalies.summary.cluster_comparison?['Cluster']:[]),'Deviation','Candidate','Count baseline','Strongest feature'],(anomalies.rows||[]).slice(0,100).map(r=>[r.node,...(anomalies.summary.cluster_comparison?[r.cluster]:[]),f3(r.score),r.candidate,f3(r.count_baseline_score),r.strongest_feature])),
+      h('p',{cls:'quiet'},'Showing up to 100 profiles by decreasing score. Unusual activity can have ordinary explanations.'))));
+  return panels.length ? panels : [panel('Behavior','',h('p',{},'No behavioral artifacts are available.'))];
+}
 
 function viewRankings(d){
   const out = [panel("Structural interpretation", "", h("p", {cls: "muted"},

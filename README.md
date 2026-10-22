@@ -1,6 +1,6 @@
 # BLACKGRID
 
-BLACKGRID turns network-science questions into bounded, reproducible investigations. A constrained LLM planner chooses registered tools for community testing, centrality, cross-community bridges and temporal link prediction; trusted numerical code executes the analysis, and evidence checks constrain the answer to what the artifacts support. A local console exposes reports, private rankings, uncertainty, refusals and costs. Durable checkpoints, verified receipts and explicit spending caps keep interrupted investigations auditable. Separate synthetic studies demonstrate Bayesian beliefs, experiment decisions and causal-identification limits.
+BLACKGRID turns network-science questions into bounded, reproducible investigations. A constrained LLM planner chooses registered tools for community testing, centrality, cross-community bridges, temporal link prediction, behavioral clustering, similarity search and anomaly detection; trusted numerical code executes the analysis, and evidence checks constrain the answer to what the artifacts support. A local console exposes reports, private rankings, uncertainty, refusals and costs. Durable checkpoints, verified receipts and explicit spending caps keep interrupted investigations auditable. Separate synthetic studies demonstrate Bayesian beliefs, experiment decisions and causal-identification limits.
 
 [Technical summary: two-page PDF](output/pdf/blackgrid_technical_summary.pdf) · [Markdown](docs/technical_summary.md) · [Detailed system flowcharts](flowchart.md) · [MIT license](LICENSE)
 
@@ -10,9 +10,10 @@ BLACKGRID turns network-science questions into bounded, reproducible investigati
 flowchart LR
     Q["Question + validated config"] --> G["Scope and authorization guards"]
     G --> P["LLM planner"]
-    P --> V["Validate family, tools and obligations"]
+    P --> V["Validate tools, obligations, exclusions and size limits"]
     V --> T["Trusted numerical tools"]
-    T --> S["Evidence summary / bounded research writer"]
+    T --> A["Verified artifacts + requested descriptive comparisons"]
+    A --> S["Evidence summary / bounded research writer"]
     S --> C["Critic: numbers, links and scope"]
     C --> R["Report, local rankings or explicit abstention"]
     D["Local events + bound synthetic evidence"] --> T
@@ -21,19 +22,21 @@ flowchart LR
     R -.-> L
 ```
 
-Models receive aggregate evidence, not raw event rows or local identifier tables. Validated structural and forecast summaries use evidence templates by default; model-written summaries remain bounded by the same critics. See the [full architecture](flowchart.md) for recovery, follow-up and evaluation paths.
+Models receive aggregate evidence, not raw event rows or local identifier tables. Validated community, structural, forecast and behavioral summaries use evidence templates by default; model-written summaries remain bounded by the same critics. Every validated behavioral analysis becomes a completion obligation. See the [full architecture](flowchart.md) for comparison views, refusal paths, recovery and evaluation.
 
 ## Headline results
 
 | Measurement | Observed result | Scope and evidence |
 |---|---|---|
-| Current complete regression | **493 passed; 0 failures, errors or skips** in 4m26s | Engineering and numerical checks, including offline instrumented providers. [Test status](docs/current_test_status.md). |
-| Most recent real-LLM system evaluation | **23/24 strict passes (95.8%)** in 108s; batch cost **$0.0089** | Current post-repair snapshot: 17/18 supported questions passed; all 6 unsupported requests were refused (5 guards, 1 model). One research-writing response truncated. [Evaluation and limitations](docs/current_system_evaluation.md). |
+| Regression verification | **530 passed; 0 failures, errors or skips** in 5m00s, plus 71 final focused passes | Engineering and numerical checks; focused tests verify the last exclusion refinement. [Test status](docs/current_test_status.md). |
+| Sprint 8 real-LLM evaluation | **22/24 strict passes (91.7%)** in 68s; batch cost **$0.0063** | All supported numerical analyses passed; two requested comparisons were incomplete. All six scope boundaries handled correctly. [Report](docs/sprint08_system_evaluation_v1.md). |
+| Sprint 8 repair confirmation | **12/12 targeted cases** in 37s; final batch **$0.00334** | Comparison views, narrow execution and refusals verified. Prior 22/24 and intermediate 10/12 retained; partly exposed wording on reused data. [Repair report](docs/sprint08_repairs_report.md). |
+| Prior general real-LLM system evaluation | **23/24 strict passes (95.8%)** in 108s; batch cost **$0.0089** | General pre-Sprint-8 snapshot: 17/18 supported questions passed; all 6 unsupported requests were refused (5 guards, 1 model). One research-writing response truncated. [Evaluation and limitations](docs/current_system_evaluation.md). |
 | CollegeMsg repeat-pair prediction | **40.8 correct per top 100**; mean AP **0.2883** | Logistic model averaged across 5 inspected rolling development windows. [Saved results](results/sprint06-v2/summary.json). |
 | CollegeMsg first-time pair prediction | **4.4 correct per top 100**; mean AP **0.00757** | Same development protocol; first contacts remain difficult. These scores are not calibrated probabilities. [Saved results](results/sprint06-v2/summary.json). |
 | External prediction confirmation | Logistic model beat its registered reference in **5/5 windows for each task** on Bitcoin OTC | Dataset/task-specific confirmation, not universal transfer. [Saved results](results/sprint06-v3-bitcoin/summary.json). |
 
-The latest live evaluation used reused data and warm numerical caches, with independent numerical checks plus assistant semantic review. All bridge cases passed; one saved synthetic research answer failed when the model hit its output cap. Earlier evaluations remain separate. These measurements do not establish autonomous scientific discovery, causal influence, calibrated individual probabilities or a statistically demonstrated benefit from an LLM. The [technical summary](docs/technical_summary.md) separates the thesis, method, results and limitations.
+The general live evaluation used reused data and warm numerical caches, with independent numerical checks plus assistant semantic review. All bridge cases passed; one saved synthetic research answer failed when the model hit its output cap. The subsequent Sprint 8 evaluation checks behavioral tasks separately and retains its two answer-completeness failures. These measurements do not establish autonomous scientific discovery, causal influence, calibrated individual probabilities or a statistically demonstrated benefit from an LLM. The [technical summary](docs/technical_summary.md) separates the thesis, method, results and limitations.
 
 ## Start here
 
@@ -50,6 +53,23 @@ uv run --frozen blackgrid console --allow-paid --max-usd-total 3
 ```
 
 That ceiling includes previous spending and unresolved reservations; it is not a fresh $3 grant. Refresh the console and select **Real AI**. Setup, dataset requirements and recovery commands follow below.
+
+## Behavioral analysis: Sprint 8
+
+Choose **CollegeMsg · first week** and **Analyze behavior**, or ask “Find behavioral clusters, similar activity profiles and anomalous messaging behavior.” Open **Behavior & similarity** in the completed run.
+
+| Ask | Inspect locally |
+|---|---|
+| “Group participants by their messaging habits.” | Fixed k=3 KMeans clusters, sizes, mean features and memberships. |
+| “Compare a profile with its closest behavioral neighbors.” | Five cosine neighbors plus side-by-side sending/receiving counts, distinct contacts, reciprocity and timing features. |
+| “Find unusual activity and compare it with the count-only baseline.” | Robust-deviation rankings, contributing features and heuristic candidate flags. |
+| “Compare outlier counts and shares within each activity group.” | Joined cluster populations, candidate counts/percentages and baseline counts/percentages; cluster membership on anomaly rows. |
+
+The tools preserve repeated directed events inside the exact recorded window. The controller keeps implicit requests narrow, enforces grouped-comparison prerequisites and honors explicit anomaly exclusions. Node identifiers and comparison rows stay local; only aggregate findings enter model evidence. Restart a running console to load backend changes.
+
+Behavioral analysis is bounded to **1,000 nodes, 10,000 pairs and 100,000 selected events**. The full CollegeMsg graph exceeds these limits and receives an explicit refusal; select the first-week scope for this capability. Clusters are descriptive profiles, similarity is not an observed relationship, and candidate shares are not calibrated probabilities or verified wrongdoing. Claims of causal influence or proof of fraud remain unsupported.
+
+[Usage and methods](docs/sprint08_guide.md) · [Original 24-question evaluation](docs/sprint08_system_evaluation_v1.md) · [Repairs and targeted confirmation](docs/sprint08_repairs_report.md) · [Behavioral protocol](protocols/sprint08_behavior_v1.md)
 
 ## License
 
@@ -242,7 +262,7 @@ The console shows:
 - accepted and rejected claims with reasons;
 - the full report and the budget meters.
 
-**Prediction:** Sprint 1 has no predictive model (graph prediction is gated to Phase 3). The UI says so rather than showing invented predictions.
+**Prediction:** temporal link prediction is implemented. The console ranks new or repeat pairs and shows matching historical evaluation; scores remain uncalibrated rankings. See the [prediction guide](docs/sprint06_guide.md).
 
 ## 6. Live LLM run with OpenRouter (costs money)
 
@@ -251,27 +271,25 @@ Live mode sends **only aggregate statistics and the task text** to the model. It
 1. Your key and model in `.env`, which is git-ignored. `.env.example` is the template:
    ```
    OPEN_ROUTER_API_KEY=...
-   OPEN_ROUTER_MODEL=anthropic/claude-haiku-5.5
+   OPEN_ROUTER_MODEL=deepseek/deepseek-v4-flash-0731
    ```
    - `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` are also accepted.
-   - The model in `.env` overrides `llm.model` in the config. The run's saved `config.json` records the model actually used.
-   - The default `anthropic/claude-haiku-5.5` is listed and priced on OpenRouter, but its endpoint returned HTTP 404 (D-041). `deepseek/deepseek-v4-flash-0731` has completed a run. Pick any ID from https://openrouter.ai/models. A model ID that isn't listed stops the run before any spending. A listed model whose endpoint fails costs at most the booked reservation of two attempts.
+   - The model in `.env` overrides `llm.model` for ordinary CLI runs; the retained console/project allowance pins its registered model. The saved `config.json` records the model actually used.
+   - The checked-in live configs and retained console allowance use `deepseek/deepseek-v4-flash-0731`. BLACKGRID verifies pricing before paid dispatch; model/provider failures and uncertain charges remain recorded rather than being presented as successful answers.
 2. `configs/collegemsg_live.json` (`mode: live`, `paid_execution_authorized: true`).
 3. The `--allow-paid` flag on the command line. Without it, a live run **pauses** before its first paid call, and you can approve later with `blackgrid resume RUN_ID --allow-paid`.
 
 ```bash
-uv run --frozen blackgrid run configs/collegemsg_live.json --allow-paid
+uv run --frozen blackgrid run configs/collegemsg_live.json --allow-paid --live-allowance runs/console-project-allowance.json
 ```
 
 Before any call, BLACKGRID fetches the model's current price from OpenRouter; if it cannot, it refuses to run.
 
-Every call is reserved at its worst case before it is sent: a strict bound on the input, the full `max_tokens` output, at 2× list price. A failed call is booked at its whole reservation. A charge above its reservation stops all further paid calls. The reservation is checked against these caps:
+Create the retained project allowance with the authorized console command above before using this CLI example. Its USD 3 ceiling includes historical spending and unresolved reservations. The bare live config retains an older current-sprint default cap; use the project allowance for the documented console/CLI workflow.
 
-- 8 calls, 100,000 tokens, and USD 0.50 per run (live configs allow up to 16,000 output tokens per call);
-- USD 10 for the whole sprint, tracked in `runs/spend_ledger.json`;
-- 1 retry per failed call, 2 revision rounds.
+Every call is reserved conservatively before dispatch. Accounting checks the most restrictive run, sprint, project, token and call limits; uncertain dispatch retains a reservation pending reconciliation. A charge above its reservation stops further paid calls. The retained project allowance constrains each investigation to at most USD 0.15 and the remaining project balance. Current live configs use an 8,192-token output cap and 60-second provider deadline; call, retry and revision limits are recorded in each saved configuration.
 
-A typical validated run makes 2–4 calls.
+The durable run/operation ledger is `runs/workflow.sqlite`; legacy spending is imported without resetting it. The latest targeted repair batch used an explicit USD 0.04 per-case cap, no paid retries and four parallel process workers. Its 12 scenarios used 11 real planner calls; a deterministic refusal needed no model call. That evaluation policy is recorded separately from interactive defaults.
 
 To re-run a live investigation for free, replay its recorded responses:
 
@@ -309,7 +327,7 @@ Source code lives in `src/blackgrid/`, grouped by responsibility (reorganized in
 |---|---|---|
 | `blackgrid/` | `cli.py`, `__main__.py`, `contracts.py` | Command line, and the typed contracts shared by everything |
 | `data/` | `collegemsg.py`, `datasets.py`, `ingestion.py`, `synthetic.py` | Loading and validating event data (CollegeMsg, schema-driven datasets), full-data ingestion, synthetic graph generators |
-| `analysis/` | `experiment.py`, `sensitivity.py`, `structural.py`, `methods.py`, `parity.py` | Graph science: modularity vs degree-preserving null, missing-edge sensitivity, centrality and bridges, Louvain/Leiden comparison |
+| `analysis/` | `experiment.py`, `sensitivity.py`, `structural.py`, `behavior.py`, `reliability.py`, `decisions.py`, `causal.py`, `methods.py`, `parity.py` | Graph metrics and null tests; behavioral features, clusters, neighbors, anomaly candidates and joined comparisons; synthetic uncertainty, decision and identification studies |
 | `agent/` | `roles.py`, `tools.py`, `critic.py`, `inquiry.py`, `providers.py`, `budget.py`, `report.py`, `live_allowance.py` | The AI agent: role prompts and inputs, allowlisted tools, plan validator and claim critic, question routing, mock/OpenRouter/replay providers, budget ledger, evidence-linked reports, live allowance |
 | `workflow/` | `engine.py`, `api.py`, `store.py`, `runner.py` | Durable LangGraph workflow, start/resume/cancel API, SQLite operation store, run orchestration |
 | `prediction/` | `temporal.py`, `scores.py`, `features*.py`, `model.py`, `metrics.py`, `fast.py`, `suite.py`, `rolling.py`, `service.py`, `claims.py`, `synthetic.py` | Temporal link prediction: cutoff-safe pipeline, heuristics, models, sealed and rolling evaluation, forecast tools and predictive-claim checker |

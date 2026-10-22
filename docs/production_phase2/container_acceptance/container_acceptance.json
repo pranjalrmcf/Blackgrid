@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "image": "blackgrid:phase2",
+  "paid_calls": false,
+  "usd": 0,
+  "checks": {
+    "image_boundary": {
+      "uid": 10001,
+      "python": "3.11.17",
+      "private_inputs_absent": true,
+      "runtime_imports": true,
+      "pytest_absent": true
+    },
+    "runtime_controls": {
+      "non_root": true,
+      "network": "none",
+      "read_only_root": true,
+      "memory_bytes": 2147483648,
+      "nano_cpus": 1000000000,
+      "pids_limit": 128
+    },
+    "clean_offline_exact_parity": {
+      "projection_sha256": "ae2aec6c97322d04430764b5d6a690d72e482259b15ef5cd4aa30c522ec17fd4",
+      "experiment_sha256": "e7d426a066cd0a63f6dc11d70087f18cce6b2bc9bd6a9db6553bedf9c7bdd416",
+      "sensitivity_sha256": "c2e11619900c5f6e653d273d857ac2382f9107214162a44f11d5e9050e2df67e",
+      "observed_q": 0.5865256540039427,
+      "null_mean": 0.5932968286191437,
+      "p_value": 0.718,
+      "exceedances": 358,
+      "sensitivity_agreement": 20,
+      "status": "completed",
+      "verdict": "not_supported",
+      "flags": [
+        "degree_confound",
+        "disconnected"
+      ],
+      "missing_analyses": [],
+      "accepted_claims": [
+        "The saved decision-rule verdict is 'not_supported' for this graph only.",
+        "Primary modularity Q = 0.5865 versus a degree-preserving null mean of 0.5933 (p = 0.7180).",
+        "Secondary modularity Q = 0.5429 versus a degree-preserving null mean of 0.5351 (p = 0.2520).",
+        "Uniform edge-removal sensitivity uses removal fraction 0.1, 20 replicates and verdict agreement fraction 1.0."
+      ],
+      "rejected_claims": [],
+      "llm_calls": 1,
+      "tokens_in": 1824,
+      "tokens_out": 64,
+      "actual_usd": 0.0
+    },
+    "completed_state_survives_restart": true,
+    "bounded_interruption": {
+      "exit_code": 2,
+      "oom_killed": false,
+      "run_id": "20261022T110614Z-503c33"
+    },
+    "interrupted_resume_exact_parity": {
+      "projection_sha256": "ae2aec6c97322d04430764b5d6a690d72e482259b15ef5cd4aa30c522ec17fd4",
+      "experiment_sha256": "e7d426a066cd0a63f6dc11d70087f18cce6b2bc9bd6a9db6553bedf9c7bdd416",
+      "sensitivity_sha256": "c2e11619900c5f6e653d273d857ac2382f9107214162a44f11d5e9050e2df67e",
+      "observed_q": 0.5865256540039427,
+      "null_mean": 0.5932968286191437,
+      "p_value": 0.718,
+      "exceedances": 358,
+      "sensitivity_agreement": 20,
+      "status": "completed",
+      "verdict": "not_supported",
+      "flags": [
+        "degree_confound",
+        "disconnected"
+      ],
+      "missing_analyses": [],
+      "accepted_claims": [
+        "The saved decision-rule verdict is 'not_supported' for this graph only.",
+        "Primary modularity Q = 0.5865 versus a degree-preserving null mean of 0.5933 (p = 0.7180).",
+        "Secondary modularity Q = 0.5429 versus a degree-preserving null mean of 0.5351 (p = 0.2520).",
+        "Uniform edge-removal sensitivity uses removal fraction 0.1, 20 replicates and verdict agreement fraction 1.0."
+      ],
+      "rejected_claims": [],
+      "llm_calls": 1,
+      "tokens_in": 1824,
+      "tokens_out": 64,
+      "actual_usd": 0.0
+    },
+    "post_resume_readiness": true
+  },
+  "limitations": [
+    "single-host mock workflow; no production load/security certification"
+  ],
+  "container": "blackgrid-phase2-verify-3ee3da17bc",
+  "state_volume": "blackgrid-phase2-verify-3ee3da17bc-state",
+  "host_fingerprint": {
+    "projection_sha256": "ae2aec6c97322d04430764b5d6a690d72e482259b15ef5cd4aa30c522ec17fd4",
+    "experiment_sha256": "e7d426a066cd0a63f6dc11d70087f18cce6b2bc9bd6a9db6553bedf9c7bdd416",
+    "sensitivity_sha256": "c2e11619900c5f6e653d273d857ac2382f9107214162a44f11d5e9050e2df67e",
+    "observed_q": 0.5865256540039427,
+    "null_mean": 0.5932968286191437,
+    "p_value": 0.718,
+    "exceedances": 358,
+    "sensitivity_agreement": 20,
+    "status": "completed",
+    "verdict": "not_supported",
+    "flags": [
+      "degree_confound",
+      "disconnected"
+    ],
+    "missing_analyses": [],
+    "accepted_claims": [
+      "The saved decision-rule verdict is 'not_supported' for this graph only.",
+      "Primary modularity Q = 0.5865 versus a degree-preserving null mean of 0.5933 (p = 0.7180).",
+      "Secondary modularity Q = 0.5429 versus a degree-preserving null mean of 0.5351 (p = 0.2520).",
+      "Uniform edge-removal sensitivity uses removal fraction 0.1, 20 replicates and verdict agreement fraction 1.0."
+    ],
+    "rejected_claims": [],
+    "llm_calls": 1,
+    "tokens_in": 1824,
+    "tokens_out": 64,
+    "actual_usd": 0.0
+  }
+}

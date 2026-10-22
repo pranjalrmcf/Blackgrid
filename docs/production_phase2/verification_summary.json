@@ -1,0 +1,33 @@
+{
+  "executions": {
+    "focused.xml": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 14.209
+    },
+    "regression.xml": {
+      "tests": 543,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 273.372
+    },
+    "final_focused.xml": {
+      "tests": 39,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 18.851
+    }
+  },
+  "distinct_cases_with_passing_evidence": 546,
+  "existing_files_changed_since_phase2_start": [
+    "src/blackgrid/cli.py",
+    "src/blackgrid/console/server.py"
+  ],
+  "unchanged_snapshotted_files": 105,
+  "paid_calls_initiated": false,
+  "api_cloud_spend_usd": 0
+}

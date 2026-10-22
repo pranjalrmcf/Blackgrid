@@ -1,5 +1,7 @@
 """Scientific invariants for the registered synthetic uncertainty/decision slice."""
 import hashlib
+import json
+import subprocess
 
 import numpy as np
 import pytest
@@ -164,6 +166,22 @@ def test_cancel_and_memory_limit_preserve_failure(tmp_path, monkeypatch):
     result = s7.run(out)
     assert result["status"] == "failed" and result["failure"] == "MemoryError"
     assert (out / "sprint7_manifest.json").exists()
+
+
+@pytest.mark.parametrize("error", [FileNotFoundError("git"), subprocess.CalledProcessError(128, "git")])
+def test_source_export_without_git_records_unknown_provenance(tmp_path, monkeypatch, error):
+    import blackgrid.evaluation.sprint7 as s7
+
+    def unavailable(*args, **kwargs):
+        raise error
+
+    monkeypatch.setattr(s7.subprocess, "run", unavailable)
+    monkeypatch.setattr(s7, "peak_memory_bytes", lambda: 3 * 1024**3)
+    out = tmp_path / "source-export"
+    assert s7.run(out)["failure"] == "MemoryError"
+    freeze = json.loads((out / "freeze.json").read_text())
+    assert freeze["source_revision"] is None and freeze["dirty"] is None
+    assert freeze["source_hashes"] and freeze["lock_sha256"]
 
 
 def test_posterior_predictive_misfit_and_degenerate_calibration():

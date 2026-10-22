@@ -277,13 +277,11 @@ def _cmd_console(args: argparse.Namespace) -> int:
         print(f"cannot start the console on 127.0.0.1:{args.port}: {exc}", file=sys.stderr)
         return EXIT_INVALID
     print(f"BLACKGRID console: http://127.0.0.1:{args.port}/  (local only; Ctrl+C to stop)", file=sys.stderr)
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        httpd.server_close()
-    return EXIT_OK
+    from blackgrid.operations.lifecycle import run_console
+    drained = run_console(httpd, console, args.shutdown_grace_seconds)
+    if not drained:
+        print("shutdown drain timed out; interrupted workflows require inspection and resume", file=sys.stderr)
+    return EXIT_OK if drained else EXIT_RUN_FAILED
 
 
 def _cmd_status(args: argparse.Namespace) -> int:
@@ -612,7 +610,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("config", type=Path)
     run.add_argument("--data-root", type=Path, default=REPO_ROOT, help="base for the config's relative dataset path")
     run.add_argument("--mode", choices=["mock", "live", "replay"])
-    run.add_argument("--family", choices=["community", "centrality", "bridge", "forecast", "research", "auto"], help="question-specific investigation")
+    run.add_argument("--family", choices=["community", "centrality", "bridge", "forecast", "research", "behavior", "auto"], help="question-specific investigation")
     run.add_argument("--question", help="structural research question (treat as untrusted data)")
     run.add_argument("--planning-mode", choices=["adaptive", "single"], help="permit one follow-up or use one plan")
     run.add_argument("--condition", choices=["validated", "tool_only"])
@@ -643,6 +641,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     con = sub.add_parser("console", parents=[common], help="serve the interactive console on 127.0.0.1")
     con.add_argument("--port", type=int, default=8765)
+    def shutdown_grace(value: str) -> float:
+        import math
+        result = float(value)
+        if not math.isfinite(result) or not 0 < result <= 300:
+            raise argparse.ArgumentTypeError("shutdown grace must be finite, above 0 and at most 300 seconds")
+        return result
+    con.add_argument("--shutdown-grace-seconds", type=shutdown_grace, default=30.0)
     con.add_argument("--allow-paid", action="store_true", help="enable retained USD 0.50 live allowance; restarts do not renew it")
     con.add_argument('--max-usd-total', type=float, help='explicit absolute project USD ceiling including all prior spend; requires --allow-paid')
     con.add_argument("--config", type=Path, default=REPO_ROOT / "configs" / "collegemsg_sprint01.json",

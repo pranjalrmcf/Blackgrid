@@ -1,0 +1,19 @@
+{
+  "float_absolute_tolerance": 1e-12,
+  "relative_tolerance": 0,
+  "exact": [
+    "projection identity",
+    "integer counts",
+    "claims",
+    "flags",
+    "verdict",
+    "budget/call counters"
+  ],
+  "volatile_keys": [
+    "elapsed_s",
+    "created_utc",
+    "finished_utc",
+    "run_id",
+    "fetched_utc"
+  ]
+}
