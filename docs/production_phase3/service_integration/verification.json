@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "checks": {
+    "runtime": {
+      "same_state_volume": "blackgrid_blackgrid-state",
+      "non_root": true,
+      "read_only": true,
+      "localhost_only_port": true,
+      "worker_network_denied": true,
+      "read_only_secrets": true
+    },
+    "https_auth_readiness": true,
+    "offline_job": {
+      "job_id": "c9fd5ea698284a1a8eff6a723e78bd7f",
+      "state": "completed",
+      "summary": {
+        "status": "completed",
+        "verdict": "not_supported",
+        "flags": [
+          "degree_confound",
+          "disconnected"
+        ],
+        "observed_q": 0.5865256540039427,
+        "null_mean": 0.5932968286191437,
+        "p_value": 0.718,
+        "exceedances": 358,
+        "sensitivity_agreement": 20,
+        "llm_calls": 1,
+        "tokens_in": 1824,
+        "tokens_out": 64,
+        "actual_usd": 0.0
+      }
+    },
+    "summary_matches_host_reference": true,
+    "restart_preserves_job_results_and_idempotency": true
+  },
+  "paid_usd": 0
+}

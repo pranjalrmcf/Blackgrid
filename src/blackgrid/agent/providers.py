@@ -73,8 +73,16 @@ def _http_json(url: str, *, timeout_s: float, body: dict | None = None, headers:
     payload = {'url': url, 'method': 'POST' if body is not None else 'GET',
                'headers': headers or {}, 'body': body, 'timeout_s': timeout_s}
     try:
-        result = subprocess.run([sys.executable, '-m', 'blackgrid.agent.http_transport'],
-            input=json.dumps(payload).encode('utf-8'), capture_output=True, timeout=timeout_s, check=False)
+        if os.environ.get('BLACKGRID_PROVIDER_BROKER_FD'):
+            from blackgrid.operations.live import worker_request
+            try:
+                reply = worker_request(payload)
+            except (OSError, ValueError, EOFError):
+                raise ProviderError('Private provider transport unavailable; billing may be unknown', 'uncertain') from None
+            result = subprocess.CompletedProcess([], 0, json.dumps(reply).encode('utf-8'))
+        else:
+            result = subprocess.run([sys.executable, '-m', 'blackgrid.agent.http_transport'],
+                input=json.dumps(payload).encode('utf-8'), capture_output=True, timeout=timeout_s, check=False)
     except subprocess.TimeoutExpired:
         raise ProviderError('OpenRouter wall-clock deadline exceeded; billing may be unknown', 'uncertain') from None
     except OSError:

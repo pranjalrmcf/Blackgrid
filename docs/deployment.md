@@ -1,6 +1,6 @@
 # Single-host deployment foundations
 
-Phase 2, 22 October 2026. This deployment preserves the existing Python application and scientific workflow. It adds one container service, offline startup/health checks and bounded console shutdown. It does not provide a public production API. See [Phase 2 verification](production_phase2/report.md) for actual execution status; commands below are instructions, not claims that they have all passed.
+Updated 22 October 2026. The existing single Compose service now runs the Phase 3 authenticated API over localhost HTTPS, preserving the existing application and state volume. See [API contracts](api.md), [Phase 2 verification](production_phase2/report.md) and [service integration evidence](production_phase3/service_integration/verification.json). This is a local offline deployment, not a public endpoint.
 
 ## Layout and boundaries
 
@@ -8,7 +8,9 @@ The production image keeps source at `/app/src`, configs at `/app/configs`, prot
 
 The explicit build context excludes credentials, raw data, private runs/results, old backups, caches, Git history and sealed files. Runtime data is mounted read-only, state is a named volume, `/tmp` is bounded ephemeral storage and the root filesystem is read-only. UID/GID are 10001, capabilities are dropped, new privileges are disabled, and the Compose process limit, 2 GiB memory ceiling and one-CPU allowance bound this first deployment. These controls require a working Linux Docker engine and runtime inspection to call them verified.
 
-Networking is disabled. The existing console remains on `127.0.0.1` inside the container, with no published port. Use `docker compose exec` for local health/status commands; a host browser cannot reach this console through a port mapping. Do not change its bind to `0.0.0.0` or expose it through a proxy before Phase 3 authentication and authorization are implemented.
+Compose starts `api` from cumulative image `blackgrid:phase3`, publishing only `127.0.0.1:8765`. TLS and bearer authentication are required for job routes. A normal bridge is necessary because this Docker engine does not publish ports for containers attached only to an internal network. The API server has bridge connectivity; its Linux job subprocesses install a non-removable kernel seccomp filter denying socket creation, connect and io_uring before importing the trusted CLI. Worker containment fails closed on unsupported Linux architectures or filter-install failure. Supported architectures are Linux x86-64 and aarch64; host development on other systems remains trusted-tools-only. This filter is a network boundary, not a general arbitrary-code sandbox. Existing filesystem/resource controls remain in force.
+
+The old local console remains available through its CLI command but is not served by this API listener. Existing data and `blackgrid_blackgrid-state` are retained. Older shared CLI runs are not automatically exposed as client-owned API jobs.
 
 ## Prerequisites and build
 
@@ -20,13 +22,21 @@ Networking is disabled. The existing console remains on `127.0.0.1` inside the c
 From the repository root:
 
 ```powershell
+# One-time local provisioning in a private, Git-ignored directory:
+.\.venv\Scripts\python.exe scripts/create_api_client.py --subject alice
+.\.venv\Scripts\python.exe scripts/setup_local_tls.py
+.\.venv\Scripts\python.exe scripts/configure_api_live.py --subject alice
+# Reuse existing files on subsequent starts; do not overwrite/rotate credentials blindly.
 docker compose config --quiet
 docker compose build --progress=plain
 docker compose up -d
 docker compose ps
 docker compose exec blackgrid python -m blackgrid.operations health --liveness
 docker compose exec blackgrid python -m blackgrid.operations health --readiness
+curl.exe --cacert .secrets/server-cert.pem https://localhost:8765/health/ready
 ```
+
+The TLS helper uses OpenSSL (including Git for Windows' bundled executable), creates a 90-day certificate with localhost/127.0.0.1 SANs, and preserves existing files. Restrict `.secrets/` to the operator/service account before provisioning; Windows ACLs are required because POSIX file modes alone do not restrict Windows access. The active local directory was restricted to its operator and SYSTEM. The registry, server certificate and key are mounted read-only; plaintext client tokens stay on the host. Private files never enter the build context. For command-line HTTPS clients, trust this certificate explicitly with `--cacert`; do not disable TLS verification or install a global trust exception. Renew before expiry through a deliberate operator rotation/restart.
 
 Startup validates settings and the config, checks accepted local-use status and the input checksum without parsing events, verifies the template, and tests writable state/cache. It does not instantiate a provider, run an analysis, initialize a paid allowance, migrate historical state or create new research evidence. Missing config, input, evidence or writable state produces a sanitized failure code and nonzero exit. Restart is manual (`restart: "no"`) to avoid repeated failed startup or analysis loops.
 
@@ -55,13 +65,13 @@ This computes real-data numerical tools using the recorded window and a scripted
 | `BLACKGRID_CONFIG` | Source-root `configs/collegemsg_sprint01.json` | Validated existing mock config; absolute paths recommended |
 | `BLACKGRID_DATA_ROOT` | Source root | Dataset path must resolve inside it; bytes must match config hash |
 | `BLACKGRID_RUNS_DIR` | Source-root `runs` | Persistent writable directory; cache is its `cache` child |
-| `BLACKGRID_PORT` | `8765` | Integer 1–65535; always loopback |
+| `BLACKGRID_PORT` | `8765` | Integer 1–65535; Compose publishes this only on host loopback |
 | `BLACKGRID_SHUTDOWN_GRACE_SECONDS` | `30` | Finite positive number, at most 300 |
 | `BLACKGRID_CAPABILITIES` | `community` | Comma-separated `community`, `forecast`, `research`; unknown/empty values rejected |
 
 Examples for host-only development/testing use `BLACKGRID_ENV=development` or `test` with a separate runs directory and small fixture config. Environment labels do not bypass scientific or spending gates. Compose supplies fixed production defaults; a reviewed local override or `docker compose run -e` can change non-secret test settings. Keep stop grace greater than application drain grace.
 
-The Phase 2 service explicitly rejects live or paid-authorized startup configs. The existing host CLI's authorized live behavior remains unchanged. No API key is baked into an image or injected by Compose. For any separately approved future container live workflow, use a read-only secret file with the existing CLI `--env-file` mechanism, explicit network permission, and migrated historical spending/unknown reservations; never treat a new empty state volume as a fresh project spending grant. This roadmap does not authorize paid execution. Do not put secrets in command arguments, image build arguments, Compose environment files committed to Git, logs or artifacts.
+Startup remains based on a validated mock configuration and performs no provider calls. Live requests separately require the operator's retained policy, private mounted provider key, authorized subject and explicit request flag. [Live API setup](api_live.md) reuses the existing host grant and imports historical spend/reservations without renewing it. Compose mounts only the key/policy files read-only; the complete host `.env` is not injected. Never treat a new state volume as a fresh spending grant. Do not put secrets in command arguments, build arguments, committed Compose environment files, logs or artifacts. A deployment without an existing live grant must omit the live-policy environment entry and its two mounts to remain mock-only; do not invent a grant.
 
 ## Saved evidence and capability readiness
 
@@ -79,9 +89,9 @@ Set `BLACKGRID_CAPABILITIES=community,forecast,research` only after those assets
 
 ## Health and lifecycle
 
-`GET /health/live` is loopback-only and obeys the existing Host check. It reports only `live` or `stopping`. It exposes no run IDs, question text, token, data or spending information. The local health command checks this endpoint with a two-second connection timeout. Readiness additionally checks validated config/data, template, state writability, read-only SQLite `quick_check` for existing databases, and declared saved evidence. The Docker health probe has a ten-second overall deadline; readiness does not certify that a long analysis will finish within its budget.
+`GET /health/live` and `/health/ready` are available through the local HTTPS endpoint and obey the explicit Host allowlist. They expose no credentials/raw records. The local health command uses HTTPS with certificate and hostname verification when `BLACKGRID_API_TLS_CERTFILE` is configured; otherwise it retains the original HTTP console probe. Readiness checks validated config/data, template, state writability, existing state and declared saved evidence. The Docker health probe has a ten-second overall deadline; readiness does not certify that a long analysis will finish within its budget.
 
-SIGTERM and Ctrl+C stop action admission, close the listener and drain already-started action threads for the configured grace. The existing workflow graph, call order, prompts/models, budget ledger and numerical kernels are untouched. Successful drain returns zero. On a drain timeout, the service returns failure and process exit terminates remaining daemon threads; incomplete durable runs retain their existing crash/resume semantics. No unexecuted result is marked complete. A hard kill/OOM is also a crash, not graceful cancellation.
+The API uses Uvicorn shutdown plus its existing job drain/child termination policy. The retained console command uses its Phase 2 admission-stop/thread-drain behavior. The workflow graph, call order, prompts/models, budget ledger and numerical kernels remain unchanged. Incomplete API jobs retain interruption state without automatic replay; see [API recovery boundaries](api.md). A hard kill/OOM is a crash, not graceful cancellation.
 
 ```powershell
 docker compose stop
@@ -95,9 +105,17 @@ After an interrupted workflow, inspect its status and receipts first. The existi
 Build the explicit verification target; pytest/tests are excluded from the production target:
 
 ```powershell
-docker build --target test -t blackgrid:phase2-test .
-docker run --rm --network none --read-only --tmpfs /tmp:size=256m,mode=1777 --mount "type=bind,source=C:\Blackgrid\data,target=/app/data,readonly" blackgrid:phase2-test
+docker build --target test -t blackgrid:phase3-test .
+docker run --rm --network none --read-only --tmpfs /tmp:size=512m,mode=1777 --mount "type=bind,source=C:\Blackgrid\data,target=/app/data,readonly" blackgrid:phase3-test
 ```
+
+To exercise the running Compose service over certificate-verified HTTPS (one offline job and a restart):
+
+```powershell
+.\.venv\Scripts\python.exe scripts/verify_compose_api.py
+```
+
+This reads the local client token in memory, verifies runtime mounts/limits and worker network denial, tests authentication/idempotency/results, and confirms persistence across restart. It never prints the credential. Do not run it while unrelated work is active; restart is part of the check.
 
 Use an absolute data path appropriate to the host. Keep the test run serialized; its existing suites use small numerical fixtures and local-only HTTP tests. Linux fixture portability, optional methods and the baseline/working-tree version must be verified before claiming full parity. Test artifacts should be mounted to a separate authorized evidence directory when preserving logs; do not write into the read-only input mount.
 

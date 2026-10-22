@@ -1,6 +1,6 @@
 # BLACKGRID API v1
 
-Opt-in Phase 3 service-client API. The original `blackgrid console` and default container command remain unchanged. The API reuses the existing CLI, graph validation and workflow engine. Only configured first-window, offline community investigations are admitted. No user-supplied datasets, uploads, arbitrary paths/tools, live mode, full-dataset scope or paid execution are supported by v1.
+Phase 3 service-client API. The original `blackgrid console` command remains available; Compose serves the API. It reuses the existing CLI, graph validation and workflow engine. Configured first-window community investigations run in mock mode by default; authorized clients may explicitly request the existing live OpenRouter workflow within retained limits. User datasets/uploads, arbitrary paths/tools and full-dataset scope remain unavailable. See [live setup, limits and test command](api_live.md).
 
 ## Local setup
 
@@ -31,8 +31,8 @@ All job, artifact and schema routes require `Authorization: Bearer <token>`. Hea
 
 | Method and route | Contract |
 |---|---|
-| `POST /api/v1/jobs` | Required `Idempotency-Key` (1–64 ASCII letters/digits/underscore/hyphen). JSON object: optional `mode: mock`, `scope: first_window`, `condition: validated or tool_only`, `question: 1–500 characters`. Unknown fields rejected. New acceptance 202, replay 200, changed body under same owner/key 409. |
-| `GET /api/v1/jobs/{job_id}` | Owner-only status: server-generated job ID, state, UTC creation, cancel-requested flag. Other owner/nonexistent IDs both return 404. |
+| `POST /api/v1/jobs` | Required `Idempotency-Key` (1–64 ASCII letters/digits/underscore/hyphen). JSON object: optional `mode: mock or live`, `scope: first_window`, `condition: validated or tool_only`, `question: 1–500 characters`. Live requires `allow_paid: true` and retained operator authorization for the authenticated subject. Unknown fields rejected. New acceptance 202, replay 200, changed body under same owner/key 409. |
+| `GET /api/v1/jobs/{job_id}` | Owner-only ID, state, UTC creation, mode, cancel flag, stable error code and progress (workflow stage, LLM operation count, recorded cost and held reservation). Other owner/nonexistent IDs both return 404. |
 | `POST /api/v1/jobs/{job_id}/cancel` | Owner-only, JSON `{}`. Requests cooperative cancellation at an existing workflow boundary; terminal calls are harmless. Cancellation is not immediate during input parsing/native work. |
 | `GET /api/v1/jobs/{job_id}/results` | Owner-only aggregate summary after completed work; otherwise 409. No raw node/event IDs, paths, prompts, private receipts or trace bodies. |
 | `GET /api/v1/jobs/{job_id}/artifacts/summary.json` | Same minimized summary as a JSON attachment. Every other filename/path is rejected. No filesystem download endpoint. |
@@ -58,10 +58,12 @@ The default bind is `127.0.0.1`; `BLACKGRID_PORT` selects the port. `BLACKGRID_A
 
 For direct TLS set `BLACKGRID_API_TLS_CERTFILE` and `BLACKGRID_API_TLS_KEYFILE` to operator-provided read-only files. Both are required together. `BLACKGRID_API_HOST=0.0.0.0` requires TLS configuration; use a certificate valid for an explicitly allowed hostname. HSTS is emitted on HTTPS responses. Certificate acquisition, public exposure and cloud deployment are separate operator actions. A production reverse proxy may terminate TLS only if its upstream is isolated loopback/private IPC, restricts host headers and connection/body limits, and the API is inaccessible directly. The application never trusts client-supplied forwarding headers to infer security.
 
-The existing Docker image includes the API dependencies. The existing Compose service deliberately stays in offline console mode, without published ports. To test the API container, override its command to `api`, mount the digest registry read-only at `/run/secrets/blackgrid-clients.json`, and set `BLACKGRID_API_CREDENTIALS_FILE` accordingly. Keep its existing non-root user, read-only root/data, state volume and network controls. Do not put token files, registry, TLS keys or credentials in build arguments, source layers or Compose YAML. Public port/TLS topology is not provisioned by this phase.
+The existing Compose service now starts the API from `blackgrid:phase3`, using the same state volume and resource/filesystem restrictions. It publishes only `https://localhost:8765` and mounts the digest registry, local certificate and private key read-only under `/run/secrets/`. Client tokens remain on the host. See [one-time provisioning and normal Compose commands](deployment.md). Public access is not provisioned.
+
+The API server uses a normal Docker bridge for localhost ingress. Before importing the trusted CLI, its Linux worker wrapper installs a seccomp filter denying socket creation, connect and io_uring; descendants inherit it. It fails closed on unsupported Linux architectures/filter errors. Mock workers have no provider connection; authorized live workers use only the restricted inherited broker connection described in [live API documentation](api_live.md). This is not a general sandbox; jobs remain allowlisted and bounded. Host development on Windows remains trusted-tools-only; live API workers require the Linux deployment.
 
 ## Compatibility and references
 
-v1 preserves field meanings and HTTP statuses; incompatible semantics require a new version. Additive fields may be introduced. Existing CLI/console behavior is retained, and numerical results are checked through the existing regression suite. No scheduler, distributed worker, database service, LLM behavior change or paid access was added.
+v1 preserves field meanings and HTTP statuses; incompatible semantics require a new version. Additive fields may be introduced. Existing CLI/console behavior is retained, and numerical results are checked through regression tests. No scheduler, distributed worker, database service or LLM behavior change was added. Live access adapts the existing authorized workflow; it is not an unrestricted model endpoint.
 
 Security rationale follows [OWASP REST security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html), [FastAPI bearer security](https://fastapi.tiangolo.com/tutorial/security/) and [Uvicorn transport/resource settings](https://uvicorn.dev/settings/). The local console's basic HTTP server is retained only in its original trusted loopback role; [Python documents its production limitations](https://docs.python.org/3.11/library/http.server.html).

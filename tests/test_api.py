@@ -248,3 +248,26 @@ def test_changed_config_rejected_before_launch(settings, monkeypatch):
         assert jobs.worker is None
     finally:
         jobs.close()
+
+
+def test_linux_worker_denies_network_but_preserves_local_work(tmp_path):
+    import platform
+    import subprocess
+    import sys
+    if platform.system() != "Linux":
+        pytest.skip("kernel filter is verified in the Linux container")
+    source = '''from blackgrid.operations.worker import deny_network
+import socket, errno, pathlib, sqlite3
+assert deny_network() == "seccomp_network_denied"
+for family in (socket.AF_INET, socket.AF_INET6, socket.AF_UNIX):
+    try:
+        socket.socket(family)
+    except OSError as exc:
+        assert exc.errno == errno.EPERM
+    else:
+        raise AssertionError("network socket unexpectedly allowed")
+with sqlite3.connect(":memory:") as db:
+    assert db.execute("SELECT 1").fetchone() == (1,)
+'''
+    result = subprocess.run([sys.executable, "-c", source], capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr

@@ -2,6 +2,10 @@
 
 22 October 2026. Status: **implemented and verified for the bounded single-host offline API**. Phase 4 remains unapproved. Existing work was first pushed as commit `594e91b`; Phase 3 is a separate reviewable change. The running Phase 2 Compose service was not replaced.
 
+Subsequent user authorization connected the API to the existing Compose service. It now uses the same state volume at localhost HTTPS, with read-only credentials/certificate mounts and network-denied Linux workers. The original verification narrative below describes initial Phase 3 delivery; see the [subsequent service integration report](service_integration/report.md) for current runtime state and checks.
+
+The user then identified the missing live LLM capability and authorized its integration, reserving the first real test call for themselves. The retained-authorized live workflow is now wired through a restricted provider broker, with historical accounting and progress reporting. See [live integration verification and limits](live_integration/report.md). No paid request was issued during implementation.
+
 ## Changes and acceptance
 
 The [pre-implementation design](../phase3_api_design.md) records the interface audit and smallest acceptance slice. The [operator/API contract](../api.md) documents routes, schemas, identity, provisioning, limits, failures, transport and compatibility. FastAPI/Uvicorn provide a separate opt-in listener; the legacy console is not exposed through it.

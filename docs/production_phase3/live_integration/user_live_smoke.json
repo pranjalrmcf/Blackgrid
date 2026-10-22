@@ -1,0 +1,21 @@
+{
+  "source": "User-supplied terminal output, 22 October 2026",
+  "status": "completed",
+  "mode": "live",
+  "error_code": null,
+  "final_stage": "finalize",
+  "claim_type": "descriptive",
+  "scope": "configured observed graph only",
+  "verdict": "not_supported",
+  "observed_q": 0.5865256540039427,
+  "null_mean": 0.5932968286191437,
+  "p_value": 0.718,
+  "exceedances": 358,
+  "sensitivity_agreement": 20,
+  "llm_calls": 1,
+  "tokens_in": 1634,
+  "tokens_out": 401,
+  "actual_usd": 0.00124828,
+  "final_reserved_usd": 0,
+  "agent_initiated_paid_calls": 0
+}

@@ -5,7 +5,9 @@ Status: **Phases 1–3 complete for their documented scope. Phase 4 and later ex
 
 ## Phase 3 authorization and completion
 
-The user authorized committing existing work to GitHub and then beginning Phase 3. Existing source, tests, protocols and reviewed deployment evidence were pushed as `594e91b`. The authenticated offline API, ownership/idempotency boundaries, request/rate/transport controls, contracts and security tests are implemented. Both cumulative Phase 3 images built; 574 Linux tests passed and a native HTTPS/restart check passed. See [scope, evidence and limits](docs/production_phase3/report.md). The existing running Phase 2 Compose service was preserved. Later phases remain unapproved.
+Live capability follow-up: the user subsequently authorized restoring the existing live LLM workflow to the API, reserving the first real call for themselves. The integration is deployed with retained grant/history, per-job reservations, a restricted provider broker and progress reporting. Offline verification passed 586 Linux tests; no real provider call was made. See [live integration evidence and remaining limits](docs/production_phase3/live_integration/report.md).
+
+The user authorized committing existing work to GitHub and then beginning Phase 3. Existing source, tests, protocols and reviewed deployment evidence were pushed as `594e91b`. The authenticated offline API, ownership/idempotency boundaries, request/rate/transport controls, contracts and security tests are implemented. Both cumulative Phase 3 images built; initial verification included 574 Linux tests and a native HTTPS/restart check. Subsequent user authorization integrated the API into the existing Compose service at localhost HTTPS with the original state volume, mounted secrets and network-denied Linux workers; see [service integration evidence](docs/production_phase3/service_integration/report.md). Later phases remain unapproved.
 
 ## Phase 2 authorization update
 

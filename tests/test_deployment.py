@@ -147,3 +147,30 @@ def test_health_does_not_accept_unexpected_server_payload(settings, monkeypatch,
     monkeypatch.setattr("blackgrid.operations.health.http.client.HTTPConnection", Connection)
     from blackgrid.operations.health import alive
     assert not alive(settings)
+
+
+def test_tls_health_uses_verified_context_and_fails_closed(settings, monkeypatch):
+    from blackgrid.operations.health import alive
+    import ssl
+    calls = []
+    context = ssl.create_default_context()
+    def verified(*, cafile):
+        calls.append(cafile)
+        return context
+    class Connection:
+        status = 200
+        def __init__(self, host, port, *, timeout, context):
+            assert host == "127.0.0.1" and context.check_hostname
+            assert context.verify_mode == ssl.CERT_REQUIRED
+        def request(self, *args): pass
+        def getresponse(self): return self
+        def read(self, *args): return b'{"status":"live"}'
+        def close(self): pass
+    monkeypatch.setenv("BLACKGRID_API_TLS_CERTFILE", "local-cert.pem")
+    monkeypatch.setattr("blackgrid.operations.health.ssl.create_default_context", verified)
+    monkeypatch.setattr("blackgrid.operations.health.http.client.HTTPSConnection", Connection)
+    assert alive(settings) and calls == ["local-cert.pem"]
+    def missing(**kwargs):
+        raise FileNotFoundError
+    monkeypatch.setattr("blackgrid.operations.health.ssl.create_default_context", missing)
+    assert not alive(settings)

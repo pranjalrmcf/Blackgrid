@@ -15,6 +15,11 @@ ENDPOINTS = {'https://openrouter.ai/api/v1/models': 'GET',
 INPUT_LIMIT = 2 * 1024 * 1024
 
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def request(payload: dict) -> dict:
     url, method = payload.get('url'), payload.get('method')
     if not isinstance(url, str) or ENDPOINTS.get(url) != method:
@@ -31,13 +36,16 @@ def request(payload: dict) -> dict:
     req = urllib.request.Request(url, data=body, method=method, headers=headers)
     limit = (8 if method == 'GET' else 1) * 1024 * 1024
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
+        open_request = (urllib.request.build_opener(NoRedirect()).open if payload.get('deny_redirects') is True
+                        else urllib.request.urlopen)
+        with open_request(req, timeout=timeout) as response:
             raw = response.read(limit + 1)
         if len(raw) > limit:
             return {'ok': False, 'category': 'uncertain', 'error': 'Provider response exceeded byte limit'}
         return {'ok': True, 'response': json.loads(raw.decode('utf-8'))}
     except urllib.error.HTTPError as exc:
-        return {'ok': False, 'category': 'permanent' if exc.code in (400,401,403,404) else 'transient',
+        return {'ok': False, 'category': 'permanent' if exc.code in (400,401,403,404) or
+                (payload.get('deny_redirects') is True and 300 <= exc.code < 400) else 'transient',
                 'error': f'OpenRouter HTTP {exc.code}'}
     except (TimeoutError, OSError) as exc:
         reason = getattr(exc, 'reason', exc)

@@ -4,7 +4,9 @@ from __future__ import annotations
 import hashlib
 import http.client
 import json
+import os
 import sqlite3
+import ssl
 import tempfile
 from contextlib import closing
 from pathlib import Path
@@ -14,8 +16,14 @@ from blackgrid.operations.settings import ROOT, Settings
 
 
 def alive(settings: Settings) -> bool:
-    conn = http.client.HTTPConnection("127.0.0.1", settings.port, timeout=2)
+    conn = None
     try:
+        certfile = os.environ.get("BLACKGRID_API_TLS_CERTFILE")
+        if certfile:
+            context = ssl.create_default_context(cafile=certfile)
+            conn = http.client.HTTPSConnection("127.0.0.1", settings.port, timeout=2, context=context)
+        else:
+            conn = http.client.HTTPConnection("127.0.0.1", settings.port, timeout=2)
         conn.request("GET", "/health/live")
         response = conn.getresponse()
         payload = json.loads(response.read(1024))
@@ -23,7 +31,8 @@ def alive(settings: Settings) -> bool:
     except (OSError, ValueError, http.client.HTTPException):
         return False
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 
 def readiness(settings: Settings, *, probe_server: bool = True) -> list[str]:

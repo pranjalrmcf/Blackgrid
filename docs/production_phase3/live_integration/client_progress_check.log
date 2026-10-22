@@ -1,0 +1,25 @@
+Mode: watch existing job
+Job: c9fd5ea698284a1a8eff6a723e78bd7f
+{"mode": "mock", "state": "completed", "stage": "finalize", "llm_calls": 1, "actual_usd": 0.0, "reserved_usd": 0}
+{
+  "job_id": "c9fd5ea698284a1a8eff6a723e78bd7f",
+  "claim_type": "descriptive",
+  "scope": "configured observed graph only",
+  "summary": {
+    "status": "completed",
+    "verdict": "not_supported",
+    "flags": [
+      "degree_confound",
+      "disconnected"
+    ],
+    "observed_q": 0.5865256540039427,
+    "null_mean": 0.5932968286191437,
+    "p_value": 0.718,
+    "exceedances": 358,
+    "sensitivity_agreement": 20,
+    "llm_calls": 1,
+    "tokens_in": 1824,
+    "tokens_out": 64,
+    "actual_usd": 0.0
+  }
+}

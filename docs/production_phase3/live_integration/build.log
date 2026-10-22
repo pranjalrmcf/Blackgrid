@@ -1,0 +1,82 @@
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+ Image blackgrid:phase3 Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 522B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 2.57kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#3 DONE 0.0s
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#4 DONE 0.0s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 473B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 7.09kB 0.0s done
+#6 DONE 0.0s
+
+#7 [dependencies 1/5] FROM docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#7 resolve docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf 0.0s done
+#7 DONE 0.0s
+
+#8 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#8 resolve ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c 0.0s done
+#8 DONE 0.0s
+
+#9 [dependencies 3/5] WORKDIR /build
+#9 CACHED
+
+#10 [runtime 7/9] COPY protocols/ ./protocols/
+#10 CACHED
+
+#11 [dependencies 2/5] COPY --from=uv /uv /usr/local/bin/uv
+#11 CACHED
+
+#12 [runtime 6/9] COPY configs/ ./configs/
+#12 CACHED
+
+#13 [runtime 2/9] WORKDIR /app
+#13 CACHED
+
+#14 [dependencies 4/5] COPY pyproject.toml uv.lock README.md ./
+#14 CACHED
+
+#15 [runtime 5/9] COPY src/ ./src/
+#15 CACHED
+
+#16 [runtime 3/9] RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid     && chmod 0555 /usr/local/bin/blackgrid
+#16 CACHED
+
+#17 [runtime 4/9] COPY --from=dependencies /opt/venv /opt/venv
+#17 CACHED
+
+#18 [dependencies 5/5] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
+#18 CACHED
+
+#19 [runtime 8/9] COPY docs/sprint04_review_rubric.md ./docs/sprint04_review_rubric.md
+#19 CACHED
+
+#20 [runtime 9/9] COPY pyproject.toml uv.lock README.md LICENSE ./
+#20 CACHED
+
+#21 exporting to image
+#21 exporting layers done
+#21 exporting manifest sha256:4eac8909f3a5795b2b3db7952396a6dfb11194a2ff107652a979f44933f5624f 0.0s done
+#21 exporting config sha256:1aa3c9a102fb7e85e63c551ea567f7c6109eabd2f6e8e91aaed88391fac069f1
+#21 exporting config sha256:1aa3c9a102fb7e85e63c551ea567f7c6109eabd2f6e8e91aaed88391fac069f1 0.0s done
+#21 exporting attestation manifest sha256:e9ef3aa7bc43bbe746931351f64c24ed3f4b0934ee2bbb1081ea1573ee9b9715 0.0s done
+#21 exporting manifest list sha256:f5bbdfed8c802249a70ae48635f28b352c97506986ef33e5f49a4265c80b4a5c 0.0s done
+#21 naming to docker.io/library/blackgrid:phase3 done
+#21 unpacking to docker.io/library/blackgrid:phase3 0.0s done
+#21 DONE 0.1s
+
+#22 resolving provenance for metadata file
+#22 DONE 0.0s
+ Image blackgrid:phase3 Built

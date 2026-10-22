@@ -5,11 +5,14 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: blackgrid:phase2
+    image: blackgrid:phase3
+    command: [api]
     init: true
     user: "10001:10001"
     read_only: true
-    network_mode: none
+    networks: [api-local]
+    ports:
+      - "127.0.0.1:8765:8765"
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     cpus: 1.0
@@ -26,6 +29,12 @@ services:
       BLACKGRID_PORT: "8765"
       BLACKGRID_SHUTDOWN_GRACE_SECONDS: "30"
       BLACKGRID_CAPABILITIES: community
+      BLACKGRID_API_HOST: "0.0.0.0"
+      BLACKGRID_API_ALLOWED_HOSTS: "127.0.0.1,localhost"
+      BLACKGRID_API_CREDENTIALS_FILE: /run/secrets/clients.json
+      BLACKGRID_API_TLS_CERTFILE: /run/secrets/server-cert.pem
+      BLACKGRID_API_TLS_KEYFILE: /run/secrets/server-key.pem
+      BLACKGRID_API_LIVE_POLICY_FILE: /run/secrets/live-policy.json
     volumes:
       - type: bind
         source: ./data
@@ -34,8 +43,40 @@ services:
         bind:
           create_host_path: false
       - blackgrid-state:/app/runs
+      - type: bind
+        source: ./.secrets/clients.json
+        target: /run/secrets/clients.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.secrets/server-cert.pem
+        target: /run/secrets/server-cert.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.secrets/server-key.pem
+        target: /run/secrets/server-key.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.secrets/live-policy.json
+        target: /run/secrets/live-policy.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./.secrets/openrouter-key.txt
+        target: /run/secrets/openrouter-key.txt
+        read_only: true
+        bind:
+          create_host_path: false
     tmpfs:
       - /tmp:size=64m,mode=1777
-    # No published port: the console stays on container loopback until Phase 3.
+networks:
+  api-local:
+    driver: bridge
 volumes:
   blackgrid-state:
