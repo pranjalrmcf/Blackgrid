@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "native_uvicorn_tls": true,
+  "certificate_verified": true,
+  "hsts": true,
+  "unauthenticated_status": 401,
+  "cross_owner_status": 404,
+  "readiness_status": 200,
+  "real_offline_workflow": "abstained",
+  "idempotency_survives_process_restart": true
+}

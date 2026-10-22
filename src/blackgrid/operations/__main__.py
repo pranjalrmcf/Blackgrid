@@ -12,7 +12,7 @@ from blackgrid.operations.settings import load_settings
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("serve", "health"))
+    parser.add_argument("command", choices=("serve", "api", "health"))
     checks = parser.add_mutually_exclusive_group()
     checks.add_argument("--liveness", action="store_true")
     checks.add_argument("--readiness", action="store_true")
@@ -36,6 +36,13 @@ def main(argv: list[str] | None = None) -> int:
     if failures:
         print(json.dumps({"status": "unavailable", "failures": failures}))
         return 1
+    if args.command == "api":
+        try:
+            from blackgrid.operations.api import launch
+            return launch(settings)
+        except (OSError, ValueError):
+            print(json.dumps({"status": "unavailable", "failures": ["invalid_api_configuration"]}))
+            return 1
     from blackgrid.cli import main as cli
     return cli(["console", "--config", str(settings.config), "--data-root", str(settings.data_root),
                 "--runs-dir", str(settings.runs_dir), "--cache-dir", str(settings.cache_dir),
