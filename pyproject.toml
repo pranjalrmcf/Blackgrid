@@ -5,6 +5,7 @@ description = "Bounded, evidence-grounded network-science investigations (Sprint
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    "fastapi>=0.142.2",
     "langgraph>=0.6",
     "langgraph-checkpoint-sqlite>=2",
     "networkx>=3.3",
@@ -12,6 +13,7 @@ dependencies = [
     "pydantic>=2.7",
     "scikit-learn>=1.9.1",
     "scipy>=1.17.1",
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
@@ -36,6 +38,10 @@ packages = ["src/blackgrid"]
 [tool.uv]
 # Resolve only releases at least two weeks old as of Sprint 1 Day 2 (2026-10-17).
 exclude-newer = "2026-10-03T00:00:00Z"
+
+[tool.uv.exclude-newer-package]
+# GHSA-6q48-6c7w-9gw2: targeted certificate trust-store security update.
+certifi = "2026-10-22T00:00:00Z"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+.secrets/
+tmp/
 
 # Raw datasets: no redistribution rights (decision D-003). Only manifests are tracked.
 data/*
