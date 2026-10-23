@@ -1,0 +1,198 @@
+[
+  {
+    "elapsed_s": 0.07460662800076534,
+    "method": "GET",
+    "milliseconds": 69.99402700239443,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.07512254000175744,
+    "method": "GET",
+    "milliseconds": 68.91768200148363,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.0754005410017271,
+    "method": "GET",
+    "milliseconds": 68.15952900069533,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.07637350500226603,
+    "method": "GET",
+    "milliseconds": 73.08331799868029,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.0768952159996843,
+    "method": "GET",
+    "milliseconds": 36.10037099861074,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.1012958739993337,
+    "method": "GET",
+    "milliseconds": 6.8424560013227165,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.517984633999731,
+    "method": "GET",
+    "milliseconds": 6.9112800010771025,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.2773478199997044,
+    "method": "GET",
+    "milliseconds": 6.318342999293236,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.739197246999538,
+    "method": "GET",
+    "milliseconds": 20.10840900038602,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 4.039125963001425,
+    "method": "GET",
+    "milliseconds": 21.409466997283744,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 4.9498217060026946,
+    "method": "GET",
+    "milliseconds": 4.164963000221178,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 5.277495002999785,
+    "method": "GET",
+    "milliseconds": 5.122753998875851,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 5.990812165000534,
+    "method": "GET",
+    "milliseconds": 6.234874999790918,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.173484315000678,
+    "method": "GET",
+    "milliseconds": 4.69623800017871,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 7.265923547001876,
+    "method": "GET",
+    "milliseconds": 5.9292879996064585,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 7.676416490001429,
+    "method": "GET",
+    "milliseconds": 5.802293002489023,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.490715438001644,
+    "method": "GET",
+    "milliseconds": 4.611113999999361,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.606056153999816,
+    "method": "GET",
+    "milliseconds": 4.968509001628263,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 9.339530074001232,
+    "method": "GET",
+    "milliseconds": 38.535117000719765,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 10.826560900000914,
+    "method": "GET",
+    "milliseconds": 6.336948001262499,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.1057871180019,
+    "method": "GET",
+    "milliseconds": 5.6883819997892715,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.195380282002589,
+    "method": "GET",
+    "milliseconds": 5.25972299874411,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.482578762999765,
+    "method": "GET",
+    "milliseconds": 4.688062999775866,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.959105180001643,
+    "method": "GET",
+    "milliseconds": 5.79373099753866,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 13.77834733599957,
+    "method": "GET",
+    "milliseconds": 5.948420999629889,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.174954976999288,
+    "method": "GET",
+    "milliseconds": 6.871868998132413,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.415893789002439,
+    "method": "GET",
+    "milliseconds": 4.996952000510646,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.987491877000139,
+    "method": "GET",
+    "milliseconds": 4.787503999978071,
+    "route": "capabilities",
+    "status": 200
+  }
+]

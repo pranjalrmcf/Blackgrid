@@ -1,0 +1,19 @@
+name: Prepare restricted release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+  review:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: release-review
+    steps:
+      - name: Operator handoff
+        run: |
+          echo "Verified release-checks artifact is scoped to local-restricted operation."
+          echo "Production promotion uses scripts/promote_phase9.py on the existing trusted host."
+          echo "No production credentials, remote runner, registry push or public release is configured."

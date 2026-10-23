@@ -1,0 +1,26 @@
+{
+  "assessment": {
+    "tests": {
+      "collected": 682,
+      "passed": 682,
+      "skipped": 0
+    },
+    "security": {
+      "scope": "local-restricted",
+      "critical": 0,
+      "high": 44,
+      "fixable_high": 0
+    },
+    "recovery": "passed",
+    "staging": "passed"
+  },
+  "prior_image_id": "sha256:23c46e481309677bb6573915e0a1a6d58cd3b75950f520be8cf575c42f2e452f",
+  "candidate_image_id": "sha256:b2914262000b351a7b362e6ad65ec5ff8ac20d7ce4b4d452debf70ddb9cdba51",
+  "prior_state": {
+    "jobs": 39,
+    "sha256": "2b9428926b17076f83ebf3a65d6cf353a38d24d1d35fd08ce12a2297909364a6",
+    "charged_usd": 0.015085346000000001
+  },
+  "scope": "local-restricted",
+  "configuration_valid": true
+}

@@ -19,6 +19,12 @@
 !scripts/generate_phase6.py
 !scripts/verify_phase7.py
 !scripts/benchmark_phase8.py
+!scripts/release_gate.py
+!scripts/verify_phase9.py
+!scripts/ci/
+!scripts/ci/**
+!.github/
+!.github/**
 !benchmarks/
 !benchmarks/dev/
 !benchmarks/dev/registry.json

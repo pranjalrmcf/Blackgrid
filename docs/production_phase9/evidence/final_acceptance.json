@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "phase9": "complete_for_local_restricted_scope",
+  "image_id": "sha256:b2914262000b351a7b362e6ad65ec5ff8ac20d7ce4b4d452debf70ddb9cdba51",
+  "full_regression": {
+    "collected": 682,
+    "passed": 682,
+    "skipped": 0
+  },
+  "private_free_ci_regression": {
+    "collected": 682,
+    "passed": 680,
+    "skipped": 2
+  },
+  "quality": "fatal lint, three-file formatting and strict release-gate typing passed",
+  "local_ci_equivalent": "passed",
+  "remote_github_actions": "not_verified_by_this_local_report",
+  "staging": "passed",
+  "synthetic_restore": "passed",
+  "production_rollback_and_return": "passed",
+  "dashboard": "passed",
+  "source_and_assets_exact": 86,
+  "original_job_rows_exact": 39,
+  "rollback_job_rows_exact": 41,
+  "cumulative_retained_api_spend_usd": 0.015085346000000001,
+  "new_provider_usd": 0,
+  "real_provider_calls": 0,
+  "benchmark_attempt": "20261023T113117Z-ea5a8f",
+  "accepted_jobs": 26,
+  "completed_jobs": 26,
+  "explicit_queue_rejections": 7,
+  "scan_severity_counts": {
+    "LOW": 61,
+    "HIGH": 44,
+    "MEDIUM": 58,
+    "UNKNOWN": 1
+  },
+  "public_release_approved": false,
+  "production_slo_compliance": "not established",
+  "multi_host": "not implemented",
+  "vllm": "out of scope",
+  "limitations": [
+    "unfixed OS advisories",
+    "short closed-loop synthetic/mock workload, not sustained real-provider capacity",
+    "one worker and eight queue slots",
+    "restore is not a power-loss disaster simulation",
+    "GitHub environment and branch protection require repository-owner configuration"
+  ]
+}

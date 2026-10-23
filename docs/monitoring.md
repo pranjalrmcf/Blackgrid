@@ -1,5 +1,7 @@
 # Local monitoring and LLMOps
 
+Current release: **Phase 9 / 1.0.0**. See [final readiness](production_phase9/report.md), [load results](production_phase9/benchmark.md) and [the handbook](production_phase9/operations.md). The phase-specific notes below are retained for historical context.
+
 The current cumulative image is Phase 8. The live dashboard and tokens work as before; verified cache hits appear in job progress/command logs and reduce actual repeated tool timings. See [measured cache limits](production_phase8/report.md), [the Phase 7 residual security findings](production_phase7/report.md) and [incident runbook](production_phase7/runbook.md).
 
 The current Phase 6 service includes a live browser dashboard. Open it with `.\.venv\Scripts\python.exe scripts\open_dashboard.py`, then sign in with the existing operator token. See [the live dashboard guide](production_phase6/guide.md) for sessions, charts and isolated benchmarks. The snapshot command below remains available.

@@ -1,0 +1,18 @@
+{
+  "scope": "local-restricted",
+  "previous_image_id": "sha256:23c46e481309677bb6573915e0a1a6d58cd3b75950f520be8cf575c42f2e452f",
+  "image_id": "sha256:b2914262000b351a7b362e6ad65ec5ff8ac20d7ce4b4d452debf70ddb9cdba51",
+  "rollback_and_return_seconds": 22.14100000000326,
+  "state_before_rollback": {
+    "jobs": 41,
+    "sha256": "e708749e79193c24c082a546b73bbe74e44e198f2f406047c3198e016aee69d6",
+    "charged_usd": 0.015085346000000001
+  },
+  "all_job_columns_and_spend_exact": true,
+  "aggregate_result_exact": true,
+  "database_migration": "none; unchanged additive initialization",
+  "restored_old_ledger": false,
+  "final_readiness": true,
+  "new_provider_usd": 0,
+  "real_provider_calls": 0
+}

@@ -1,5 +1,7 @@
 # Single-host deployment foundations
 
+Current release: **Phase 9 / 1.0.0**, image `blackgrid:phase9`. The [release guide](production_phase9/README.md), [operations handbook](production_phase9/operations.md) and [final readiness report](production_phase9/report.md) supersede the historical phase-specific notes below. The same 18 tools, localhost TLS endpoint, original volume and retained paid grant remain in use. Public-production approval is withheld under the documented security/SLO limits.
+
 Updated 23 October 2026. The existing single Compose service runs the cumulative Phase 8 authenticated API over localhost HTTPS, preserving all 18 tools, earlier reliability/security/monitoring work and the original state volume. See [API contracts](api.md), [verified graph-tool reuse and measured limits](production_phase8/report.md), [cache operation/rollback](production_phase8/guide.md), and [private backup/restore and incident response](production_phase7/runbook.md). Mock is the default; explicitly authorized live requests use the retained budget. The endpoint remains local. Compose uses `blackgrid:phase8` with verified tool caching enabled, a pinned Debian Trixie base and unchanged Python 3.11.17. Earlier phase-specific image commands below are historical verification instructions.
 
 ## Layout and boundaries

@@ -1,0 +1,44 @@
+{
+  "image": "blackgrid:phase9",
+  "image_id": "sha256:b2914262000b351a7b362e6ad65ec5ff8ac20d7ce4b4d452debf70ddb9cdba51",
+  "uid": 10001,
+  "source_and_assets_exact": true,
+  "source_files": 86,
+  "excluded_runtime_packages": {
+    "locust": true,
+    "pytest": true,
+    "vllm": true
+  },
+  "memory_bytes": 2147483648,
+  "nano_cpus": 1000000000,
+  "pids_limit": 128,
+  "read_only_root": true,
+  "all_binds_read_only": true,
+  "capabilities_dropped": true,
+  "localhost_only": true,
+  "log_rotation": {
+    "Type": "json-file",
+    "Config": {
+      "max-file": "3",
+      "max-size": "10m"
+    }
+  },
+  "persistent_volume": "blackgrid_blackgrid-state",
+  "job_id": "1c61b34be444468ba3e9afa65c658316",
+  "exact_api_result_parity": true,
+  "restart_result_exact": true,
+  "restart_trace_prefix_exact": true,
+  "registered_tools_available": 18,
+  "paid_calls": 0,
+  "new_mock_jobs": 2,
+  "original_rows_exact": 39,
+  "api_charged_usd": 0.015085346000000001,
+  "cold_job_wall_seconds": 87.07799999997951,
+  "warm_job_wall_seconds": 11.28100000001723,
+  "cold_creation_to_terminal_seconds": 84.617457,
+  "warm_creation_to_terminal_seconds": 5.082949,
+  "warm_job_id": "17a64a096b9f44958b7ea2d9b05fd609",
+  "warm_cache_hits": 3,
+  "cache_survives_restart": true,
+  "llm_call_counters_exact": true
+}

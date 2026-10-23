@@ -9,7 +9,7 @@ from verify_phase6 import ROOT,docker
 
 
 def main(*, phase='7'):
-    assert phase in ('7','8')
+    assert phase in ('7','8','9')
     output = ROOT/f'docs/production_phase{phase}/evidence'
     output.mkdir(parents=True,exist_ok=True)
     # Read-only preflight; leave the current service untouched if work is active.
@@ -48,7 +48,7 @@ with closing(sqlite3.connect('/app/runs/api/jobs.sqlite')) as src, closing(sqlit
         raise
     assert 'image: blackgrid:phase'+phase in (ROOT/'docker-compose.yml').read_text()
     verification.OUTPUT = output
-    verification.main(initial_stopped=True,repeat_warm=phase=='8')
+    verification.main(initial_stopped=True,repeat_warm=phase in ('8','9'))
 
 
 if __name__ == '__main__': main()

@@ -1,0 +1,220 @@
+{
+  "actual_usd": 0,
+  "agent_worker_seconds": {
+    "p50": 5.036623,
+    "p95": 7.254016,
+    "p99": 7.254016,
+    "samples": 9
+  },
+  "api_latency_ms": {
+    "p50": 6.679370999336243,
+    "p95": 55.55787499906728,
+    "p99": 78.81486400219728,
+    "samples": 77
+  },
+  "category": "mixed",
+  "completed_analyses_per_minute": 10.679444714981889,
+  "configured_users": 5,
+  "counts": {
+    "accepted": 9,
+    "censored": 0,
+    "completed": 9,
+    "failed": 0,
+    "rate_limited": 0,
+    "rejected": 0,
+    "requests": 77,
+    "unexpected_errors": 0
+  },
+  "creation_to_terminal_seconds": {
+    "p50": 20.749629,
+    "p95": 27.470474,
+    "p99": 27.470474,
+    "samples": 9
+  },
+  "elapsed_s": 50.56442674799837,
+  "generator_cpu_seconds": 1.1817819999999999,
+  "generator_peak_rss_bytes": 58933248,
+  "identity": {
+    "config_sha256": "8d28856a3d55ee5ac7cbf30c839f920b4e89232da815c071131aa034e1e21aef",
+    "data_sha256": "e18b711ef5e06912ed464d683657c6a4231d40382c8548ce075ada29cfa09299",
+    "live_enabled": false,
+    "mock_profile": "latency",
+    "mode": "mock",
+    "origin": "synthetic",
+    "queue_slots": 8,
+    "version": "production-phase6-v1",
+    "worker_slots": 1
+  },
+  "jobs": {
+    "33564bfcf1e141feb92058f01a9069c3": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:19.344124+00:00",
+      "created_utc": "2026-10-23T11:33:14.463785+00:00",
+      "owner_ordinal": 5,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:14.510526+00:00",
+      "state": "completed",
+      "submitted_s": 0.0466078009994817,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "506cc75b1bc34480b19cbc1341784259": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:29.648312+00:00",
+      "created_utc": "2026-10-23T11:33:14.488402+00:00",
+      "owner_ordinal": 4,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:24.199595+00:00",
+      "state": "completed",
+      "submitted_s": 0.06646074999662233,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "8958484b6326438da15a873968b200f9": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:51.659975+00:00",
+      "created_utc": "2026-10-23T11:33:28.205790+00:00",
+      "owner_ordinal": 3,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:47.023928+00:00",
+      "state": "completed",
+      "submitted_s": 13.786758287998964,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "8c17f70a393649cdbab78cef87a9164a": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:56.297298+00:00",
+      "created_utc": "2026-10-23T11:33:36.186882+00:00",
+      "owner_ordinal": 4,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:51.663600+00:00",
+      "state": "completed",
+      "submitted_s": 21.765119033996598,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "a8f2a04d62b4466284b7c110cd016026": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:24.186381+00:00",
+      "created_utc": "2026-10-23T11:33:14.476225+00:00",
+      "owner_ordinal": 3,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:19.349515+00:00",
+      "state": "completed",
+      "submitted_s": 0.058183987999655074,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "b80306d087374b838ac079eee368f5c1": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:01.555744+00:00",
+      "created_utc": "2026-10-23T11:33:40.806115+00:00",
+      "owner_ordinal": 1,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:56.317081+00:00",
+      "state": "completed",
+      "submitted_s": 26.390163552998274,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "c228e12ce8f1462dbb15a208bc5c0983": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:47.019460+00:00",
+      "created_utc": "2026-10-23T11:33:22.887589+00:00",
+      "owner_ordinal": 5,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:41.982837+00:00",
+      "state": "completed",
+      "submitted_s": 8.467188694998185,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "d8e7f0aa59864af89ee7d13b0cdcdb88": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:36.924139+00:00",
+      "created_utc": "2026-10-23T11:33:14.497321+00:00",
+      "owner_ordinal": 1,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:29.670123+00:00",
+      "state": "completed",
+      "submitted_s": 0.07669520499985083,
+      "tokens_in": 1801,
+      "tokens_out": 64
+    },
+    "da23cdc7b8834598af2c8e5c67fcd22a": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:33:41.976783+00:00",
+      "created_utc": "2026-10-23T11:33:14.506309+00:00",
+      "owner_ordinal": 2,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:33:36.930281+00:00",
+      "state": "completed",
+      "submitted_s": 0.0837234049977269,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    }
+  },
+  "limitations": [
+    "small exploratory engineering pilot",
+    "closed-loop users",
+    "synthetic only",
+    "scripted mock latency",
+    "one target worker",
+    "no real provider speed or quality claim"
+  ],
+  "mode": "mock",
+  "observed_peak_users": 5,
+  "offered_seconds": 30,
+  "offered_submissions": 9,
+  "origin": "synthetic",
+  "protocol_sha256": "9d5c7e538797f95b0faa21026b9224f8ed28144553b3f7d2bbb44bf39779e4de",
+  "queue_wait_seconds": {
+    "p50": 15.476718,
+    "p95": 22.423972,
+    "p99": 22.423972,
+    "samples": 9
+  },
+  "requests_per_second": 1.5228097093585284,
+  "route_latency_ms": {
+    "job_results": {
+      "p50": 6.953743002668489,
+      "p95": 13.00743400133797,
+      "p99": 13.00743400133797,
+      "samples": 9
+    },
+    "job_status": {
+      "p50": 6.340320000163047,
+      "p95": 9.421851002116455,
+      "p99": 55.55787499906728,
+      "samples": 59
+    },
+    "job_submit": {
+      "p50": 36.965376002626726,
+      "p95": 78.81486400219728,
+      "p99": 78.81486400219728,
+      "samples": 9
+    }
+  },
+  "run_id": "20261023T113117Z-ea5a8f-mixed-u5",
+  "state": "completed",
+  "stop_reason": null,
+  "tokens_in": 20956,
+  "tokens_out": 684,
+  "version": "production-phase6-v2",
+  "versions": {
+    "locust": "2.46.6",
+    "networkx": "3.6.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  }
+}

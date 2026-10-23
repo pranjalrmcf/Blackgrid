@@ -13,7 +13,7 @@ COPY pyproject.toml uv.lock README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
 
 FROM dependencies AS test-dependencies
-RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --no-install-project
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --group quality --no-install-project
 
 FROM dependencies AS benchmark-dependencies
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --group benchmark --all-extras --no-install-project
@@ -53,6 +53,10 @@ COPY scripts/ask_api.py ./scripts/ask_api.py
 COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
 COPY scripts/verify_phase7.py ./scripts/verify_phase7.py
 COPY scripts/benchmark_phase8.py ./scripts/benchmark_phase8.py
+COPY scripts/release_gate.py ./scripts/release_gate.py
+COPY scripts/verify_phase9.py ./scripts/verify_phase9.py
+COPY scripts/ci/ ./scripts/ci/
+COPY .github/ ./.github/
 COPY benchmarks/production/ ./benchmarks/production/
 COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
 ENTRYPOINT ["python", "-m", "pytest"]

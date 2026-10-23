@@ -1,7 +1,7 @@
 [project]
 name = "blackgrid"
-version = "0.1.0"
-description = "Bounded, evidence-grounded network-science investigations (Sprint 1 vertical slice)."
+version = "1.0.0"
+description = "Bounded, evidence-grounded network science with a single-host operational API."
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
@@ -30,6 +30,11 @@ benchmark = [
     "locust>=2.43,<3",
 ]
 dev = ["pytest>=8"]
+quality = [
+    "mypy==1.18.2",
+    "pyyaml==6.0.3",
+    "ruff==0.13.0",
+]
 
 [build-system]
 requires = ["hatchling"]

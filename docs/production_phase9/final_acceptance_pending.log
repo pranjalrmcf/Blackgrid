@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "C:\Blackgrid\scripts\report_phase9.py", line 68, in <module>
+    if __name__ == '__main__': main()
+                               ^^^^^^
+  File "C:\Blackgrid\scripts\report_phase9.py", line 27, in main
+    ci = junit(OUT/'ci/regression.xml')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Blackgrid\scripts\release_gate.py", line 21, in junit
+    cases = list(ET.parse(path).getroot().iter("testcase"))
+                 ^^^^^^^^^^^^^^
+  File "C:\Users\pranj\AppData\Local\Programs\Python\Python311\Lib\xml\etree\ElementTree.py", line 1219, in parse
+    tree.parse(source, parser)
+  File "C:\Users\pranj\AppData\Local\Programs\Python\Python311\Lib\xml\etree\ElementTree.py", line 570, in parse
+    source = open(source, "rb")
+             ^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Blackgrid\\docs\\production_phase9\\ci\\regression.xml'

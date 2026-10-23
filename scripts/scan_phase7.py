@@ -18,7 +18,7 @@ def command(args,timeout=1200):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--image',default='blackgrid:phase7',choices=('blackgrid:phase7','blackgrid:phase8'))
+    parser.add_argument('--image',default='blackgrid:phase7',choices=('blackgrid:phase7','blackgrid:phase8','blackgrid:phase9'))
     args = parser.parse_args()
     phase=args.image.rsplit('phase',1)[1]
     output = ROOT/f'docs/production_phase{phase}/evidence'

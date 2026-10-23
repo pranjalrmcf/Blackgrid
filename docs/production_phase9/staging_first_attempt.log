@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/app/scripts/verify_phase9.py", line 14, in <module>
+    from scripts.generate_phase6 import generate
+ModuleNotFoundError: No module named 'scripts'

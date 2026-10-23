@@ -4,6 +4,8 @@ BLACKGRID turns network-science questions into bounded, reproducible investigati
 
 [Technical summary: two-page PDF](output/pdf/blackgrid_technical_summary.pdf) · [Markdown](docs/technical_summary.md) · [Detailed system flowcharts](flowchart.md) · [MIT license](LICENSE)
 
+**Operational release 1.0.0:** cumulative phases 1–9 target the existing restricted, single-host service. Start with the [release guide](docs/production_phase9/README.md), [operations handbook](docs/production_phase9/operations.md), [final readiness report](docs/production_phase9/report.md) and [measured benchmark](docs/production_phase9/benchmark.md). Mock mode is the default; live requests require retained authorization and explicit paid opt-in. Remaining OS advisories and unvalidated sustained SLOs prevent an unrestricted public-production claim. vLLM is excluded.
+
 ## Architecture
 
 ```mermaid
@@ -24,7 +26,7 @@ flowchart LR
 
 Models receive aggregate evidence, not raw event rows or local identifier tables. Validated community, structural, forecast and behavioral summaries use evidence templates by default; model-written summaries remain bounded by the same critics. Every validated behavioral analysis becomes a completion obligation. See the [full architecture](flowchart.md) for comparison views, refusal paths, recovery and evaluation.
 
-## Headline results
+## Historical research results
 
 | Measurement | Observed result | Scope and evidence |
 |---|---|---|

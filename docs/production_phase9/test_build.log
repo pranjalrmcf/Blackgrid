@@ -1,0 +1,198 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 3.68kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/python:3.11.17-slim-trixie@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#3 DONE 2.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 739B done
+#4 DONE 0.0s
+
+#5 [dependencies 1/5] FROM docker.io/library/python:3.11.17-slim-trixie@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#5 resolve docker.io/library/python:3.11.17-slim-trixie@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#6 resolve ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 230.32kB 0.0s done
+#7 DONE 0.1s
+
+#8 [dependencies 2/5] COPY --from=uv /uv /usr/local/bin/uv
+#8 CACHED
+
+#9 [dependencies 3/5] WORKDIR /build
+#9 CACHED
+
+#10 [dependencies 4/5] COPY pyproject.toml uv.lock README.md ./
+#10 DONE 0.1s
+
+#11 [dependencies 5/5] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
+#11 0.353 Using CPython 3.11.17 interpreter at: /usr/local/bin/python3
+#11 0.354 Creating virtual environment at: /opt/venv
+#11 1.504 Installed 58 packages in 1.08s
+#11 1.506  + aiosqlite==0.22.1
+#11 1.506  + annotated-doc==0.0.5
+#11 1.506  + annotated-types==0.8.0
+#11 1.506  + anyio==4.15.1
+#11 1.506  + certifi==2026.10.19
+#11 1.506  + charset-normalizer==3.5.2
+#11 1.506  + click==8.5.0
+#11 1.506  + cloudpickle==3.1.2
+#11 1.506  + distro==1.9.0
+#11 1.506  + fastapi==0.142.2
+#11 1.506  + h11==0.16.0
+#11 1.506  + httpcore==1.0.9
+#11 1.506  + httpcore2==2.13.1
+#11 1.506  + httpx==0.28.1
+#11 1.506  + httpx2==2.13.1
+#11 1.506  + idna==3.20
+#11 1.506  + igraph==0.11.9
+#11 1.506  + joblib==1.6.0
+#11 1.506  + jsonpatch==1.33
+#11 1.506  + jsonpointer==3.1.1
+#11 1.506  + langchain-core==1.6.6
+#11 1.506  + langchain-protocol==0.0.19
+#11 1.506  + langgraph==1.2.12
+#11 1.506  + langgraph-checkpoint==4.2.0
+#11 1.506  + langgraph-checkpoint-sqlite==3.1.1
+#11 1.506  + langgraph-prebuilt==1.1.0
+#11 1.506  + langgraph-sdk==0.4.5
+#11 1.506  + langsmith==0.14.4
+#11 1.506  + leidenalg==0.10.2
+#11 1.506  + narwhals==2.26.0
+#11 1.506  + networkx==3.6.1
+#11 1.506  + numpy==2.4.6
+#11 1.506  + opentelemetry-api==1.45.1
+#11 1.506  + orjson==3.12.0
+#11 1.506  + ormsgpack==1.12.2
+#11 1.506  + packaging==26.3
+#11 1.506  + pydantic==2.13.5
+#11 1.506  + pydantic-core==2.46.5
+#11 1.506  + pyyaml==6.0.3
+#11 1.506  + requests==2.34.2
+#11 1.506  + requests-toolbelt==1.0.0
+#11 1.506  + scikit-learn==1.9.1
+#11 1.506  + scipy==1.17.1
+#11 1.506  + sniffio==1.3.1
+#11 1.506  + sqlite-vec==0.1.9
+#11 1.506  + starlette==1.7.0
+#11 1.506  + tenacity==9.1.4
+#11 1.506  + texttable==1.7.0
+#11 1.506  + threadpoolctl==3.7.0
+#11 1.506  + truststore==0.10.4
+#11 1.506  + typing-extensions==4.16.0
+#11 1.506  + typing-inspection==0.4.4
+#11 1.506  + urllib3==2.8.0
+#11 1.506  + uuid-utils==0.17.1
+#11 1.506  + uvicorn==0.54.0
+#11 1.506  + websockets==16.1.1
+#11 1.506  + xxhash==4.0.1
+#11 1.506  + zstandard==0.25.0
+#11 DONE 1.8s
+
+#12 [test-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --group quality --no-install-project
+#12 ...
+
+#13 [runtime  2/10] WORKDIR /app
+#13 CACHED
+
+#14 [runtime  3/10] RUN /usr/local/bin/python -m pip uninstall -y pip setuptools wheel
+#14 CACHED
+
+#15 [runtime  4/10] RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid     && chmod 0555 /usr/local/bin/blackgrid
+#15 CACHED
+
+#16 [runtime  5/10] COPY --from=dependencies /opt/venv /opt/venv
+#16 CACHED
+
+#17 [runtime  6/10] COPY src/ ./src/
+#17 DONE 0.1s
+
+#18 [runtime  7/10] COPY configs/ ./configs/
+#18 DONE 0.0s
+
+#12 [test-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --group quality --no-install-project
+#12 0.607 Downloading mypy (12.6MiB)
+#12 ...
+
+#19 [runtime  8/10] COPY protocols/ ./protocols/
+#19 DONE 0.0s
+
+#20 [runtime  9/10] COPY docs/sprint04_review_rubric.md ./docs/sprint04_review_rubric.md
+#20 DONE 0.0s
+
+#21 [runtime 10/10] COPY pyproject.toml uv.lock README.md LICENSE ./
+#21 DONE 0.0s
+
+#12 [test-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --group quality --no-install-project
+#12 0.682 Downloading ruff (12.8MiB)
+#12 3.060  Downloaded mypy
+#12 3.253  Downloaded ruff
+#12 3.343 Prepared 4 packages in 3.02s
+#12 3.604 Installed 8 packages in 260ms
+#12 3.604  + iniconfig==2.3.0
+#12 3.604  + mypy==1.18.2
+#12 3.604  + mypy-extensions==1.1.0
+#12 3.604  + pathspec==1.1.1
+#12 3.604  + pluggy==1.6.0
+#12 3.604  + pygments==2.21.0
+#12 3.604  + pytest==9.1.1
+#12 3.604  + ruff==0.13.0
+#12 DONE 4.1s
+
+#22 [test  1/12] COPY --from=test-dependencies /opt/venv /opt/venv
+#22 DONE 1.4s
+
+#23 [test  2/12] COPY tests/ ./tests/
+#23 DONE 0.1s
+
+#24 [test  3/12] COPY scripts/ask_api.py ./scripts/ask_api.py
+#24 DONE 0.0s
+
+#25 [test  4/12] COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
+#25 DONE 0.0s
+
+#26 [test  5/12] COPY scripts/verify_phase7.py ./scripts/verify_phase7.py
+#26 DONE 0.0s
+
+#27 [test  6/12] COPY scripts/benchmark_phase8.py ./scripts/benchmark_phase8.py
+#27 DONE 0.0s
+
+#28 [test  7/12] COPY scripts/release_gate.py ./scripts/release_gate.py
+#28 DONE 0.0s
+
+#29 [test  8/12] COPY scripts/verify_phase9.py ./scripts/verify_phase9.py
+#29 DONE 0.0s
+
+#30 [test  9/12] COPY scripts/ci/ ./scripts/ci/
+#30 DONE 0.0s
+
+#31 [test 10/12] COPY .github/ ./.github/
+#31 DONE 0.0s
+
+#32 [test 11/12] COPY benchmarks/production/ ./benchmarks/production/
+#32 DONE 0.0s
+
+#33 [test 12/12] COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
+#33 DONE 0.0s
+
+#34 exporting to image
+#34 exporting layers
+#34 exporting layers 9.7s done
+#34 exporting manifest sha256:0b90416d1ba3e1bf7acf15d45672103d0b4b74515d8803b49e034eeec2e358fd 0.0s done
+#34 exporting config sha256:84aeed3db3fe8074af3d5665857df6d5d3e24f43aba90cc209a48150e18f49ef 0.0s done
+#34 exporting attestation manifest sha256:6d06d419d683bb5af465c97b63a86ea864989bc611ca491d3ec9bbfaa7c566de 0.0s done
+#34 exporting manifest list sha256:843753247ff71a0f9b1393c85c594d6e6052a95286d3348adf608e5744d9a0b7 0.0s done
+#34 naming to docker.io/library/blackgrid:phase9-test done
+#34 unpacking to docker.io/library/blackgrid:phase9-test
+#34 unpacking to docker.io/library/blackgrid:phase9-test 2.4s done
+#34 DONE 12.2s

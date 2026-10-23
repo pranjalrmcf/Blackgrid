@@ -1,0 +1,272 @@
+{
+  "actual_usd": 0,
+  "agent_worker_seconds": {
+    "p50": 4.842217,
+    "p95": 7.276734,
+    "p99": 7.276734,
+    "samples": 13
+  },
+  "api_latency_ms": {
+    "p50": 6.4300449994334485,
+    "p95": 81.19239200095762,
+    "p99": 178.09876400133362,
+    "samples": 174
+  },
+  "category": "mixed",
+  "completed_analyses_per_minute": 11.326670274543355,
+  "configured_users": 10,
+  "counts": {
+    "accepted": 13,
+    "censored": 0,
+    "completed": 13,
+    "failed": 0,
+    "rate_limited": 0,
+    "rejected": 7,
+    "requests": 174,
+    "unexpected_errors": 0
+  },
+  "creation_to_terminal_seconds": {
+    "p50": 36.775898,
+    "p95": 45.57566,
+    "p99": 45.57566,
+    "samples": 13
+  },
+  "elapsed_s": 68.86401573400144,
+  "generator_cpu_seconds": 1.3990280000000002,
+  "generator_peak_rss_bytes": 59056128,
+  "identity": {
+    "config_sha256": "8d28856a3d55ee5ac7cbf30c839f920b4e89232da815c071131aa034e1e21aef",
+    "data_sha256": "e18b711ef5e06912ed464d683657c6a4231d40382c8548ce075ada29cfa09299",
+    "live_enabled": false,
+    "mock_profile": "latency",
+    "mode": "mock",
+    "origin": "synthetic",
+    "queue_slots": 8,
+    "version": "production-phase6-v1",
+    "worker_slots": 1
+  },
+  "jobs": {
+    "0a50416396814347bc2aa303fc211358": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:12.064500+00:00",
+      "created_utc": "2026-10-23T11:34:07.345764+00:00",
+      "owner_ordinal": 9,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:07.428208+00:00",
+      "state": "completed",
+      "submitted_s": 0.11021493600128451,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "0dd13808e8504966ac09ea46eae5c6d1": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:22.753715+00:00",
+      "created_utc": "2026-10-23T11:34:07.368387+00:00",
+      "owner_ordinal": 7,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:16.907538+00:00",
+      "state": "completed",
+      "submitted_s": 0.13125752600171836,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "37650d387b8f4d9a940ec57f2319e276": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:54.501996+00:00",
+      "created_utc": "2026-10-23T11:34:10.596767+00:00",
+      "owner_ordinal": 2,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:49.659779+00:00",
+      "state": "completed",
+      "submitted_s": 3.3788165020014276,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "42898b61d0d940209d483cd5b65a3728": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:44.186910+00:00",
+      "created_utc": "2026-10-23T11:34:07.411012+00:00",
+      "owner_ordinal": 4,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:39.141120+00:00",
+      "state": "completed",
+      "submitted_s": 0.1725173610029742,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "447f681469524b74af223432b43959c0": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:30.034659+00:00",
+      "created_utc": "2026-10-23T11:34:07.380374+00:00",
+      "owner_ordinal": 6,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:22.757925+00:00",
+      "state": "completed",
+      "submitted_s": 0.14330351399985375,
+      "tokens_in": 1801,
+      "tokens_out": 64
+    },
+    "659b6d8994764a8583b22b4a62af0436": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:49.652812+00:00",
+      "created_utc": "2026-10-23T11:34:07.420296+00:00",
+      "owner_ordinal": 3,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:44.202470+00:00",
+      "state": "completed",
+      "submitted_s": 0.1825024179997854,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "85d0b4c2fb0c434fa66d35110acaebd8": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:35:08.854584+00:00",
+      "created_utc": "2026-10-23T11:34:25.756019+00:00",
+      "owner_ordinal": 10,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:35:04.010726+00:00",
+      "state": "completed",
+      "submitted_s": 18.52667520400064,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "8b7120e5fc374753a28c8eeb4de18335": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:39.137214+00:00",
+      "created_utc": "2026-10-23T11:34:07.401356+00:00",
+      "owner_ordinal": 5,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:34.489114+00:00",
+      "state": "completed",
+      "submitted_s": 0.16430070600108593,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "a17002481475420d90327e8e2bfb7495": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:34.481094+00:00",
+      "created_utc": "2026-10-23T11:34:07.389523+00:00",
+      "owner_ordinal": 8,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:30.039505+00:00",
+      "state": "completed",
+      "submitted_s": 0.15320512400285224,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "ad55363bbf0943b589aed63bd67559dc": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:35:13.297958+00:00",
+      "created_utc": "2026-10-23T11:34:31.524821+00:00",
+      "owner_ordinal": 7,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:35:08.859258+00:00",
+      "state": "completed",
+      "submitted_s": 24.290149274002033,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "b07848abf9bc41aa81e0ad19a4d686eb": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:35:04.004118+00:00",
+      "created_utc": "2026-10-23T11:34:18.428458+00:00",
+      "owner_ordinal": 9,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:59.161297+00:00",
+      "state": "completed",
+      "submitted_s": 11.194705133002572,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "b96df7b7469640e293de17874bfaed9c": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:16.902423+00:00",
+      "created_utc": "2026-10-23T11:34:07.356420+00:00",
+      "owner_ordinal": 10,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:12.068699+00:00",
+      "state": "completed",
+      "submitted_s": 0.12032421200274257,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "ec74373507804e458d61380e0ded1960": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T11:34:59.154456+00:00",
+      "created_utc": "2026-10-23T11:34:13.962253+00:00",
+      "owner_ordinal": 1,
+      "result_verified": true,
+      "started_utc": "2026-10-23T11:34:54.508133+00:00",
+      "state": "completed",
+      "submitted_s": 6.728693873999873,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    }
+  },
+  "limitations": [
+    "small exploratory engineering pilot",
+    "closed-loop users",
+    "synthetic only",
+    "scripted mock latency",
+    "one target worker",
+    "no real provider speed or quality claim"
+  ],
+  "mode": "mock",
+  "observed_peak_users": 10,
+  "offered_seconds": 30,
+  "offered_submissions": 20,
+  "origin": "synthetic",
+  "protocol_sha256": "9d5c7e538797f95b0faa21026b9224f8ed28144553b3f7d2bbb44bf39779e4de",
+  "queue_wait_seconds": {
+    "p50": 31.730108,
+    "p95": 40.732839,
+    "p99": 40.732839,
+    "samples": 13
+  },
+  "requests_per_second": 2.5267187535519793,
+  "route_latency_ms": {
+    "job_results": {
+      "p50": 6.73475499934284,
+      "p95": 9.070029998838436,
+      "p99": 9.070029998838436,
+      "samples": 13
+    },
+    "job_status": {
+      "p50": 6.3158820012176875,
+      "p95": 14.198535001924029,
+      "p99": 63.66097499994794,
+      "samples": 141
+    },
+    "job_submit": {
+      "p50": 62.236044999735896,
+      "p95": 178.09876400133362,
+      "p99": 181.22157600009814,
+      "samples": 20
+    }
+  },
+  "run_id": "20261023T113117Z-ea5a8f-mixed-u10",
+  "state": "completed",
+  "stop_reason": null,
+  "tokens_in": 28355,
+  "tokens_out": 900,
+  "version": "production-phase6-v2",
+  "versions": {
+    "locust": "2.46.6",
+    "networkx": "3.6.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  }
+}

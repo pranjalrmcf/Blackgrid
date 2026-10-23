@@ -25,6 +25,10 @@ def command(args, *, env=None, timeout=300, log=None, check=True):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prepare-only", action="store_true")
+    parser.add_argument("--image", default="blackgrid:phase6")
+    parser.add_argument("--benchmark-image", default="blackgrid:phase6-benchmark")
+    parser.add_argument("--reports", type=Path, default=ROOT/"results/production_phase6")
+    parser.add_argument("--tool-cache", action="store_true")
     args = parser.parse_args()
     protocol_path = ROOT/"protocols/production_phase6_v2.json"
     protocol = json.loads(protocol_path.read_bytes())
@@ -39,7 +43,7 @@ def main():
     if args.prepare_only:
         print("15 synthetic inputs prepared. Truth is outside the runtime input directory.")
         return 0
-    reports = ROOT/"results/production_phase6"
+    reports = args.reports.resolve()
     reports.mkdir(parents=True, exist_ok=True)
     if len([p for p in reports.iterdir() if p.is_dir()]) >= 20:
         raise ValueError("retained attempt limit reached")
@@ -64,14 +68,15 @@ def main():
     volume = "blackgrid-phase6-"+stamp.lower()
     env = os.environ.copy()
     env.update(BLACKGRID_BENCHMARK_INPUTS=str(inputs/"public"),
-               BLACKGRID_BENCHMARK_CREDENTIALS=str(private/"clients.json"), BLACKGRID_BENCHMARK_VOLUME=volume)
+               BLACKGRID_BENCHMARK_CREDENTIALS=str(private/"clients.json"), BLACKGRID_BENCHMARK_VOLUME=volume,
+               BLACKGRID_BENCHMARK_IMAGE=args.image, BLACKGRID_BENCHMARK_TOOL_CACHE=str(args.tool_cache).lower())
     compose = ["docker","compose","-f","docker-compose.benchmark.yml"]
     existing = command(["docker","inspect","blackgrid-benchmark-target"],check=False)
     if existing.returncode == 0 and json.loads(existing.stdout)[0]["State"]["Running"]:
         raise ValueError("a benchmark target is already running; preserve and inspect it before another attempt")
     manifest["volume"] = volume
     try:
-        for target, image in (("production","blackgrid:phase6"),("benchmark","blackgrid:phase6-benchmark")):
+        for target, image in (("production",args.image),("benchmark",args.benchmark_image)):
             if command(["docker","image","inspect",image],check=False).returncode:
                 command(["docker","build","--progress=plain","--target",target,"-t",image,"."], timeout=600,
                         log=output/(target+"_build.log"))
@@ -115,7 +120,7 @@ def main():
                 "--mount",f"type=bind,source={inputs/'public'},target=/bench/public,readonly",
                 "--mount",f"type=bind,source={private/'benchmark-tokens.json'},target=/run/secrets/benchmark-tokens.json,readonly",
                 "--mount",f"type=bind,source={ROOT/'.secrets/server-cert.pem'},target=/run/secrets/server-cert.pem,readonly",
-                "blackgrid:phase6-benchmark","--category",category,"--users",str(users),"--output",f"/evidence/{stamp}/{name}"]
+                args.benchmark_image,"--category",category,"--users",str(users),"--output",f"/evidence/{stamp}/{name}"]
             print(f"Benchmark {category}: {users} virtual users (offline synthetic)",flush=True)
             try:
                 result = command(args_docker, timeout=protocol["stage_deadline_seconds"]+30, log=output/(name+".log"), check=False)

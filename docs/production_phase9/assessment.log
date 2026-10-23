@@ -1,0 +1,15 @@
+{
+  "tests": {
+    "collected": 682,
+    "passed": 682,
+    "skipped": 0
+  },
+  "security": {
+    "scope": "local-restricted",
+    "critical": 0,
+    "high": 44,
+    "fixable_high": 0
+  },
+  "recovery": "passed",
+  "staging": "passed"
+}

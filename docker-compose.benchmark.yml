@@ -1,7 +1,7 @@
 name: blackgrid-benchmark
 services:
   target:
-    image: blackgrid:phase6
+    image: ${BLACKGRID_BENCHMARK_IMAGE:-blackgrid:phase6}
     container_name: blackgrid-benchmark-target
     command: [api]
     init: true
@@ -28,6 +28,7 @@ services:
       BLACKGRID_RUNS_DIR: /app/runs
       BLACKGRID_PORT: "8765"
       BLACKGRID_BENCHMARK_MOCK_PROFILE: latency
+      BLACKGRID_API_TOOL_CACHE: ${BLACKGRID_BENCHMARK_TOOL_CACHE:-false}
       BLACKGRID_API_HOST: "0.0.0.0"
       BLACKGRID_API_ALLOWED_HOSTS: "127.0.0.1,localhost"
       BLACKGRID_API_CREDENTIALS_FILE: /run/secrets/clients.json

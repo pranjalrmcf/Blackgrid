@@ -1,0 +1,211 @@
+[
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": null,
+    "elapsed_s": 0.0002727690007304773,
+    "memory_bytes": 172036096,
+    "p95_ms": null,
+    "rejected": 0,
+    "requests": 0,
+    "users": 1
+  },
+  {
+    "accepted": 1,
+    "completed": 0,
+    "cpu_percent": 98.26163529661281,
+    "elapsed_s": 2.018567085000541,
+    "memory_bytes": 274178048,
+    "p95_ms": 36.96346699871356,
+    "rejected": 0,
+    "requests": 1,
+    "users": 1
+  },
+  {
+    "accepted": 1,
+    "completed": 0,
+    "cpu_percent": 79.20134626483474,
+    "elapsed_s": 4.033948231000977,
+    "memory_bytes": 328212480,
+    "p95_ms": 36.96346699871356,
+    "rejected": 0,
+    "requests": 2,
+    "users": 1
+  },
+  {
+    "accepted": 1,
+    "completed": 0,
+    "cpu_percent": 32.417963221372254,
+    "elapsed_s": 6.076291222998407,
+    "memory_bytes": 184725504,
+    "p95_ms": 36.96346699871356,
+    "rejected": 0,
+    "requests": 2,
+    "users": 1
+  },
+  {
+    "accepted": 1,
+    "completed": 1,
+    "cpu_percent": 42.52555307149347,
+    "elapsed_s": 8.10326780000105,
+    "memory_bytes": 220028928,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 4,
+    "users": 1
+  },
+  {
+    "accepted": 1,
+    "completed": 1,
+    "cpu_percent": 0.41073725431784036,
+    "elapsed_s": 10.120128922997537,
+    "memory_bytes": 219525120,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 4,
+    "users": 1
+  },
+  {
+    "accepted": 2,
+    "completed": 1,
+    "cpu_percent": 70.67658089122588,
+    "elapsed_s": 12.185108555000625,
+    "memory_bytes": 281882624,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 5,
+    "users": 1
+  },
+  {
+    "accepted": 2,
+    "completed": 1,
+    "cpu_percent": 99.97024765216752,
+    "elapsed_s": 14.203319019998162,
+    "memory_bytes": 344645632,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 5,
+    "users": 1
+  },
+  {
+    "accepted": 2,
+    "completed": 1,
+    "cpu_percent": 64.02265979624447,
+    "elapsed_s": 16.221759059997567,
+    "memory_bytes": 222765056,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 6,
+    "users": 1
+  },
+  {
+    "accepted": 2,
+    "completed": 2,
+    "cpu_percent": 0.8713339158032789,
+    "elapsed_s": 18.240388161997544,
+    "memory_bytes": 222830592,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 8,
+    "users": 1
+  },
+  {
+    "accepted": 3,
+    "completed": 2,
+    "cpu_percent": 30.38623847901258,
+    "elapsed_s": 20.25661995200062,
+    "memory_bytes": 264323072,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 9,
+    "users": 1
+  },
+  {
+    "accepted": 3,
+    "completed": 2,
+    "cpu_percent": 98.80004429968696,
+    "elapsed_s": 22.293523896998522,
+    "memory_bytes": 325779456,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 9,
+    "users": 1
+  },
+  {
+    "accepted": 3,
+    "completed": 2,
+    "cpu_percent": 74.2006096644532,
+    "elapsed_s": 24.314683839998906,
+    "memory_bytes": 370397184,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 10,
+    "users": 1
+  },
+  {
+    "accepted": 3,
+    "completed": 3,
+    "cpu_percent": 28.438501531102965,
+    "elapsed_s": 26.33159390599758,
+    "memory_bytes": 224083968,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 12,
+    "users": 1
+  },
+  {
+    "accepted": 3,
+    "completed": 3,
+    "cpu_percent": 0.6500889177886079,
+    "elapsed_s": 28.35593236799832,
+    "memory_bytes": 224067584,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 12,
+    "users": 1
+  },
+  {
+    "accepted": 4,
+    "completed": 3,
+    "cpu_percent": 52.327730607326124,
+    "elapsed_s": 30.37373246700008,
+    "memory_bytes": 279359488,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 13,
+    "users": 1
+  },
+  {
+    "accepted": 4,
+    "completed": 3,
+    "cpu_percent": 99.81228762363428,
+    "elapsed_s": 32.39953815499757,
+    "memory_bytes": 353525760,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 14,
+    "users": 1
+  },
+  {
+    "accepted": 4,
+    "completed": 3,
+    "cpu_percent": 61.14188984509182,
+    "elapsed_s": 34.41875935200005,
+    "memory_bytes": 224370688,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 14,
+    "users": 1
+  },
+  {
+    "accepted": 4,
+    "completed": 4,
+    "cpu_percent": 0.8671465130465964,
+    "elapsed_s": 36.44702098199923,
+    "memory_bytes": 224133120,
+    "p95_ms": 855.3371369998786,
+    "rejected": 0,
+    "requests": 16,
+    "users": 1
+  }
+]

@@ -1,0 +1,1 @@
+{"run_id": "20261023T113117Z-ea5a8f-mixed-u10", "state": "completed", "configured_users": 10, "observed_peak_users": 10, "counts": {"requests": 174, "accepted": 13, "rejected": 7, "completed": 13, "failed": 0, "censored": 0, "rate_limited": 0, "unexpected_errors": 0}, "elapsed_s": 68.86401573400144, "stop_reason": null}

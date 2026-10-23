@@ -1,5 +1,7 @@
 # BLACKGRID — Current architecture
 
+Release 1.0.0 / Phase 9: see the [released architecture](docs/production_phase9/architecture.md) and [operational readiness report](docs/production_phase9/report.md). The Phase 1 audit below is retained as historical evidence.
+
 Phase 1 audit, 22 October 2026. This describes the current working tree, including pre-existing uncommitted work, at base revision `e043496720445ac2f0ac79db51532f52159b0071`. It is descriptive engineering evidence, not a production-readiness certification. See [source inventory and hashes](docs/production_phase1/source_snapshot.json), [baseline tests](baseline_test_report.md), [gaps](production_gap_analysis.md), and [roadmap](production_roadmap.md).
 
 ## Scope and evidence

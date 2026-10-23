@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: blackgrid:phase8
+    image: blackgrid:phase9
     logging:
       driver: json-file
       options:

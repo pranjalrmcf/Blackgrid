@@ -1,0 +1,11 @@
+{
+  "version": "production-phase9-v1",
+  "origin": "synthetic",
+  "mode": "mock",
+  "monitoring": true,
+  "alerts": true,
+  "schema_reopen_exact": true,
+  "real_provider_calls": 0,
+  "actual_usd": 0,
+  "production_state_touched": false
+}

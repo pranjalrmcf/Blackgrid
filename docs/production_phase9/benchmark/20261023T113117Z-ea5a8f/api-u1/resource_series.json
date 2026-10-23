@@ -1,0 +1,101 @@
+[
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": null,
+    "elapsed_s": 0.0002720789998420514,
+    "memory_bytes": 170774528,
+    "p95_ms": null,
+    "rejected": 0,
+    "requests": 0,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.5810423824517864,
+    "elapsed_s": 2.020778733000043,
+    "memory_bytes": 171077632,
+    "p95_ms": 18.917950001196004,
+    "rejected": 0,
+    "requests": 1,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.5221056392144178,
+    "elapsed_s": 4.047571628001606,
+    "memory_bytes": 171081728,
+    "p95_ms": 18.917950001196004,
+    "rejected": 0,
+    "requests": 2,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.3090760939346012,
+    "elapsed_s": 6.09496388000116,
+    "memory_bytes": 171085824,
+    "p95_ms": 18.917950001196004,
+    "rejected": 0,
+    "requests": 2,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.5034355969633981,
+    "elapsed_s": 8.110713275000307,
+    "memory_bytes": 171077632,
+    "p95_ms": 18.917950001196004,
+    "rejected": 0,
+    "requests": 3,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.5639471417003599,
+    "elapsed_s": 10.129342177999206,
+    "memory_bytes": 171085824,
+    "p95_ms": 39.76386100111995,
+    "rejected": 0,
+    "requests": 4,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.3740555351825445,
+    "elapsed_s": 12.151234461001877,
+    "memory_bytes": 171081728,
+    "p95_ms": 39.76386100111995,
+    "rejected": 0,
+    "requests": 4,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 0.5603049429089548,
+    "elapsed_s": 14.164959334000741,
+    "memory_bytes": 173965312,
+    "p95_ms": 39.76386100111995,
+    "rejected": 0,
+    "requests": 5,
+    "users": 1
+  },
+  {
+    "accepted": 0,
+    "completed": 0,
+    "cpu_percent": 21.62698451261324,
+    "elapsed_s": 16.180362821000017,
+    "memory_bytes": 171421696,
+    "p95_ms": 39.76386100111995,
+    "rejected": 0,
+    "requests": 5,
+    "users": 1
+  }
+]
