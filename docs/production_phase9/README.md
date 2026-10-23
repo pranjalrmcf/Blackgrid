@@ -19,9 +19,9 @@ docker compose exec blackgrid python -m blackgrid.operations health --readiness
 
 ## Checks and promotion
 
-GitHub Actions [release checks](../../../.github/workflows/ci.yml) build locked production/test images, run linting, scoped formatting and strict type checks, full offline regression, API/security tests, isolated staging/restore and an exact-image scan. CI uses synthetic fixtures, no production credentials/data, read-only repository permissions and pinned actions. Its two raw-CollegeMsg checks may skip because redistribution is not authorized; the local full suite executes them with the existing read-only input. Test failures, unexpected skips, missing scan coverage, stale evidence, critical findings or fixable high findings fail closed.
+GitHub Actions [release checks](../../.github/workflows/ci.yml) build locked production/test images, run linting, scoped formatting and strict type checks, full offline regression, API/security tests, isolated staging/restore and an exact-image scan. CI uses synthetic fixtures, no production credentials/data, read-only repository permissions and pinned actions. Its two raw-CollegeMsg checks may skip because redistribution is not authorized; the local full suite executes them with the existing read-only input. Test failures, unexpected skips, missing scan coverage, stale evidence, critical findings or fixable high findings fail closed.
 
-The [manual release workflow](../../../.github/workflows/release.yml) reruns verification and presents an operator handoff through `release-review`. GitHub environment reviewers/branch restrictions must be configured by the repository owner; merely naming an environment does not configure protection. No cloud runner, remote production access or registry publication is provisioned.
+The [manual release workflow](../../.github/workflows/release.yml) reruns verification and presents an operator handoff through `release-review`. GitHub environment reviewers/branch restrictions must be configured by the repository owner; merely naming an environment does not configure protection. No cloud runner, remote production access or registry publication is provisioned.
 
 The local production pipeline is:
 
@@ -47,6 +47,6 @@ The full container commands are encoded in the CI workflow, with bounded memory/
 .\.venv\Scripts\python.exe scripts\run_phase6.py --image blackgrid:phase9 --benchmark-image blackgrid:phase9-benchmark --reports docs\production_phase9\benchmark --tool-cache
 ```
 
-The runner retains its attempt and private isolated credentials/state. Reconcile the resulting attempt with `scripts/report_phase6.py ATTEMPT_DIRECTORY`. It never submits benchmark work to production. The workload and stop limits are registered in [Phase 9](../../../protocols/production_phase9_v1.json) and the referenced [Phase 6 v2 protocol](../../../protocols/production_phase6_v2.json).
+The runner retains its attempt and private isolated credentials/state. Reconcile the resulting attempt with `scripts/report_phase6.py ATTEMPT_DIRECTORY`. It never submits benchmark work to production. The workload and stop limits are registered in [Phase 9](../../protocols/production_phase9_v1.json) and the referenced [Phase 6 v2 protocol](../../protocols/production_phase6_v2.json).
 
 Implementation references: [GitHub workflow hardening](https://docs.github.com/en/actions/reference/security/secure-use), [environment configuration](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments), [Ruff configuration](https://docs.astral.sh/ruff/configuration/). Formatting covers the three new verification files, fatal lint rules cover application/tests/scripts/benchmarks, and strict typing covers `release_gate.py`; this is not a claim of repository-wide formatting or type completeness.
