@@ -1,5 +1,7 @@
 # BLACKGRID API v1
 
+Phase 8 adds an optional `cached` boolean to each tool's job-progress item. Validated deterministic graph tools can be reused within owner/mode/config/implementation identity; job results, planner calls, paid authorization/accounting and other tool families retain their contracts. See [operation and limits](production_phase8/guide.md) and [measured verification](production_phase8/report.md).
+
 Phase 7 preserves existing contracts and returns stable `409 results_unavailable` for malformed/incomplete saved result artifacts. Its cumulative deployment adds tested private backup/restore and security-base updates; see [verification and remaining limits](production_phase7/report.md).
 
 Phase 6 adds `/api/v1/dashboard`, fixed same-origin assets, operator browser-session login/logout and private dashboard data. Its cookie is limited to dashboard access; job routes still require bearer authentication. The benchmark identity endpoint is absent from normal production mode. See [browser and offline benchmark instructions](production_phase6/guide.md) and [verification](production_phase6/report.md).

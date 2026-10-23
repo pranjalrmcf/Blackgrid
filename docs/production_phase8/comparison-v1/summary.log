@@ -1,0 +1,46 @@
+{
+  "version": "production-phase8-v1",
+  "jobs": 10,
+  "scientific_fingerprint_exact": true,
+  "api_result_exact": true,
+  "llm_call_token_and_cost_counters_exact": true,
+  "real_provider_calls": 0,
+  "actual_usd": 0,
+  "creation_to_terminal_medians": {
+    "uncached": 6.886977,
+    "cold_cache": 6.887511,
+    "prime": 6.481511,
+    "warm_cache": 4.447181
+  },
+  "warm_reduction_fraction": 0.3542622546873614,
+  "cold_change_fraction": 7.753764823092979e-05,
+  "raw_samples": {
+    "uncached": [
+      6.886977,
+      6.893667,
+      6.784775
+    ],
+    "cold_cache": [
+      6.887511,
+      7.380019,
+      6.885792
+    ],
+    "prime": [
+      6.481511
+    ],
+    "warm_cache": [
+      4.474583,
+      4.426003,
+      4.447181
+    ]
+  },
+  "limitations": [
+    "three timed samples per condition; exploratory, no confidence interval or production SLO",
+    "warm-cache reuse only; no cold-algorithm or LLM inference speed claim",
+    "sequential ASGI client; no TLS/network or concurrent capacity claim",
+    "host not dedicated; separate limited regression container also ran during candidate",
+    "workflow spans include child work; do not add nested categories together",
+    "workflow_other is an unattributed residual including startup/checkpoint work, not a direct import or SQL timing",
+    "no isolated SQL query or real-provider CPU/latency measurement"
+  ]
+}

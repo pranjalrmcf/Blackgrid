@@ -52,6 +52,7 @@ COPY tests/ ./tests/
 COPY scripts/ask_api.py ./scripts/ask_api.py
 COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
 COPY scripts/verify_phase7.py ./scripts/verify_phase7.py
+COPY scripts/benchmark_phase8.py ./scripts/benchmark_phase8.py
 COPY benchmarks/production/ ./benchmarks/production/
 COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
 ENTRYPOINT ["python", "-m", "pytest"]

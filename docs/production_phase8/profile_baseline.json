@@ -1,0 +1,596 @@
+{
+  "version": "production-phase8-v1",
+  "origin": "synthetic",
+  "mode": "mock",
+  "config_sha256": "8d28856a3d55ee5ac7cbf30c839f920b4e89232da815c071131aa034e1e21aef",
+  "data_sha256": "e18b711ef5e06912ed464d683657c6a4231d40382c8548ce075ada29cfa09299",
+  "nodes": 98,
+  "edges": 196,
+  "wall_seconds": 1.7001482090017817,
+  "tools": [
+    {
+      "tool": "profile_graph",
+      "args_sha256": "edbd798cda4196dc56cdb0c0f607e29766962cd80a7b7170dcfe68678d25f64b",
+      "outcome": "completed",
+      "elapsed_s": 0.00361,
+      "error": null,
+      "cached": false,
+      "cache_rejected": null
+    },
+    {
+      "tool": "community_test",
+      "args_sha256": "e082ac1e05a923bf1383eda037a58191837da6d392231aa120893561d40e3018",
+      "outcome": "completed",
+      "elapsed_s": 0.614823,
+      "error": null,
+      "cached": false,
+      "cache_rejected": null
+    },
+    {
+      "tool": "edge_removal_sensitivity[0]",
+      "args_sha256": "aa839b891bbe55b1f1701be871e5cf3cee82799af5cefd6d6a9d901608b48783",
+      "outcome": "completed",
+      "elapsed_s": 1.075095,
+      "error": null,
+      "cached": false,
+      "cache_rejected": null
+    },
+    {
+      "tool": "edge_removal_sensitivity",
+      "args_sha256": "f5cbcf4ba3cba34fcc6b6365de2bb7d896875acc8468c3f2702715814bd58071",
+      "outcome": "completed",
+      "elapsed_s": 1.075555,
+      "error": null,
+      "cached": false,
+      "cache_rejected": null
+    }
+  ],
+  "top_cumulative": [
+    {
+      "module": "tools.py",
+      "line": 257,
+      "function": "execute",
+      "calls": 3,
+      "primitive_calls": 3,
+      "self_seconds": 0.000110914,
+      "cumulative_seconds": 1.694131902
+    },
+    {
+      "module": "tools.py",
+      "line": 350,
+      "function": "_run",
+      "calls": 3,
+      "primitive_calls": 3,
+      "self_seconds": 7.751700000000001e-05,
+      "cumulative_seconds": 1.6932221790000002
+    },
+    {
+      "module": "experiment.py",
+      "line": 281,
+      "function": "run_community_test",
+      "calls": 2,
+      "primitive_calls": 2,
+      "self_seconds": 6.0751e-05,
+      "cumulative_seconds": 1.68872298
+    },
+    {
+      "module": "experiment.py",
+      "line": 177,
+      "function": "analyse",
+      "calls": 3,
+      "primitive_calls": 3,
+      "self_seconds": 0.001165912,
+      "cumulative_seconds": 1.682075938
+    },
+    {
+      "module": "experiment.py",
+      "line": 121,
+      "function": "double_edge_swap",
+      "calls": 57,
+      "primitive_calls": 57,
+      "self_seconds": 0.252534599,
+      "cumulative_seconds": 1.1389179200000001
+    },
+    {
+      "module": "sensitivity.py",
+      "line": 72,
+      "function": "run_replicate",
+      "calls": 1,
+      "primitive_calls": 1,
+      "self_seconds": 4.894e-05,
+      "cumulative_seconds": 1.075001793
+    },
+    {
+      "module": "backends.py",
+      "line": 541,
+      "function": "_call_if_no_backends_installed",
+      "calls": 1099,
+      "primitive_calls": 196,
+      "self_seconds": 0.0015375940000000002,
+      "cumulative_seconds": 0.5213834430000001
+    },
+    {
+      "module": "experiment.py",
+      "line": 102,
+      "function": "best_modularity",
+      "calls": 60,
+      "primitive_calls": 60,
+      "self_seconds": 0.000665918,
+      "cumulative_seconds": 0.5198147550000001
+    },
+    {
+      "module": "<class 'networkx.utils.decorators.argmap'> compilation 30",
+      "line": 1,
+      "function": "argmap_louvain_communities_26",
+      "calls": 60,
+      "primitive_calls": 60,
+      "self_seconds": 0.000287942,
+      "cumulative_seconds": 0.48885936500000005
+    },
+    {
+      "module": "louvain.py",
+      "line": 14,
+      "function": "louvain_communities",
+      "calls": 60,
+      "primitive_calls": 60,
+      "self_seconds": 0.0007026710000000001,
+      "cumulative_seconds": 0.487423847
+    },
+    {
+      "module": "louvain.py",
+      "line": 133,
+      "function": "louvain_partitions",
+      "calls": 239,
+      "primitive_calls": 239,
+      "self_seconds": 0.002500313,
+      "cumulative_seconds": 0.48633332300000004
+    },
+    {
+      "module": "random.py",
+      "line": 385,
+      "function": "sample",
+      "calls": 116113,
+      "primitive_calls": 116113,
+      "self_seconds": 0.157689978,
+      "cumulative_seconds": 0.439357082
+    },
+    {
+      "module": "graph.py",
+      "line": 917,
+      "function": "add_edge",
+      "calls": 231696,
+      "primitive_calls": 231696,
+      "self_seconds": 0.204051494,
+      "cumulative_seconds": 0.28812924700000003
+    },
+    {
+      "module": "louvain.py",
+      "line": 227,
+      "function": "_one_level",
+      "calls": 239,
+      "primitive_calls": 239,
+      "self_seconds": 0.072940814,
+      "cumulative_seconds": 0.23254990800000003
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.sum>",
+      "calls": 57390,
+      "primitive_calls": 31341,
+      "self_seconds": 0.028733056000000003,
+      "cumulative_seconds": 0.16798811300000002
+    },
+    {
+      "module": "<class 'networkx.utils.decorators.argmap'> compilation 43",
+      "line": 1,
+      "function": "argmap_modularity_40",
+      "calls": 299,
+      "primitive_calls": 299,
+      "self_seconds": 0.000446445,
+      "cumulative_seconds": 0.16459616800000001
+    },
+    {
+      "module": "quality.py",
+      "line": 144,
+      "function": "modularity",
+      "calls": 299,
+      "primitive_calls": 299,
+      "self_seconds": 0.004077622,
+      "cumulative_seconds": 0.16357426700000002
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "calls": 134138,
+      "primitive_calls": 134138,
+      "self_seconds": 0.034369684000000005,
+      "cumulative_seconds": 0.150344636
+    },
+    {
+      "module": "graph.py",
+      "line": 1118,
+      "function": "remove_edge",
+      "calls": 208240,
+      "primitive_calls": 208240,
+      "self_seconds": 0.071346542,
+      "cumulative_seconds": 0.11741409100000001
+    },
+    {
+      "module": "<frozen abc>",
+      "line": 117,
+      "function": "__instancecheck__",
+      "calls": 116417,
+      "primitive_calls": 116417,
+      "self_seconds": 0.018262284,
+      "cumulative_seconds": 0.115974952
+    },
+    {
+      "module": "random.py",
+      "line": 235,
+      "function": "_randbelow_with_getrandbits",
+      "calls": 242083,
+      "primitive_calls": 242083,
+      "self_seconds": 0.083169053,
+      "cumulative_seconds": 0.11484464800000001
+    },
+    {
+      "module": "quality.py",
+      "line": 246,
+      "function": "community_contribution",
+      "calls": 9948,
+      "primitive_calls": 9948,
+      "self_seconds": 0.012207757000000001,
+      "cumulative_seconds": 0.10785017400000001
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method _abc._abc_instancecheck>",
+      "calls": 116417,
+      "primitive_calls": 116417,
+      "self_seconds": 0.035493202,
+      "cumulative_seconds": 0.097712668
+    },
+    {
+      "module": "misc.py",
+      "line": 645,
+      "function": "_clear_cache",
+      "calls": 443800,
+      "primitive_calls": 443800,
+      "self_seconds": 0.06793529000000001,
+      "cumulative_seconds": 0.096898946
+    },
+    {
+      "module": "louvain.py",
+      "line": 352,
+      "function": "_gen_graph",
+      "calls": 179,
+      "primitive_calls": 179,
+      "self_seconds": 0.020865046,
+      "cumulative_seconds": 0.075085395
+    },
+    {
+      "module": "reportviews.py",
+      "line": 531,
+      "function": "__iter__",
+      "calls": 39770,
+      "primitive_calls": 39770,
+      "self_seconds": 0.018425983,
+      "cumulative_seconds": 0.068681934
+    },
+    {
+      "module": "<frozen abc>",
+      "line": 121,
+      "function": "__subclasscheck__",
+      "calls": 116115,
+      "primitive_calls": 116113,
+      "self_seconds": 0.017265179000000002,
+      "cumulative_seconds": 0.062219466
+    },
+    {
+      "module": "reportviews.py",
+      "line": 856,
+      "function": "__iter__",
+      "calls": 118959,
+      "primitive_calls": 118959,
+      "self_seconds": 0.041839047000000004,
+      "cumulative_seconds": 0.057618317
+    },
+    {
+      "module": "quality.py",
+      "line": 248,
+      "function": "<genexpr>",
+      "calls": 26344,
+      "primitive_calls": 26344,
+      "self_seconds": 0.013389827,
+      "cumulative_seconds": 0.053013959000000006
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method _abc._abc_subclasscheck>",
+      "calls": 116115,
+      "primitive_calls": 116113,
+      "self_seconds": 0.033178313,
+      "cumulative_seconds": 0.044954777
+    }
+  ],
+  "top_self": [
+    {
+      "module": "experiment.py",
+      "line": 121,
+      "function": "double_edge_swap",
+      "calls": 57,
+      "primitive_calls": 57,
+      "self_seconds": 0.252534599,
+      "cumulative_seconds": 1.1389179200000001
+    },
+    {
+      "module": "graph.py",
+      "line": 917,
+      "function": "add_edge",
+      "calls": 231696,
+      "primitive_calls": 231696,
+      "self_seconds": 0.204051494,
+      "cumulative_seconds": 0.28812924700000003
+    },
+    {
+      "module": "random.py",
+      "line": 385,
+      "function": "sample",
+      "calls": 116113,
+      "primitive_calls": 116113,
+      "self_seconds": 0.157689978,
+      "cumulative_seconds": 0.439357082
+    },
+    {
+      "module": "random.py",
+      "line": 235,
+      "function": "_randbelow_with_getrandbits",
+      "calls": 242083,
+      "primitive_calls": 242083,
+      "self_seconds": 0.083169053,
+      "cumulative_seconds": 0.11484464800000001
+    },
+    {
+      "module": "louvain.py",
+      "line": 227,
+      "function": "_one_level",
+      "calls": 239,
+      "primitive_calls": 239,
+      "self_seconds": 0.072940814,
+      "cumulative_seconds": 0.23254990800000003
+    },
+    {
+      "module": "graph.py",
+      "line": 1118,
+      "function": "remove_edge",
+      "calls": 208240,
+      "primitive_calls": 208240,
+      "self_seconds": 0.071346542,
+      "cumulative_seconds": 0.11741409100000001
+    },
+    {
+      "module": "misc.py",
+      "line": 645,
+      "function": "_clear_cache",
+      "calls": 443800,
+      "primitive_calls": 443800,
+      "self_seconds": 0.06793529000000001,
+      "cumulative_seconds": 0.096898946
+    },
+    {
+      "module": "reportviews.py",
+      "line": 856,
+      "function": "__iter__",
+      "calls": 118959,
+      "primitive_calls": 118959,
+      "self_seconds": 0.041839047000000004,
+      "cumulative_seconds": 0.057618317
+    },
+    {
+      "module": "louvain.py",
+      "line": 248,
+      "function": "<listcomp>",
+      "calls": 239,
+      "primitive_calls": 239,
+      "self_seconds": 0.039599227,
+      "cumulative_seconds": 0.039599227
+    },
+    {
+      "module": "louvain.py",
+      "line": 335,
+      "function": "_neighbor_weights",
+      "calls": 39861,
+      "primitive_calls": 39861,
+      "self_seconds": 0.038670524000000005,
+      "cumulative_seconds": 0.040559151
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method _abc._abc_instancecheck>",
+      "calls": 116417,
+      "primitive_calls": 116417,
+      "self_seconds": 0.035493202,
+      "cumulative_seconds": 0.097712668
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "calls": 134138,
+      "primitive_calls": 134138,
+      "self_seconds": 0.034369684000000005,
+      "cumulative_seconds": 0.150344636
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method _abc._abc_subclasscheck>",
+      "calls": 116115,
+      "primitive_calls": 116113,
+      "self_seconds": 0.033178313,
+      "cumulative_seconds": 0.044954777
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.getattr>",
+      "calls": 443833,
+      "primitive_calls": 443833,
+      "self_seconds": 0.028970824000000003,
+      "cumulative_seconds": 0.028970824000000003
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.sum>",
+      "calls": 57390,
+      "primitive_calls": 31341,
+      "self_seconds": 0.028733056000000003,
+      "cumulative_seconds": 0.16798811300000002
+    },
+    {
+      "module": "graph.py",
+      "line": 1303,
+      "function": "has_edge",
+      "calls": 221702,
+      "primitive_calls": 221702,
+      "self_seconds": 0.028239098,
+      "cumulative_seconds": 0.028239098
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<method 'get' of 'dict' objects>",
+      "calls": 435823,
+      "primitive_calls": 435823,
+      "self_seconds": 0.025369305,
+      "cumulative_seconds": 0.025369305
+    },
+    {
+      "module": "reportviews.py",
+      "line": 540,
+      "function": "<genexpr>",
+      "calls": 193172,
+      "primitive_calls": 193172,
+      "self_seconds": 0.023853986,
+      "cumulative_seconds": 0.030757005
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<built-in method builtins.len>",
+      "calls": 386770,
+      "primitive_calls": 386467,
+      "self_seconds": 0.023208760000000002,
+      "cumulative_seconds": 0.024375465000000002
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<method 'update' of 'dict' objects>",
+      "calls": 291105,
+      "primitive_calls": 291105,
+      "self_seconds": 0.022963624000000002,
+      "cumulative_seconds": 0.022963624000000002
+    },
+    {
+      "module": "louvain.py",
+      "line": 352,
+      "function": "_gen_graph",
+      "calls": 179,
+      "primitive_calls": 179,
+      "self_seconds": 0.020865046,
+      "cumulative_seconds": 0.075085395
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<method 'getrandbits' of '_random.Random' objects>",
+      "calls": 339665,
+      "primitive_calls": 339665,
+      "self_seconds": 0.02028378,
+      "cumulative_seconds": 0.02028378
+    },
+    {
+      "module": "graph.py",
+      "line": 986,
+      "function": "add_edges_from",
+      "calls": 119,
+      "primitive_calls": 119,
+      "self_seconds": 0.018982624,
+      "cumulative_seconds": 0.033858224
+    },
+    {
+      "module": "reportviews.py",
+      "line": 531,
+      "function": "__iter__",
+      "calls": 39770,
+      "primitive_calls": 39770,
+      "self_seconds": 0.018425983,
+      "cumulative_seconds": 0.068681934
+    },
+    {
+      "module": "<frozen abc>",
+      "line": 117,
+      "function": "__instancecheck__",
+      "calls": 116417,
+      "primitive_calls": 116417,
+      "self_seconds": 0.018262284,
+      "cumulative_seconds": 0.115974952
+    },
+    {
+      "module": "<frozen abc>",
+      "line": 121,
+      "function": "__subclasscheck__",
+      "calls": 116115,
+      "primitive_calls": 116113,
+      "self_seconds": 0.017265179000000002,
+      "cumulative_seconds": 0.062219466
+    },
+    {
+      "module": "~",
+      "line": 0,
+      "function": "<method 'add' of 'set' objects>",
+      "calls": 239999,
+      "primitive_calls": 239999,
+      "self_seconds": 0.014459491000000001,
+      "cumulative_seconds": 0.014459491000000001
+    },
+    {
+      "module": "quality.py",
+      "line": 248,
+      "function": "<genexpr>",
+      "calls": 26344,
+      "primitive_calls": 26344,
+      "self_seconds": 0.013389827,
+      "cumulative_seconds": 0.053013959000000006
+    },
+    {
+      "module": "quality.py",
+      "line": 246,
+      "function": "community_contribution",
+      "calls": 9948,
+      "primitive_calls": 9948,
+      "self_seconds": 0.012207757000000001,
+      "cumulative_seconds": 0.10785017400000001
+    },
+    {
+      "module": "<frozen _collections_abc>",
+      "line": 315,
+      "function": "__subclasshook__",
+      "calls": 116115,
+      "primitive_calls": 116115,
+      "self_seconds": 0.011775974000000002,
+      "cumulative_seconds": 0.011775974000000002
+    }
+  ],
+  "max_rss_bytes": 159920128,
+  "limitation": "instrumented profile; not a before/after latency sample",
+  "real_provider_calls": 0,
+  "actual_usd": 0
+}

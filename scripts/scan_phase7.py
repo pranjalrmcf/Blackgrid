@@ -18,10 +18,11 @@ def command(args,timeout=1200):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--image',default='blackgrid:phase7')
+    parser.add_argument('--image',default='blackgrid:phase7',choices=('blackgrid:phase7','blackgrid:phase8'))
     args = parser.parse_args()
-    if args.image != 'blackgrid:phase7': parser.error('this registered check targets blackgrid:phase7')
-    output = ROOT/'docs/production_phase7/evidence'
+    phase=args.image.rsplit('phase',1)[1]
+    output = ROOT/f'docs/production_phase{phase}/evidence'
+    output.mkdir(parents=True,exist_ok=True)
     private = ROOT/'tmp/phase7-scan'
     private.mkdir(exist_ok=True)
     archive = private/'runtime.tar'
@@ -36,19 +37,19 @@ def main():
         '--mount',f'type=bind,source={output},target=/evidence',
         '--mount','type=volume,source=blackgrid-trivy-cache,target=/cache']
     argv = flags+[scanner_digest,'image','--cache-dir','/cache','--scanners','vuln','--pkg-types','os,library',
-        '--list-all-pkgs','--format','json','--output','/evidence/scan_phase7.json','--input','/input/runtime.tar',
+        '--list-all-pkgs','--format','json','--output',f'/evidence/scan_phase{phase}.json','--input','/input/runtime.tar',
         '--timeout','10m','--quiet']
     result = subprocess.run(argv,cwd=ROOT,text=True,capture_output=True,timeout=660)
-    (output/'scan_phase7.log').write_text(result.stderr,encoding='utf-8')
+    (output/f'scan_phase{phase}.log').write_text(result.stderr,encoding='utf-8')
     result.check_returncode()
     version = json.loads(command(['docker','run','--rm','--network','none','--read-only','--cap-drop','ALL',
         '--mount','type=volume,source=blackgrid-trivy-cache,target=/root/.cache/trivy,readonly',
         scanner_digest,'version','--format','json']))
-    scan = json.loads((output/'scan_phase7.json').read_bytes())
+    scan = json.loads((output/f'scan_phase{phase}.json').read_bytes())
     findings = [v for target in scan['Results'] for v in target.get('Vulnerabilities',[])]
     report = dict(image=args.image,image_id=info['Id'],scanner_digest=scanner_digest,
         scanner=version,archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),
-        scan_sha256=hashlib.sha256((output/'scan_phase7.json').read_bytes()).hexdigest(),
+        scan_sha256=hashlib.sha256((output/f'scan_phase{phase}.json').read_bytes()).hexdigest(),
         seconds=time.monotonic()-started,severity_counts=dict(Counter(v['Severity'] for v in findings)),
         coverage=[dict(target=t['Target'],type=t['Type'],packages=len(t.get('Packages',[])),findings=len(t.get('Vulnerabilities',[]))) for t in scan['Results']],
         fixed_version_available=sum(bool(v.get('FixedVersion')) for v in findings),

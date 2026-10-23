@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: blackgrid:phase7
+    image: blackgrid:phase8
     logging:
       driver: json-file
       options:
@@ -32,6 +32,7 @@ services:
       BLACKGRID_DATA_ROOT: /app
       BLACKGRID_EVIDENCE_ROOT: /app/evidence
       BLACKGRID_BENCHMARK_RESULTS_DIR: /app/benchmark-results
+      BLACKGRID_API_TOOL_CACHE: "true"
       BLACKGRID_RUNS_DIR: /app/runs
       BLACKGRID_PORT: "8765"
       BLACKGRID_SHUTDOWN_GRACE_SECONDS: "30"

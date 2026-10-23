@@ -1,0 +1,41 @@
+{
+  "image": "blackgrid:phase8",
+  "image_id": "sha256:23c46e481309677bb6573915e0a1a6d58cd3b75950f520be8cf575c42f2e452f",
+  "scanner_digest": "aquasec/trivy@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222",
+  "scanner": {
+    "Version": "0.76.0",
+    "VulnerabilityDB": {
+      "Version": 2,
+      "NextUpdate": "2026-10-24T07:12:39.668274239Z",
+      "UpdatedAt": "2026-10-23T07:12:39.66827463Z",
+      "DownloadedAt": "2026-10-23T08:15:41.97828386Z"
+    }
+  },
+  "archive_sha256": "6208cc18d01d3f624d6184d1bfa4c92cc4f86b25e6fd83d702f2969d5943945a",
+  "scan_sha256": "94a0a37ef7dbde952418465c9187f653d84d9b07ac1bdbb6dc559d56865896d1",
+  "seconds": 41.21900000004098,
+  "severity_counts": {
+    "LOW": 61,
+    "HIGH": 44,
+    "MEDIUM": 58,
+    "UNKNOWN": 1
+  },
+  "coverage": [
+    {
+      "target": "/input/runtime.tar (debian 13.7)",
+      "type": "debian",
+      "packages": 87,
+      "findings": 164
+    },
+    {
+      "target": "Python",
+      "type": "python-pkg",
+      "packages": 59,
+      "findings": 0
+    }
+  ],
+  "fixed_version_available": 0,
+  "image_uploaded": false,
+  "docker_socket_mounted": false,
+  "private_state_or_credentials_mounted": false
+}

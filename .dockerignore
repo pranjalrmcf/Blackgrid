@@ -18,6 +18,7 @@
 !scripts/ask_api.py
 !scripts/generate_phase6.py
 !scripts/verify_phase7.py
+!scripts/benchmark_phase8.py
 !benchmarks/
 !benchmarks/dev/
 !benchmarks/dev/registry.json

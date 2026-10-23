@@ -1,0 +1,204 @@
+{
+  "version": "production-phase8-v1",
+  "jobs": 10,
+  "scientific_fingerprint_exact": true,
+  "api_result_exact": true,
+  "llm_call_token_and_cost_counters_exact": true,
+  "real_provider_calls": 0,
+  "actual_usd": 0,
+  "creation_to_terminal_medians": {
+    "uncached": 6.886977,
+    "cold_cache": 6.887511,
+    "prime": 6.481511,
+    "warm_cache": 4.447181
+  },
+  "warm_reduction_fraction": 0.3542622546873614,
+  "cold_change_fraction": 7.753764823092979e-05,
+  "raw_samples": {
+    "uncached": [
+      6.886977,
+      6.893667,
+      6.784775
+    ],
+    "cold_cache": [
+      6.887511,
+      7.380019,
+      6.885792
+    ],
+    "prime": [
+      6.481511
+    ],
+    "warm_cache": [
+      4.474583,
+      4.426003,
+      4.447181
+    ]
+  },
+  "span_breakdown": {
+    "uncached": [
+      {
+        "tools": 1.918204,
+        "workflow": 6.88354,
+        "mock_llm": 0.001744,
+        "mock_provider": 9.5e-05,
+        "artifact_persistence": 0.15866,
+        "outside_workflow_seconds": 0.0034369999999999123,
+        "workflow_other_seconds": 4.804931999999999,
+        "observed_job_span_peak_rss_bytes": 220712960
+      },
+      {
+        "tools": 2.28756,
+        "workflow": 6.889854,
+        "mock_llm": 0.002069,
+        "mock_provider": 9.6e-05,
+        "artifact_persistence": 0.159294,
+        "outside_workflow_seconds": 0.0038130000000000663,
+        "workflow_other_seconds": 4.440931,
+        "observed_job_span_peak_rss_bytes": 220893184
+      },
+      {
+        "tools": 2.3216609999999998,
+        "workflow": 6.782847,
+        "mock_llm": 0.001931,
+        "mock_provider": 9.2e-05,
+        "artifact_persistence": 0.160892,
+        "outside_workflow_seconds": 0.0019279999999994857,
+        "workflow_other_seconds": 4.298363000000001,
+        "observed_job_span_peak_rss_bytes": 220893184
+      }
+    ],
+    "cold_cache": [
+      {
+        "tools": 2.023953,
+        "workflow": 6.885626,
+        "mock_llm": 0.002013,
+        "mock_provider": 9.5e-05,
+        "artifact_persistence": 0.180732,
+        "outside_workflow_seconds": 0.0018849999999996925,
+        "workflow_other_seconds": 4.678928,
+        "observed_job_span_peak_rss_bytes": 221687808
+      },
+      {
+        "tools": 2.469396,
+        "workflow": 7.375928,
+        "mock_llm": 0.001768,
+        "mock_provider": 9.4e-05,
+        "artifact_persistence": 0.169739,
+        "outside_workflow_seconds": 0.004090999999999845,
+        "workflow_other_seconds": 4.735025,
+        "observed_job_span_peak_rss_bytes": 221687808
+      },
+      {
+        "tools": 2.425142,
+        "workflow": 6.882747,
+        "mock_llm": 0.002305,
+        "mock_provider": 0.00017,
+        "artifact_persistence": 0.165321,
+        "outside_workflow_seconds": 0.0030450000000001864,
+        "workflow_other_seconds": 4.289979000000001,
+        "observed_job_span_peak_rss_bytes": 221687808
+      }
+    ],
+    "prime": [
+      {
+        "tools": 1.98839,
+        "workflow": 6.478382,
+        "mock_llm": 0.001727,
+        "mock_provider": 9.4e-05,
+        "artifact_persistence": 0.17069,
+        "outside_workflow_seconds": 0.0031290000000003815,
+        "workflow_other_seconds": 4.317575,
+        "observed_job_span_peak_rss_bytes": 221687808
+      }
+    ],
+    "warm_cache": [
+      {
+        "tools": 0.002725,
+        "workflow": 4.471314,
+        "mock_llm": 0.001666,
+        "mock_provider": 9.3e-05,
+        "artifact_persistence": 0.17106,
+        "outside_workflow_seconds": 0.0032690000000004105,
+        "workflow_other_seconds": 4.295863,
+        "observed_job_span_peak_rss_bytes": 221687808
+      },
+      {
+        "tools": 0.0026160000000000003,
+        "workflow": 4.425425,
+        "mock_llm": 0.001817,
+        "mock_provider": 9.6e-05,
+        "artifact_persistence": 0.172464,
+        "outside_workflow_seconds": 0.0005779999999999674,
+        "workflow_other_seconds": 4.248528,
+        "observed_job_span_peak_rss_bytes": 221687808
+      },
+      {
+        "tools": 0.001964,
+        "workflow": 4.443821,
+        "mock_llm": 0.003006,
+        "mock_provider": 0.000108,
+        "artifact_persistence": 0.1629,
+        "outside_workflow_seconds": 0.0033599999999998076,
+        "workflow_other_seconds": 4.275951,
+        "observed_job_span_peak_rss_bytes": 221687808
+      }
+    ]
+  },
+  "api_route_seconds": {
+    "baseline": {
+      "/api/v1/jobs": [
+        0.009654,
+        0.010727,
+        0.006837
+      ],
+      "/api/v1/jobs/{job_id}": [
+        0.003641,
+        0.001909,
+        0.002281
+      ],
+      "/api/v1/jobs/{job_id}/results": [
+        0.894542,
+        0.002483,
+        0.002216
+      ]
+    },
+    "candidate": {
+      "/api/v1/jobs": [
+        0.009368,
+        0.013239,
+        0.008023,
+        0.007376,
+        0.008441,
+        0.007628,
+        0.008534
+      ],
+      "/api/v1/jobs/{job_id}": [
+        0.002689,
+        0.002562,
+        0.002025,
+        0.002009,
+        0.001778,
+        0.001948,
+        0.001737
+      ],
+      "/api/v1/jobs/{job_id}/results": [
+        0.90039,
+        0.00262,
+        0.004282,
+        0.002688,
+        0.00212,
+        0.002311,
+        0.001911
+      ]
+    }
+  },
+  "limitations": [
+    "three timed samples per condition; exploratory, no confidence interval or production SLO",
+    "warm-cache reuse only; no cold-algorithm or LLM inference speed claim",
+    "sequential ASGI client; no TLS/network or concurrent capacity claim",
+    "host not dedicated; separate limited regression container also ran during candidate",
+    "workflow spans include child work; do not add nested categories together",
+    "workflow_other is an unattributed residual including startup/checkpoint work, not a direct import or SQL timing",
+    "no isolated SQL query or real-provider CPU/latency measurement"
+  ]
+}

@@ -24,6 +24,7 @@ from blackgrid.operations.settings import ROOT, Settings
 from blackgrid.operations.api_tools import CATALOG, expanded_results, read_artifact
 from blackgrid.workflow.evidence import ToolEvidence
 from blackgrid.operations import telemetry
+from blackgrid.operations import tool_cache
 
 TOOL_ANALYSES = {name: description for name, (_, description) in CATALOG.items()}
 
@@ -57,6 +58,7 @@ class Jobs:
         self.settings = settings
         self.live_policy = load_policy()
         self.config_sha256 = hashlib.sha256(settings.config.read_bytes()).hexdigest()
+        self.cache_identity = tool_cache.implementation_identity(ROOT) if settings.api_tool_cache else None
         self.root = settings.runs_dir / "api"
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
         if self.root.is_symlink():
@@ -180,13 +182,18 @@ class Jobs:
                 with closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True, timeout=.2)) as db:
                     stage = db.execute("SELECT stage FROM runs LIMIT 1").fetchone()
                     totals = db.execute("SELECT COUNT(1),COALESCE(SUM(actual_usd),0) FROM operations WHERE kind='llm'").fetchone()
-                    tools = db.execute("""SELECT seq,name,state,updated_utc FROM operations
+                    tools = db.execute("""SELECT seq,name,state,updated_utc,records_json FROM operations
                         WHERE kind='tool' ORDER BY seq DESC LIMIT 100""").fetchall()
                 result["progress"].update(stage=stage[0] if stage else row["state"], llm_calls=totals[0], actual_usd=totals[1])
-                for seq, name, state, updated in reversed(tools):
+                for seq, name, state, updated, records in reversed(tools):
                     if name in TOOL_ANALYSES and state in ("prepared", "dispatched", "succeeded", "failed_known"):
+                        try:
+                            saved = json.loads(records or '[]') if len(records or '') <= 262144 else []
+                            cached = any(isinstance(r,dict) and r.get('tool') == name and r.get('cached') is True for r in saved)
+                        except (ValueError,TypeError):
+                            cached = False
                         result["progress"]["tools"].append({"sequence": seq, "tool": name, "state": state,
-                            "analysis": TOOL_ANALYSES[name], "updated_utc": updated})
+                            "analysis": TOOL_ANALYSES[name], "updated_utc": updated,"cached":cached})
                         if state in ("prepared", "dispatched") and row["state"] == "running":
                             result["progress"].update(current_tool=name, analysis=TOOL_ANALYSES[name])
             except sqlite3.Error:
@@ -413,10 +420,13 @@ class Jobs:
                     services.store.import_prior_spend("api:retained-project-accounting", "sprint2", other)
                 finally:
                     services.close()
+            cache = (tool_cache.directory(self.root/'tool-cache',owner,body.mode,self.config_sha256,self.cache_identity)
+                     if self.settings.api_tool_cache else None)
+            cache_args = ['--cache-dir',str(cache.resolve())] if cache else ['--no-cache']
             argv = [sys.executable, "-m", "blackgrid.operations.worker", "run", str(config_path),
                     "--mode", body.mode, "--family", routing, "--condition", body.condition,
                     "--data-root", str(self.settings.data_root.resolve()), "--runs-dir", str(folder.resolve()),
-                    "--cache-dir", str((folder / "cache").resolve()), "--no-cache"]
+                    *cache_args]
             if body.question is not None:
                 argv += ["--question", body.question]
             # Recovery uses the existing checkpoint and receipt verification. Never
@@ -425,7 +435,7 @@ class Jobs:
                 run = self.checkpoint_run(owner, job_id)
                 if run:
                     argv = [sys.executable, "-m", "blackgrid.operations.worker", "resume", run.name,
-                            "--runs-dir", str(folder.resolve()), "--no-cache", "--force-unlock"]
+                            "--runs-dir", str(folder.resolve()), *cache_args, "--force-unlock"]
                 elif any(p.name not in ("execution.lock", "cache", "tool-evidence.json", "telemetry.jsonl") for p in folder.iterdir()):
                     outcome, error = "failed", "partial_artifacts_require_review"
                     return
@@ -498,6 +508,11 @@ class Jobs:
                     process.kill(); process.wait(timeout=3)
             with self.lock:
                 self.process = None
+            if self.settings.api_tool_cache:
+                try:
+                    tool_cache.prune(self.root/'tool-cache')
+                except (OSError,ValueError):
+                    pass  # Disposable optimization data cannot replace a scientific/billing outcome.
             if broker:
                 broker.close()
             if body.mode == "live":

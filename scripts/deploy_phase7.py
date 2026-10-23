@@ -8,8 +8,10 @@ import verify_phase6 as verification
 from verify_phase6 import ROOT,docker
 
 
-def main():
-    output = ROOT/'docs/production_phase7/evidence'
+def main(*, phase='7'):
+    assert phase in ('7','8')
+    output = ROOT/f'docs/production_phase{phase}/evidence'
+    output.mkdir(parents=True,exist_ok=True)
     # Read-only preflight; leave the current service untouched if work is active.
     code = """import sqlite3,json
 c=sqlite3.connect('file:/app/runs/api/jobs.sqlite?mode=ro',uri=True)
@@ -17,7 +19,7 @@ print(c.execute("select count(*) from jobs where state in ('queued','running')")
 """
     assert int(docker('exec','-i','blackgrid-blackgrid-1','python','-',code=code)) == 0,'Wait for active jobs before deployment'
     stamp = datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')+'-'+secrets.token_hex(3)
-    name = 'jobs-pre-phase7-'+stamp+'.sqlite'
+    name = 'jobs-pre-phase'+phase+'-'+stamp+'.sqlite'
     code = """import sqlite3,json,hashlib
 from contextlib import closing
 with closing(sqlite3.connect('/app/runs/api/jobs.sqlite')) as src, closing(sqlite3.connect('/app/runs/api/"""+name+"""')) as dst:
@@ -28,7 +30,7 @@ with closing(sqlite3.connect('/app/runs/api/jobs.sqlite')) as src, closing(sqlit
 """
     baseline = json.loads(docker('exec','-i','blackgrid-blackgrid-1','python','-',code=code))
     (output/'pre_deploy.json').write_text(json.dumps(baseline,indent=2),encoding='utf-8')
-    private = ROOT/'.secrets/phase7-backups'
+    private = ROOT/f'.secrets/phase{phase}-backups'
     private.mkdir(mode=0o700,exist_ok=True)
     docker('compose','stop','blackgrid')
     try:
@@ -36,17 +38,17 @@ with closing(sqlite3.connect('/app/runs/api/jobs.sqlite')) as src, closing(sqlit
             '--security-opt','no-new-privileges','--memory','2g','--cpus','1','--pids-limit','128',
             '--tmpfs','/tmp:size=64m,mode=1777','--mount','type=volume,source=blackgrid_blackgrid-state,target=/app/runs',
             '--mount',f'type=bind,source={private},target=/private',
-            '--entrypoint','python','blackgrid:phase7','-m','blackgrid.operations.backup',
+            '--entrypoint','python','blackgrid:phase'+phase,'-m','blackgrid.operations.backup',
             'create','/app/runs','/private/'+stamp))
-        info['private_destination'] = '.secrets/phase7-backups/'+stamp
+        info['private_destination'] = f'.secrets/phase{phase}-backups/'+stamp
         (output/'production_backup.json').write_text(json.dumps(info,indent=2),encoding='utf-8')
     except Exception:
         # The old container still has its original image/config/volume.
         docker('start','blackgrid-blackgrid-1')
         raise
-    assert 'image: blackgrid:phase7' in (ROOT/'docker-compose.yml').read_text()
+    assert 'image: blackgrid:phase'+phase in (ROOT/'docker-compose.yml').read_text()
     verification.OUTPUT = output
-    verification.main(initial_stopped=True)
+    verification.main(initial_stopped=True,repeat_warm=phase=='8')
 
 
 if __name__ == '__main__': main()

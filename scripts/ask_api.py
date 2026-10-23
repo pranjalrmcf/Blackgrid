@@ -18,7 +18,8 @@ def tool_messages(progress, seen):
     for item in progress.get("tools", []):
         key = item["sequence"]
         if seen.get(key) != item["state"]:
-            messages.append(f"[{item['updated_utc']}] Tool: {item['tool']} | {item['state']} | Analysis: {item['analysis']}")
+            suffix = " | Cache: verified hit" if item.get('cached') else ""
+            messages.append(f"[{item['updated_utc']}] Tool: {item['tool']} | {item['state']} | Analysis: {item['analysis']}"+suffix)
             seen[key] = item["state"]
     return messages
 

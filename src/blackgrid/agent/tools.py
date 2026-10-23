@@ -22,6 +22,7 @@ import json
 import os
 import socket
 import time
+import tempfile
 from contextvars import ContextVar
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -292,7 +293,7 @@ def execute(raw: object, ctx: ToolContext) -> ToolResult:
             else:
                 with network_denied():
                     output = _run(name, ctx)
-                _cache_put(ctx, name, key, output)
+                rejected = _cache_put(ctx, name, key, output) or rejected
         artifact = ARTIFACT_NAMES[name]
         ctx.outputs[artifact] = output
         outcome = Outcome.ABSTAINED if output.get("verdict") == "abstain" else Outcome.COMPLETED
@@ -443,9 +444,13 @@ def _cache_get(ctx: ToolContext, name: str, key: str) -> tuple[dict | None, str 
     if ctx.cache_dir is None:
         return None, None
     path = ctx.cache_dir / f"{key}.json"
-    if not path.is_file():
-        return None, None
     try:
+        if path.is_symlink():
+            raise ValueError("cache entry is a link")
+        if not path.is_file():
+            return None, None
+        if path.stat().st_size > 8*1024**2:
+            raise ValueError("cache entry exceeds byte limit")
         entry = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(entry, dict) or "payload" not in entry:
             raise ValueError("not a v2 cache envelope (stale version)")
@@ -468,15 +473,26 @@ def _cache_get(ctx: ToolContext, name: str, key: str) -> tuple[dict | None, str 
         return None, reason
 
 
-def _cache_put(ctx: ToolContext, name: str, key: str, output: dict) -> None:
+def _cache_put(ctx: ToolContext, name: str, key: str, output: dict) -> str | None:
     if ctx.cache_dir is None:
         return
-    ctx.cache_dir.mkdir(parents=True, exist_ok=True)
-    entry = _identity(name, key, ctx) | {"payload_sha256": _payload_sha(output), "payload": output}
-    path = ctx.cache_dir / f"{key}.json"
-    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
-    with tmp.open("wb") as fh:  # write-then-rename: an interrupted write never looks like a valid entry
-        fh.write(json.dumps(entry, sort_keys=True).encode("utf-8"))
-        fh.flush()
-        os.fsync(fh.fileno())
-    os.replace(tmp, path)
+    temporary = None
+    try:
+        ctx.cache_dir.mkdir(parents=True, exist_ok=True)
+        entry = _identity(name, key, ctx) | {"payload_sha256": _payload_sha(output), "payload": output}
+        payload = json.dumps(entry, sort_keys=True).encode("utf-8")
+        if len(payload) > 8*1024**2: return 'cache_entry_too_large'
+        path = ctx.cache_dir / f"{key}.json"
+        with tempfile.NamedTemporaryFile(dir=ctx.cache_dir,prefix=key+'.',suffix='.tmp',delete=False) as fh:
+            temporary = Path(fh.name)
+            fh.write(payload)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(temporary,path)
+        return None
+    except OSError:
+        return 'cache_write_unavailable'
+    finally:
+        if temporary is not None:
+            try: temporary.unlink(missing_ok=True)
+            except OSError: pass
