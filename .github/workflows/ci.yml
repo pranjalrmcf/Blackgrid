@@ -51,6 +51,8 @@ jobs:
       - name: Scan exact runtime image without private data
         run: |
           docker save -o /tmp/blackgrid-release.tar blackgrid:phase9
+          # Dropped capabilities prevent overriding the archive owner's file permissions.
+          chmod 0644 /tmp/blackgrid-release.tar
           docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
             --memory 2g --cpus 1 --pids-limit 128 --tmpfs /tmp:size=768m,mode=1777 \
             --mount type=bind,source=/tmp/blackgrid-release.tar,target=/input/image.tar,readonly \
