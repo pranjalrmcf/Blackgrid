@@ -1,0 +1,390 @@
+{
+  "version": "production-phase7-v1",
+  "checks": 669,
+  "failures": 0,
+  "skipped": 0,
+  "fixture_pass_fraction": 1.0,
+  "not_production_reliability_estimate": true,
+  "fault_matrix": {
+    "worker_and_restart": {
+      "executed": 5,
+      "passed": 5,
+      "case_execution_seconds": 54.484,
+      "cases": [
+        {
+          "module": "tests.test_api",
+          "name": "test_parallel_duplicate_and_restart_do_not_rerun",
+          "full_name_sha256": "3c63c5865139eb70db53321f6b05ca45ce3694a022641379503e88d4ce962a66"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_interrupted_job_keeps_identity_and_second_process_is_rejected",
+          "full_name_sha256": "f9c93e8c92515da67be2d6ffebf2418e2a60db756028308877f595a9f9a04d35"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_queued_request_survives_restart_with_same_identity",
+          "full_name_sha256": "1e9e19c8e469c03e2a5ae99dfb0f93e4531e2050b4cddcf276f6842e2e665554"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_checkpoint_resume_matches_clean_run_without_second_manifest",
+          "full_name_sha256": "0407f8a6f6a9eaf39ccb13af0349c0558781267e3b6084bf967235ce1c954914"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_real_worker_crash_after_receipt_resumes_with_exact_clean_parity",
+          "full_name_sha256": "07777a6419c43fbaf5e2e8a83e8928ffc0194ee77005cc6dacfbca95208b654d"
+        }
+      ]
+    },
+    "storage_and_partial_output": {
+      "executed": 13,
+      "passed": 13,
+      "case_execution_seconds": 4.247,
+      "cases": [
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[artifact]",
+          "full_name_sha256": "9e172bf68326cb62945a0727611871014c17781192a2cab97af5eb2e9794474f"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[database]",
+          "full_name_sha256": "2662a25a94eba4922b3dd272c5a57af5972f96259b72dd4e8ef062288ad572d8"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[missing]",
+          "full_name_sha256": "ce7382fd3563142d66e116f6cecc3b43e8f44911f3f160c73edf69fbe65f99d3"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[extra]",
+          "full_name_sha256": "234f7bb6a8d5aa7c38851683062dcb9c53897edbac1b332e41fd9fa86079ba0f"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[traversal]",
+          "full_name_sha256": "19be45642462c6e436952b4ff17ef2e91d6739e76faf93aa732f1ad15e06ac27"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[size]",
+          "full_name_sha256": "0d3e84464e56a999912dd15b1103674b0fa8efd7e8f9af874e000ff0dad5b5aa"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_corrupt_source_database_cannot_publish_snapshot",
+          "full_name_sha256": "83ba2b35860262f507ca5e1df91f3afe0ac510357814a5af85da4ab8bc016be5"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_partial_artifacts_do_not_start_a_second_run",
+          "full_name_sha256": "620b928d33830af93602e4f281635316b355c2684dc449045c80d007baef7aed"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_database_failure_stops_admission_and_preserves_durable_queue",
+          "full_name_sha256": "7f0ac56ed5ab173b56aadb2f091d69030a43ae475745be34e6c9688926da41b3"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_idle_database_failure_makes_readiness_unavailable",
+          "full_name_sha256": "dd0ddaab5d49c52bbe612a848348f8ba3d6a550b7f5c3901bcf772c03fe3284a"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_actual_sqlite_read_only_failure_rolls_back_admission",
+          "full_name_sha256": "4f82615ad8dd8021096e1193e989f65d39789dc4e32d33c9622f4907cc505b41"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_partial_artifact_returns_stable_unavailable_and_cross_owner_stays_denied",
+          "full_name_sha256": "fda981672a91d15024447b658e805f8a5e1719758947008a66b929fde4edc62e"
+        },
+        {
+          "module": "tests.test_workflow",
+          "name": "test_tampered_artifact_blocks_completion",
+          "full_name_sha256": "18f443dabaf4c6a24e6f8d8907cc84fc3a98688ea6b95aa3e28036a4ba62bcf0"
+        }
+      ]
+    },
+    "provider_failures": {
+      "executed": 10,
+      "passed": 10,
+      "case_execution_seconds": 0.135,
+      "cases": [
+        {
+          "module": "tests.test_agent",
+          "name": "test_provider_errors_are_booked_at_worst_case[permanent-1]",
+          "full_name_sha256": "be945bff286fa7ee6e2c89c6b279323d284ef6f50a344ddb361bae523d7a757c"
+        },
+        {
+          "module": "tests.test_agent",
+          "name": "test_provider_errors_are_booked_at_worst_case[transient-2]",
+          "full_name_sha256": "fa7679d78307cff44400d345a0c663245b23fc2504f14db9e960e44257e15db0"
+        },
+        {
+          "module": "tests.test_agent",
+          "name": "test_invalid_json_gets_one_retry_then_fails",
+          "full_name_sha256": "8297bb4904070060dcd7eb5797ca2c6736b5ac8d15e2e4d3257ea03db70f22e9"
+        },
+        {
+          "module": "tests.test_api_live",
+          "name": "test_uncertain_provider_failure_keeps_full_reservation",
+          "full_name_sha256": "44933f2e09c09e0000e29b94c1b8f1c4209c65a6c908427ea43b0194f0aafe00"
+        },
+        {
+          "module": "tests.test_http_transport_limits",
+          "name": "test_transport_process_is_killed_at_wall_deadline",
+          "full_name_sha256": "baa901e5bdf2e4a39479654d2f786eab661ac4847310186902ce3a94a1a623ca"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_provider_status_is_classified_without_key_or_body_disclosure[429-transient]",
+          "full_name_sha256": "cb22fe436e5e7f4bad38a8e6f6c8815fa3a21bc239d31af91600f48796df9c24"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_provider_status_is_classified_without_key_or_body_disclosure[503-transient]",
+          "full_name_sha256": "7083686052ce9c89a31024f1e9d912e6ecb4d942fbdb27f5ec52a9a5668bd85d"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_provider_status_is_classified_without_key_or_body_disclosure[401-permanent]",
+          "full_name_sha256": "785c7cfeaef4ba02223ca78f0ea887daea3d209d7931d806f4d4fa9ba843ab81"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_provider_malformed_or_oversized_output_remains_uncertain[{]",
+          "full_name_sha256": "8c5eaead5f110bf0db02ff15fa5a7c261949256a95b946f9b0d4250b1cfb27d6"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_provider_malformed_or_oversized_output_remains_uncertain[PRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVATEPRIVAT",
+          "full_name_sha256": "5a2c9cbc8edf659d0ed4fa7c77ab08af669c574f52a69aef3c425503b7032ff8"
+        }
+      ]
+    },
+    "resource_and_admission": {
+      "executed": 5,
+      "passed": 5,
+      "case_execution_seconds": 2.6919999999999997,
+      "cases": [
+        {
+          "module": "tests.test_agent",
+          "name": "test_budget_exhaustion_is_a_recorded_outcome",
+          "full_name_sha256": "724b6bf9e1c72f1526b0c8859d5c3c13d614f0580aee9cf7c42bb173e8e92e0a"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_rate_limit_is_per_authenticated_subject",
+          "full_name_sha256": "1d18b49e27b6c705f76f83886eea2dacd6235f81981566f35420407ae1b137d9"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_concurrent_unique_submissions_are_bounded_and_execute_once",
+          "full_name_sha256": "015f28fe834938bf68d67146dace7b5fad20884b397af2865362bda206d2833c"
+        },
+        {
+          "module": "tests.test_job_reliability",
+          "name": "test_execution_deadline_stops_child_and_is_not_retried",
+          "full_name_sha256": "153ee03fa98d3c6ac3401981e8da1cf9171c680a3472732140d90742b29ef2c2"
+        },
+        {
+          "module": "tests.test_phase7",
+          "name": "test_memory_exhausted_child_is_terminal_and_not_blindly_retried",
+          "full_name_sha256": "26090d04fff03891fabe27d7c616fd9c1ba97b33ecdc736100669583db0ca2f4"
+        }
+      ]
+    },
+    "ownership_and_adversarial_inputs": {
+      "executed": 17,
+      "passed": 17,
+      "case_execution_seconds": 0.36000000000000015,
+      "cases": [
+        {
+          "module": "tests.test_agent",
+          "name": "test_prompt_injection_cannot_reach_code_execution",
+          "full_name_sha256": "8e4864895bdf2064cfdfe55fafbbc3cd907bb231c82f7823c9b9ac79c0f5531c"
+        },
+        {
+          "module": "tests.test_agent",
+          "name": "test_answer_key_request_stops_both_conditions",
+          "full_name_sha256": "d0459c1d5a99e095d3827c8b1115066641f3ef3b537ab4e49dfbc6dd2d95e98f"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_owner_boundaries_cover_status_cancel_results_and_artifacts",
+          "full_name_sha256": "0d1e5180864fbf88b14040b4514fd882e5e4d78fcd6883ad02b03df2b07fe114"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body0]",
+          "full_name_sha256": "708e5b848d38f10976b73c440b7ad601b8f8b3e100822b791691c8930b31ea8d"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body1]",
+          "full_name_sha256": "b3917e52b0e2bb43b73b9a638ce4f52bb6d414cb7a79bffb0b6c7ca451f160de"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body2]",
+          "full_name_sha256": "2d7a01c5d872a9672777846a4b585a06d3fffcb8532819e9ebfbe27966c660f4"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body3]",
+          "full_name_sha256": "898adefb8d35f1ed4c4ed7ef63b3df0cf23cb4cdd51a45436c28fe3abfbbb48f"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body4]",
+          "full_name_sha256": "7778bd1797505cc3312e3a8cc646b4ad511278611b6a2a69488b9e66dd929d3f"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body5]",
+          "full_name_sha256": "2884e19290689840c251b9ad00fb14d812f9cf7ed55c3f0300e0b4d616949bad"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body6]",
+          "full_name_sha256": "32bd0bae1e1b3f24de6ba88dbb5f941021d3f19614b0f37a9e4c1144f938f611"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[shell]",
+          "full_name_sha256": "c3547c8d69340773159d409f2075c4d5645b7f68187d241c238c9176b578136c"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_invalid_requests_fail_without_worker[body8]",
+          "full_name_sha256": "bde6ca2726e594a67124f4ea8d0ae795c374355ece7186adabba58ab369a1d3b"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_traversal_and_only_allowlisted_summary_artifact",
+          "full_name_sha256": "66014cefccff2929d6876a069b32e8813172c04d9c1a54ec53e232cce9133726"
+        },
+        {
+          "module": "tests.test_api",
+          "name": "test_ambiguous_framing_duplicate_auth_and_duplicate_keys",
+          "full_name_sha256": "43844869372ab2d84eebfb9d1cbc0dacf4c5c4b99019f117344020525269fd5c"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[traversal]",
+          "full_name_sha256": "19be45642462c6e436952b4ff17ef2e91d6739e76faf93aa732f1ad15e06ac27"
+        },
+        {
+          "module": "tests.test_dashboard",
+          "name": "test_dashboard_public_assets_but_private_data_and_scoped_secure_cookie",
+          "full_name_sha256": "826c9045075f2db458002105d9247ef45349de5c1900738035c6329ea526e3e8"
+        },
+        {
+          "module": "tests.test_dashboard",
+          "name": "test_browser_origin_exception_does_not_relax_existing_api",
+          "full_name_sha256": "3bba44d2003c96d0bf0253fb2a084d9992bc53cc8cbc50fc8cfffd1d9c8b5286"
+        }
+      ]
+    },
+    "backup_integrity": {
+      "executed": 12,
+      "passed": 12,
+      "case_execution_seconds": 0.03,
+      "cases": [
+        {
+          "module": "tests.test_backup",
+          "name": "test_snapshot_restores_database_artifact_and_held_spend_exactly",
+          "full_name_sha256": "84ee83a4d80082d7137889a78b9e4fd5e778833db2f881f42defb7c3b77ce2a2"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[artifact]",
+          "full_name_sha256": "9e172bf68326cb62945a0727611871014c17781192a2cab97af5eb2e9794474f"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[database]",
+          "full_name_sha256": "2662a25a94eba4922b3dd272c5a57af5972f96259b72dd4e8ef062288ad572d8"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[missing]",
+          "full_name_sha256": "ce7382fd3563142d66e116f6cecc3b43e8f44911f3f160c73edf69fbe65f99d3"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[extra]",
+          "full_name_sha256": "234f7bb6a8d5aa7c38851683062dcb9c53897edbac1b332e41fd9fa86079ba0f"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[traversal]",
+          "full_name_sha256": "19be45642462c6e436952b4ff17ef2e91d6739e76faf93aa732f1ad15e06ac27"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_bad_snapshot_never_publishes_destination[size]",
+          "full_name_sha256": "0d3e84464e56a999912dd15b1103674b0fa8efd7e8f9af874e000ff0dad5b5aa"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_snapshot_refuses_active_api_and_orphan_worker_lease",
+          "full_name_sha256": "87866777dcd359552abf7c5815973e94e7b5a2ac8f472b059e77aa325eb53710"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_corrupt_source_database_cannot_publish_snapshot",
+          "full_name_sha256": "83ba2b35860262f507ca5e1df91f3afe0ac510357814a5af85da4ab8bc016be5"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_wal_snapshot_stays_self_contained_across_repeated_verification",
+          "full_name_sha256": "143cf24e0edc0440ff097327fe27195cc8ccfcb1bfb38f5bf3183a4bad1fc394"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_snapshot_rejects_symlinks_instead_of_following_them",
+          "full_name_sha256": "0a5bf46b932a290f86ac11dc5ff71ccc58c5b633320a988ef03d35350e84855d"
+        },
+        {
+          "module": "tests.test_backup",
+          "name": "test_closed_api_state_restores_same_job_without_reexecution",
+          "full_name_sha256": "27e351929c1f4e9e1a21b2a5ddb8cd5b8b44f56bf9fa0eb978a1f81efbcbd381"
+        }
+      ]
+    }
+  },
+  "image_id": "sha256:fe87bd726b8c1366db1dc27ff22cd73fe8f6f565706c27678fe9426306fcdd58",
+  "test_image_id": "sha256:3840ac276a1ed3f2f6b46a52586fe2b24a97274c8584009a9c1371c4858304b1",
+  "source_revision": "9c10ce62a58b80aca1cac8bc52a44e11da58eb35",
+  "source_dirty": true,
+  "critical_scanner_findings": 0,
+  "remaining_os_findings": {
+    "LOW": 61,
+    "HIGH": 44,
+    "MEDIUM": 58,
+    "UNKNOWN": 1
+  },
+  "paid_calls": 0,
+  "new_provider_usd": 0,
+  "original_job_rows_exact": 36,
+  "api_charged_usd": 0.015085346000000001,
+  "scientific_parity_exact": true,
+  "restored_files_exact": 24,
+  "duplicate_jobs_in_restore_drill": 0,
+  "lost_jobs_in_restore_drill": 0,
+  "limits": [
+    "single-host trusted-tool deployment",
+    "local exploratory engineering fixtures",
+    "unpatched OS advisories retained",
+    "no physical power-loss test",
+    "no real provider fault injection",
+    "no multi-host failover",
+    "vLLM out of scope"
+  ]
+}

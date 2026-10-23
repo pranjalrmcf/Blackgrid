@@ -1,0 +1,90 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.62kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#3 DONE 2.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 503B done
+#4 DONE 0.0s
+
+#5 [dependencies 1/5] FROM docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#5 resolve docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#6 resolve ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 427.51kB 0.0s done
+#7 DONE 0.0s
+
+#8 [dependencies 5/5] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
+#8 CACHED
+
+#9 [dependencies 4/5] COPY pyproject.toml uv.lock README.md ./
+#9 CACHED
+
+#10 [dependencies 3/5] WORKDIR /build
+#10 CACHED
+
+#11 [dependencies 2/5] COPY --from=uv /uv /usr/local/bin/uv
+#11 CACHED
+
+#12 [test-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --no-install-project
+#12 CACHED
+
+#13 [runtime 2/9] WORKDIR /app
+#13 CACHED
+
+#14 [runtime 3/9] RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid     && chmod 0555 /usr/local/bin/blackgrid
+#14 CACHED
+
+#15 [runtime 4/9] COPY --from=dependencies /opt/venv /opt/venv
+#15 CACHED
+
+#16 [runtime 5/9] COPY src/ ./src/
+#16 DONE 0.0s
+
+#17 [runtime 6/9] COPY configs/ ./configs/
+#17 DONE 0.0s
+
+#18 [runtime 7/9] COPY protocols/ ./protocols/
+#18 DONE 0.0s
+
+#19 [runtime 8/9] COPY docs/sprint04_review_rubric.md ./docs/sprint04_review_rubric.md
+#19 DONE 0.0s
+
+#20 [runtime 9/9] COPY pyproject.toml uv.lock README.md LICENSE ./
+#20 DONE 0.0s
+
+#21 [test 1/4] COPY --from=test-dependencies /opt/venv /opt/venv
+#21 DONE 1.0s
+
+#22 [test 2/4] COPY tests/ ./tests/
+#22 DONE 0.1s
+
+#23 [test 3/4] COPY scripts/ask_api.py ./scripts/ask_api.py
+#23 DONE 0.0s
+
+#24 [test 4/4] COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
+#24 DONE 0.0s
+
+#25 exporting to image
+#25 exporting layers
+#25 exporting layers 7.2s done
+#25 exporting manifest sha256:f269ca2db6df4deadd5c760cfeef2816258e27838a654cb90412b9eab50d180d 0.0s done
+#25 exporting config sha256:a66f7855508d2cccce8a94d6f7f203e70f09de6e4d52d00f75787ae44a443a63 done
+#25 exporting attestation manifest sha256:02625a957b2ede42165766fd0930b6848d6b558ada90ce49f124b5c9e231ceb4 0.0s done
+#25 exporting manifest list sha256:4a2d296178b99848d76fae2d6b75f7c13bb8ab6b3f48e634b0409f80ba5d16e9 done
+#25 naming to docker.io/library/blackgrid:phase5-test done
+#25 unpacking to docker.io/library/blackgrid:phase5-test
+#25 unpacking to docker.io/library/blackgrid:phase5-test 1.5s done
+#25 DONE 8.8s

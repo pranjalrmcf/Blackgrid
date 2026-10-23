@@ -1,0 +1,37 @@
+[
+  {
+    "elapsed_s": 0.025357264999911422,
+    "method": "GET",
+    "milliseconds": 22.358082998835016,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.48587932800001,
+    "method": "GET",
+    "milliseconds": 6.296139999903971,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.791293176996987,
+    "method": "GET",
+    "milliseconds": 5.615155001578387,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 9.854181061997224,
+    "method": "GET",
+    "milliseconds": 8.236878002207959,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 13.346114234998822,
+    "method": "GET",
+    "milliseconds": 5.8045610021508764,
+    "route": "capabilities",
+    "status": 200
+  }
+]

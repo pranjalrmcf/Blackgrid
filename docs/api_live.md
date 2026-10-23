@@ -1,6 +1,6 @@
 # Existing live LLM workflow through the API
 
-Live API requests are now available in the same Compose service. Mock remains the default. Only configured first-window community questions are exposed by this API; other original host CLI capabilities remain available separately. There is no silent fallback from live to mock.
+Live API requests are available in the same Compose service. Mock remains the default. Questions use the existing automatic planner/controller routing across all 18 registered tools; clients do not need to choose a category. Results state the relevant observed-window, full-history forecast or saved synthetic research scope. See [the tool integration and prerequisites](api_tools.md). There is no silent fallback from live to mock.
 
 ## Make the first live call
 
@@ -28,7 +28,7 @@ This installation retains the existing **USD 3 absolute project ceiling**, impor
 
 Every new live job reserves its whole per-investigation cap in the shared API metadata transaction before launch. Duplicate requests share that reservation. Settled authoritative charges replace it; unknown/interrupted work retains it. Prior spend plus other API charges/holds are imported into each isolated workflow ledger, so a new job folder cannot reset the project ceiling. The policy/config identity is retained across restarts; changed grant configuration is rejected until deliberate ledger review/migration.
 
-Historical accounting is a reviewed host-ledger snapshot at setup. Do not run other paid legacy host CLI sessions concurrently: coordination across independent host/legacy ledgers is not implemented. Use one API process and the existing one-job admission gate. Broader shared-ledger scheduling, recovery and operator reconciliation remain Phase 4.
+Historical accounting is a reviewed host-ledger snapshot at setup. Do not run other paid legacy host CLI sessions concurrently: coordination across independent host/legacy ledgers is not implemented. Use one API process. Phase 4 accepts up to eight waiting jobs and executes one at a time, reserving each whole live cap atomically at acceptance. Never-dispatched waiting cancellation releases that reservation; interrupted running live work remains held for operator review. See [recovery and accounting limits](production_phase4/report.md).
 
 The JSON submission is `{"mode":"live","allow_paid":true,"question":"..."}`. The authenticated subject must be in the operator's live policy. Clients cannot select provider secrets, models, endpoints or budget ceilings. Missing authorization/exhaustion returns 403; invalid request flags return 422. Unknown pricing produces no completion dispatch and a stable `pricing_unavailable` failure. Pricing availability is confirmed afresh by the original provider before any paid request.
 

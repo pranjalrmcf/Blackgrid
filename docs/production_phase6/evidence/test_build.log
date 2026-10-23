@@ -1,0 +1,94 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 3.15kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#2 DONE 0.0s
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 583B done
+#4 DONE 0.0s
+
+#5 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#5 resolve ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c 0.0s done
+#5 DONE 0.0s
+
+#6 [dependencies 1/5] FROM docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#6 resolve docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 444.60kB 0.1s done
+#7 DONE 0.1s
+
+#8 [runtime 7/9] COPY protocols/ ./protocols/
+#8 CACHED
+
+#9 [runtime 5/9] COPY src/ ./src/
+#9 CACHED
+
+#10 [dependencies 4/5] COPY pyproject.toml uv.lock README.md ./
+#10 CACHED
+
+#11 [runtime 4/9] COPY --from=dependencies /opt/venv /opt/venv
+#11 CACHED
+
+#12 [dependencies 3/5] WORKDIR /build
+#12 CACHED
+
+#13 [dependencies 5/5] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
+#13 CACHED
+
+#14 [dependencies 2/5] COPY --from=uv /uv /usr/local/bin/uv
+#14 CACHED
+
+#15 [test-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --no-install-project
+#15 CACHED
+
+#16 [runtime 2/9] WORKDIR /app
+#16 CACHED
+
+#17 [runtime 8/9] COPY docs/sprint04_review_rubric.md ./docs/sprint04_review_rubric.md
+#17 CACHED
+
+#18 [runtime 9/9] COPY pyproject.toml uv.lock README.md LICENSE ./
+#18 CACHED
+
+#19 [runtime 3/9] RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid     && chmod 0555 /usr/local/bin/blackgrid
+#19 CACHED
+
+#20 [runtime 6/9] COPY configs/ ./configs/
+#20 CACHED
+
+#21 [test 1/6] COPY --from=test-dependencies /opt/venv /opt/venv
+#21 CACHED
+
+#22 [test 2/6] COPY tests/ ./tests/
+#22 DONE 0.0s
+
+#23 [test 3/6] COPY scripts/ask_api.py ./scripts/ask_api.py
+#23 DONE 0.0s
+
+#24 [test 4/6] COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
+#24 DONE 0.0s
+
+#25 [test 5/6] COPY benchmarks/production/ ./benchmarks/production/
+#25 DONE 0.0s
+
+#26 [test 6/6] COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
+#26 DONE 0.0s
+
+#27 exporting to image
+#27 exporting layers 0.1s done
+#27 exporting manifest sha256:e6f3f9f0fde2d37aa34a25b36e0bf520402344baf2a7bb56eacc91cd0db16957 done
+#27 exporting config sha256:db496fdb012c47988cab6703648c23d479ea210a3631c423345f876c68a2a640 0.0s done
+#27 exporting attestation manifest sha256:c69ae43857cdbc0a54b39a2ffb35f47f6c75ae4e879ee52494cba85908f412a3 0.0s done
+#27 exporting manifest list sha256:93234fe06b8f3713ff0c4eb579d16c2c2707ce7ce6133456c957cf9756bd8abe 0.0s done
+#27 naming to docker.io/library/blackgrid:phase6-test done
+#27 unpacking to docker.io/library/blackgrid:phase6-test 0.1s done
+#27 DONE 0.3s

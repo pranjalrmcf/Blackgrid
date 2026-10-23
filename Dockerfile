@@ -1,5 +1,5 @@
-# Registry digests inspected on 2026-10-22. Update deliberately and rerun parity.
-ARG PYTHON_IMAGE=python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+# Phase 7: same Python, Debian security refresh; digest inspected 2026-10-23.
+ARG PYTHON_IMAGE=python:3.11.17-slim-trixie@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
 FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c AS uv
 FROM ${PYTHON_IMAGE} AS dependencies
 COPY --from=uv /uv /usr/local/bin/uv
@@ -15,6 +15,9 @@ RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-ex
 FROM dependencies AS test-dependencies
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --all-extras --no-install-project
 
+FROM dependencies AS benchmark-dependencies
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --group benchmark --all-extras --no-install-project
+
 FROM ${PYTHON_IMAGE} AS runtime
 ENV PATH=/opt/venv/bin:$PATH PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 PYTHONNOUSERSITE=1 BLACKGRID_ENV=production \
@@ -22,6 +25,9 @@ ENV PATH=/opt/venv/bin:$PATH PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 \
     BLACKGRID_DATA_ROOT=/app BLACKGRID_RUNS_DIR=/app/runs \
     BLACKGRID_SHUTDOWN_GRACE_SECONDS=30 HOME=/tmp
 WORKDIR /app
+# Runtime is installed with uv in a separate stage; remove unused base packaging
+# tools (including their vulnerable vendored copies), not application packages.
+RUN /usr/local/bin/python -m pip uninstall -y pip setuptools wheel
 RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid \
     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs \
     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid \
@@ -43,8 +49,18 @@ CMD ["serve"]
 FROM runtime AS test
 COPY --from=test-dependencies /opt/venv /opt/venv
 COPY tests/ ./tests/
+COPY scripts/ask_api.py ./scripts/ask_api.py
+COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
+COPY scripts/verify_phase7.py ./scripts/verify_phase7.py
+COPY benchmarks/production/ ./benchmarks/production/
 COPY benchmarks/dev/registry.json ./benchmarks/dev/registry.json
 ENTRYPOINT ["python", "-m", "pytest"]
 CMD ["-o", "addopts=", "-q", "-p", "no:cacheprovider", "--basetemp=/tmp/pytest"]
+
+FROM runtime AS benchmark
+COPY --from=benchmark-dependencies /opt/venv /opt/venv
+COPY benchmarks/production/ ./benchmarks/production/
+COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
+ENTRYPOINT ["python", "-m", "benchmarks.production.run"]
 
 FROM runtime AS production

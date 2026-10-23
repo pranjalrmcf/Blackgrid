@@ -293,7 +293,11 @@ def build_graph(root: Path, config) -> BoundedGraph | WindowSelection:
     """The graph a run config asks for: the frozen first window (default) or the full dataset."""
     if getattr(config, "scope", "first_window") == "full_dataset":
         return build_full_graph(root, config.dataset)
-    return build_bounded_graph(root, config.dataset, config.window)
+    built = build_bounded_graph(root, config.dataset, config.window)
+    if config.dataset.source_url.startswith("blackgrid-synthetic-v1:"):
+        from blackgrid.data.benchmark import mark_synthetic
+        return mark_synthetic(built, root, config)
+    return built
 
 
 def build_bounded_graph(

@@ -1,0 +1,8 @@
+Benchmark tools: 1 virtual users (offline synthetic)
+Benchmark api: 1 virtual users (offline synthetic)
+Benchmark api: 5 virtual users (offline synthetic)
+Benchmark api: 10 virtual users (offline synthetic)
+Benchmark mixed: 1 virtual users (offline synthetic)
+Benchmark mixed: 5 virtual users (offline synthetic)
+Benchmark mixed: 10 virtual users (offline synthetic)
+Evidence: C:\Blackgrid\results\production_phase6\20261023T073148Z-2d5255

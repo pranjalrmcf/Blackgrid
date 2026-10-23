@@ -32,3 +32,9 @@ dist/
 # Sprint plans stay local and are not version-controlled.
 SPRINT_*.md
 sprints/
+
+# Local production planning and future roadmap documents.
+/PRODUCTION_READINESS_PHASES.md
+/production_roadmap.md
+/FUTURE_POTENTIAL_AND_ROADMAP.md
+/docs/FUTURE_POTENTIAL_AND_ROADMAP.md

@@ -92,6 +92,10 @@ def _http_json(url: str, *, timeout_s: float, body: dict | None = None, headers:
         if result.returncode != 0 or not isinstance(reply, dict):
             raise ValueError
         if not reply.get('ok'):
+            if reply.get('http_status') == 429:
+                from blackgrid.operations.telemetry import span
+                with span("provider_rate_limit"):
+                    pass
             category = reply.get('category')
             if category not in ('permanent','transient','uncertain'):
                 raise ValueError

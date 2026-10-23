@@ -1,0 +1,64 @@
+{
+  "job_id": "37be6afa2c44453094ae75f23030b56c",
+  "family": "community",
+  "claim_type": "descriptive",
+  "scope": "configured observed graph only",
+  "analyses": {
+    "profile_graph": {
+      "artifact": "graph_profile.json",
+      "analysis": "Graph size, components and degree summary",
+      "summary": {
+        "nodes": 104,
+        "edges": 137,
+        "isolated_nodes": 0,
+        "components": 8,
+        "largest_component_nodes": 87,
+        "largest_component_edges": 127,
+        "density": 0.025578790142,
+        "degree_min": 1,
+        "degree_median": 2.0,
+        "degree_mean": 2.634615384615,
+        "degree_max": 20,
+        "transitivity": 0.037656903766
+      }
+    },
+    "community_test": {
+      "artifact": "experiment_report.json",
+      "analysis": "Community structure versus a degree-preserving null model",
+      "summary": {
+        "verdict": "not_supported",
+        "raw_verdict": "not_supported"
+      }
+    },
+    "edge_removal_sensitivity": {
+      "artifact": "sensitivity.json",
+      "analysis": "Community verdict sensitivity to edge removal",
+      "summary": {
+        "mechanism": "uniform",
+        "removal_fraction": 0.1,
+        "replicates": 20,
+        "null_replicates_per_run": 99,
+        "agreement": 20
+      }
+    }
+  },
+  "conclusions": [],
+  "missing_analyses": [],
+  "summary": {
+    "status": "completed",
+    "verdict": "not_supported",
+    "flags": [
+      "degree_confound",
+      "disconnected"
+    ],
+    "observed_q": 0.5865256540039427,
+    "null_mean": 0.5932968286191437,
+    "p_value": 0.718,
+    "exceedances": 358,
+    "sensitivity_agreement": 20,
+    "llm_calls": 1,
+    "tokens_in": 1804,
+    "tokens_out": 64,
+    "actual_usd": 0.0
+  }
+}

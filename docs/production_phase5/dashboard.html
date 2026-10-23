@@ -1,0 +1,387 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>BLACKGRID monitoring</title><h1>BLACKGRID monitoring</h1><p>Local operator view. Refresh to update; durable measurements cached for 10 seconds. API window: at most 2048 requests / 5 minutes. Tool and LLM measurements: newest 100 jobs. Missing measurements are unavailable.</p><p><a href="/api/v1/monitoring">Refresh</a></p><table><tr><th>Readiness</th><td>True</td></tr><tr><th>Queue</th><td>0</td></tr><tr><th>Running</th><td>0</td></tr><tr><th>Completed</th><td>21</td></tr><tr><th>API p50 / p95 / p99 seconds</th><td>0.013323823997779982 / 0.02379669799847761 / 0.9263896520023991</td></tr><tr><th>Retained budget used / ceiling USD</th><td>1.3908693144999997 / 3.0</td></tr><tr><th>Recent input / output tokens</th><td>48817 / 4864</td></tr><tr><th>Held or reserved USD</th><td>0.0</td></tr></table><h2>Tool bottlenecks</h2><table><tr><th>Tool</th><th>Total seconds</th><th>Succeeded</th><th>Failed</th></tr><tr><td>edge_removal_sensitivity</td><td>695.134389</td><td>11</td><td>0</td></tr><tr><td>community_test</td><td>181.354652</td><td>11</td><td>0</td></tr><tr><td>link_prediction</td><td>110.693082</td><td>1</td><td>0</td></tr><tr><td>behavior_features</td><td>0.868788</td><td>2</td><td>0</td></tr><tr><td>behavior_anomalies</td><td>0.831406</td><td>2</td><td>0</td></tr><tr><td>behavior_clustering</td><td>0.818551</td><td>2</td><td>0</td></tr><tr><td>behavior_similarity</td><td>0.793655</td><td>2</td><td>0</td></tr><tr><td>reliability_audit</td><td>0.353517</td><td>2</td><td>1</td></tr><tr><td>belief_update</td><td>0.201742</td><td>2</td><td>1</td></tr><tr><td>ranking_sensitivity</td><td>0.193347</td><td>5</td><td>0</td></tr><tr><td>experiment_decision</td><td>0.187563</td><td>2</td><td>1</td></tr><tr><td>causal_identification_check</td><td>0.187456</td><td>2</td><td>1</td></tr><tr><td>community_partition</td><td>0.039151</td><td>3</td><td>0</td></tr><tr><td>node_centrality</td><td>0.023875</td><td>3</td><td>0</td></tr><tr><td>profile_graph</td><td>0.009619</td><td>9</td><td>0</td></tr><tr><td>community_bridge</td><td>0.004551</td><td>3</td><td>0</td></tr><tr><td>prediction_compare</td><td>0.000153</td><td>1</td><td>0</td></tr></table><h2>Advisory alerts</h2><ul><li><strong>storage_unavailable: clear</strong> — Check volume and free disk; preserve ledgers.</li><li><strong>scheduler_unavailable: clear</strong> — Inspect worker and restart only after reviewing active live jobs.</li><li><strong>queue_pressure: clear</strong> — Review workload; do not raise limits without measurements.</li><li><strong>api_errors: clear</strong> — Inspect sanitized request categories and readiness.</li><li><strong>provider_failures: clear</strong> — Review provider and billing holds; never resend uncertain calls.</li><li><strong>budget_pressure: clear</strong> — Review retained project budget before another paid job.</li><li><strong>worker_memory_pressure: clear</strong> — Review graph size and algorithm timings.</li><li><strong>storage_pressure: clear</strong> — Free unrelated disk space; preserve authoritative scientific and billing records.</li><li><strong>telemetry_degraded: clear</strong> — Inspect storage; monitoring failures do not authorize scientific retries.</li></ul><details><summary>All measurements and coverage</summary><pre>{
+  &quot;agent_completion_fraction&quot;: 0.84,
+  &quot;alerts&quot;: [
+    {
+      &quot;action&quot;: &quot;Check volume and free disk; preserve ledgers.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;storage_unavailable&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Inspect worker and restart only after reviewing active live jobs.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;scheduler_unavailable&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Review workload; do not raise limits without measurements.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;queue_pressure&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Inspect sanitized request categories and readiness.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;api_errors&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Review provider and billing holds; never resend uncertain calls.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;provider_failures&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Review retained project budget before another paid job.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;budget_pressure&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Review graph size and algorithm timings.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;worker_memory_pressure&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Free unrelated disk space; preserve authoritative scientific and billing records.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;storage_pressure&quot;
+    },
+    {
+      &quot;action&quot;: &quot;Inspect storage; monitoring failures do not authorize scientific retries.&quot;,
+      &quot;firing&quot;: false,
+      &quot;name&quot;: &quot;telemetry_degraded&quot;
+    }
+  ],
+  &quot;api&quot;: {
+    &quot;active_requests&quot;: 1,
+    &quot;error_fraction&quot;: 0.0,
+    &quot;p50_seconds&quot;: 0.013323823997779982,
+    &quot;p95_seconds&quot;: 0.02379669799847761,
+    &quot;p99_seconds&quot;: 0.9263896520023991,
+    &quot;request_rate_per_second&quot;: 0.21666666666666667,
+    &quot;window_capacity&quot;: 2048,
+    &quot;window_samples&quot;: 65,
+    &quot;window_seconds&quot;: 300
+  },
+  &quot;budget_ceiling_usd&quot;: 3.0,
+  &quot;budget_used_usd&quot;: 1.3908693144999997,
+  &quot;charged_usd&quot;: 0.003936626,
+  &quot;completion_seconds&quot;: [
+    88.057156,
+    85.406138,
+    89.26832,
+    14.815118,
+    5.463685,
+    115.996958,
+    5.894563,
+    6.726468,
+    5.083245,
+    4.950863,
+    2.056149,
+    85.180055,
+    5.238836,
+    7.033838,
+    5.101775,
+    5.076027,
+    2.048561,
+    85.504678,
+    89.83163,
+    81.459105,
+    83.718792,
+    2.04808,
+    84.140054
+  ],
+  &quot;cost_per_successful_live_analysis_usd&quot;: 0.0013122086666666668,
+  &quot;database_available&quot;: true,
+  &quot;graph_edges&quot;: [
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137
+  ],
+  &quot;graph_nodes&quot;: [
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104
+  ],
+  &quot;jobs&quot;: {
+    &quot;abstained&quot;: 0,
+    &quot;cancelled&quot;: 3,
+    &quot;completed&quot;: 21,
+    &quot;failed&quot;: 0,
+    &quot;interrupted&quot;: 0,
+    &quot;partial&quot;: 1,
+    &quot;paused&quot;: 0,
+    &quot;queued&quot;: 0,
+    &quot;running&quot;: 0,
+    &quot;timed_out&quot;: 0
+  },
+  &quot;llm&quot;: {
+    &quot;actual_or_assumed_usd&quot;: 0.003936626,
+    &quot;calls&quot;: 29,
+    &quot;errors&quot;: {},
+    &quot;generation_tokens_per_second&quot;: null,
+    &quot;input_tokens&quot;: 48817,
+    &quot;model&quot;: &quot;deepseek/deepseek-v4-flash-0731&quot;,
+    &quot;output_tokens&quot;: 4864,
+    &quot;provider&quot;: &quot;openrouter&quot;,
+    &quot;rate_limits&quot;: 0,
+    &quot;reservation_estimate_usd&quot;: 0.2195724256,
+    &quot;retries&quot;: 0,
+    &quot;ttft_seconds&quot;: null
+  },
+  &quot;llm_seconds&quot;: [
+    0.023617,
+    0.020012
+  ],
+  &quot;observed_utc&quot;: &quot;2026-10-23T06:46:48.445185+00:00&quot;,
+  &quot;provider_seconds&quot;: [
+    0.000221,
+    0.000136
+  ],
+  &quot;queue_oldest_seconds&quot;: 0.0,
+  &quot;queue_wait_seconds&quot;: [
+    0.007581,
+    0.007396,
+    0.007401,
+    0.006251,
+    0.00547,
+    0.005351,
+    0.006677,
+    0.004698,
+    0.00483,
+    0.007156,
+    0.00538,
+    0.006681,
+    0.005872,
+    0.004985,
+    0.007305,
+    0.005312,
+    0.006331,
+    0.006365,
+    0.004952,
+    0.005058
+  ],
+  &quot;recoveries&quot;: 0,
+  &quot;reserved_or_held_usd&quot;: 0.0,
+  &quot;resources&quot;: {
+    &quot;disk_free_bytes&quot;: 1012325101568,
+    &quot;memory_current_bytes&quot;: 169746432,
+    &quot;memory_limit_bytes&quot;: 2147483648,
+    &quot;pids_current&quot;: 45,
+    &quot;pids_limit&quot;: 128
+  },
+  &quot;sample_jobs&quot;: 25,
+  &quot;sample_limit&quot;: 100,
+  &quot;scheduler_available&quot;: true,
+  &quot;settled_usd&quot;: 0.003936626,
+  &quot;telemetry_write_failures_process&quot;: 0,
+  &quot;tool&quot;: {
+    &quot;behavior_anomalies&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.450892,
+        0.380514
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;behavior_clustering&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.425971,
+        0.39258
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;behavior_features&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.431419,
+        0.437369
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;behavior_similarity&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.419399,
+        0.374256
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;belief_update&quot;: {
+      &quot;failed&quot;: 1,
+      &quot;seconds&quot;: [
+        0.068699,
+        0.073907,
+        0.059136
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;causal_identification_check&quot;: {
+      &quot;failed&quot;: 1,
+      &quot;seconds&quot;: [
+        0.063309,
+        0.061973,
+        0.062174
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;community_bridge&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.001785,
+        0.001354,
+        0.001412
+      ],
+      &quot;succeeded&quot;: 3
+    },
+    &quot;community_partition&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.012833,
+        0.013587,
+        0.012731
+      ],
+      &quot;succeeded&quot;: 3
+    },
+    &quot;community_test&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        16.988185,
+        16.915797,
+        17.017169,
+        16.460351,
+        16.155248,
+        15.887444,
+        15.795212,
+        16.752613,
+        16.537344,
+        15.566483,
+        17.278806
+      ],
+      &quot;succeeded&quot;: 11
+    },
+    &quot;edge_removal_sensitivity&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        65.524176,
+        63.356032,
+        66.273399,
+        63.79634,
+        63.929953,
+        61.297062,
+        60.876699,
+        61.862121,
+        62.057828,
+        59.452366,
+        66.708413
+      ],
+      &quot;succeeded&quot;: 11
+    },
+    &quot;experiment_decision&quot;: {
+      &quot;failed&quot;: 1,
+      &quot;seconds&quot;: [
+        0.065348,
+        0.064552,
+        0.057663
+      ],
+      &quot;succeeded&quot;: 2
+    },
+    &quot;link_prediction&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        110.693082
+      ],
+      &quot;succeeded&quot;: 1
+    },
+    &quot;node_centrality&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.008282,
+        0.007822,
+        0.007771
+      ],
+      &quot;succeeded&quot;: 3
+    },
+    &quot;prediction_compare&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.000153
+      ],
+      &quot;succeeded&quot;: 1
+    },
+    &quot;profile_graph&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.001196,
+        0.000978,
+        0.000869,
+        0.000914,
+        0.001928,
+        0.000746,
+        0.000906,
+        0.00098,
+        0.001102
+      ],
+      &quot;succeeded&quot;: 9
+    },
+    &quot;ranking_sensitivity&quot;: {
+      &quot;failed&quot;: 0,
+      &quot;seconds&quot;: [
+        0.042809,
+        0.043652,
+        0.032143,
+        0.043552,
+        0.031191
+      ],
+      &quot;succeeded&quot;: 5
+    },
+    &quot;reliability_audit&quot;: {
+      &quot;failed&quot;: 1,
+      &quot;seconds&quot;: [
+        0.09499,
+        0.093884,
+        0.164643
+      ],
+      &quot;succeeded&quot;: 2
+    }
+  },
+  &quot;tool_selection_rejections&quot;: 4,
+  &quot;traces_missing&quot;: 23,
+  &quot;worker_peak_rss_bytes&quot;: 216154112,
+  &quot;workflow_read_failures&quot;: 0,
+  &quot;workflow_tool_failures&quot;: 4
+}</pre></details></html>

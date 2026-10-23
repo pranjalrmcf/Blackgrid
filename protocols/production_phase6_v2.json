@@ -1,0 +1,88 @@
+{
+  "version": "production-phase6-v2",
+  "purpose": "exploratory engineering measurements, not a scientific efficacy benchmark",
+  "vllm": "out_of_scope",
+  "mode": "mock_only",
+  "seed": 20261023,
+  "families": [
+    "erdos_renyi",
+    "barabasi_albert",
+    "watts_strogatz",
+    "stochastic_block",
+    "temporal"
+  ],
+  "generate_nodes": [
+    100,
+    300,
+    1000
+  ],
+  "execute_api_nodes": 100,
+  "max_nodes": 1000,
+  "max_edges": 10000,
+  "null_replicates": 19,
+  "optimizer_restarts": 1,
+  "sensitivity_replicates": 1,
+  "api_users": [
+    1,
+    5,
+    10
+  ],
+  "seconds_per_api_stage": 15,
+  "seconds_per_mixed_stage": 30,
+  "mixed_users": [
+    1,
+    5,
+    10
+  ],
+  "think_seconds": [
+    2,
+    4
+  ],
+  "poll_seconds": 2,
+  "max_job_submissions_per_stage": 20,
+  "drain_seconds": 180,
+  "stage_deadline_seconds": 240,
+  "target_memory_stop_bytes": 1610612736,
+  "target_pids_stop": 100,
+  "disk_free_stop_bytes": 1073741824,
+  "max_unexpected_error_fraction": 0.1,
+  "minimum_error_samples": 20,
+  "max_http_samples": 20000,
+  "target_cpus": 1,
+  "target_memory_bytes": 2147483648,
+  "generator_cpus": 0.5,
+  "generator_memory_bytes": 536870912,
+  "blas_threads": 1,
+  "max_total_seconds": 1800,
+  "live_provider_calls": 0,
+  "questions": [
+    "Which nodes have the highest degree and betweenness?",
+    "Which nodes bridge communities?",
+    "Cluster behavioral profiles and find unusual activity candidates.",
+    "Is community structure stronger than expected from node degrees?"
+  ],
+  "workload_weights": [
+    4,
+    3,
+    2,
+    1
+  ],
+  "mock_latency_seconds": [
+    0.025,
+    0.075,
+    0.15
+  ],
+  "stop_on": [
+    "resource_threshold",
+    "unhealthy_target",
+    "unexpected_error_rate",
+    "deadline",
+    "sample_limit",
+    "containment_failure"
+  ],
+  "continue_after_expected_admission_rejection": true,
+  "higher_concurrency": "not executed automatically",
+  "outcome_policy": "retain all attempts, failures, queue-full and rate-limit responses; no threshold changes after inspection",
+  "prior_test_inspected": "20261023T073148Z-2d5255; all v1 pilot measurements retained",
+  "change_reason": "Bind checksum-verified synthetic event source to behavior factory; exercise all three declared mock latency fixtures. Workload, seeds, graph budgets, concurrency and stopping thresholds unchanged."
+}

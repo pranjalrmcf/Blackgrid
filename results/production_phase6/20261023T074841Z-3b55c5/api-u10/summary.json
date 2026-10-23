@@ -1,0 +1,90 @@
+{
+  "actual_usd": 0,
+  "agent_worker_seconds": {
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "samples": 0
+  },
+  "api_latency_ms": {
+    "p50": 6.092439998610644,
+    "p95": 66.55368700012332,
+    "p99": 71.96098699932918,
+    "samples": 53
+  },
+  "category": "api",
+  "completed_analyses_per_minute": 0.0,
+  "configured_users": 10,
+  "counts": {
+    "accepted": 0,
+    "censored": 0,
+    "completed": 0,
+    "failed": 0,
+    "rate_limited": 0,
+    "rejected": 0,
+    "requests": 53,
+    "unexpected_errors": 0
+  },
+  "creation_to_terminal_seconds": {
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "samples": 0
+  },
+  "elapsed_s": 16.21481053000025,
+  "generator_cpu_seconds": 1.0632039999999998,
+  "generator_peak_rss_bytes": 56963072,
+  "identity": {
+    "config_sha256": "8d28856a3d55ee5ac7cbf30c839f920b4e89232da815c071131aa034e1e21aef",
+    "data_sha256": "e18b711ef5e06912ed464d683657c6a4231d40382c8548ce075ada29cfa09299",
+    "live_enabled": false,
+    "mock_profile": "latency",
+    "mode": "mock",
+    "origin": "synthetic",
+    "queue_slots": 8,
+    "version": "production-phase6-v1",
+    "worker_slots": 1
+  },
+  "jobs": {},
+  "limitations": [
+    "small exploratory engineering pilot",
+    "closed-loop users",
+    "synthetic only",
+    "scripted mock latency",
+    "one target worker",
+    "no real provider speed or quality claim"
+  ],
+  "mode": "mock",
+  "observed_peak_users": 10,
+  "offered_seconds": 15,
+  "offered_submissions": 0,
+  "origin": "synthetic",
+  "protocol_sha256": "9d5c7e538797f95b0faa21026b9224f8ed28144553b3f7d2bbb44bf39779e4de",
+  "queue_wait_seconds": {
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "samples": 0
+  },
+  "requests_per_second": 3.2686166700462325,
+  "route_latency_ms": {
+    "capabilities": {
+      "p50": 6.092439998610644,
+      "p95": 66.55368700012332,
+      "p99": 71.96098699932918,
+      "samples": 53
+    }
+  },
+  "run_id": "20261023T074841Z-3b55c5-api-u10",
+  "state": "completed",
+  "stop_reason": null,
+  "tokens_in": 0,
+  "tokens_out": 0,
+  "version": "production-phase6-v2",
+  "versions": {
+    "locust": "2.46.6",
+    "networkx": "3.6.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  }
+}

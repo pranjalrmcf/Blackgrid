@@ -1,0 +1,14 @@
+{
+  "source_hashes_match": true,
+  "checked_runtime_files": 12,
+  "evidence_mounts": 8,
+  "evidence_read_only": true,
+  "image": "blackgrid:phase4-tools",
+  "image_id": "sha256:812c4c90f39891114aff84db07fdeac7a078400d29c10751154d723a34f33a46",
+  "non_root": "10001:10001",
+  "read_only_root": true,
+  "memory_bytes": 2147483648,
+  "nano_cpus": 1000000000,
+  "pids_limit": 128,
+  "health": "healthy"
+}

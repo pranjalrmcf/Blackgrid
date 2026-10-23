@@ -108,12 +108,17 @@ def sensitivity(observations: list[Observation], objective: Objective) -> dict:
 class ObservationStore:
     """Trusted numerical observations only. Unique IDs make replay updates idempotent."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, *, read_only: bool = False):
         self.path = path
+        self.read_only = read_only
+        if read_only:
+            return
         with sqlite3.connect(path) as db:
             db.execute("CREATE TABLE IF NOT EXISTS observations (id TEXT PRIMARY KEY, payload TEXT NOT NULL)")
 
     def add(self, observation: Observation) -> bool:
+        if self.read_only:
+            raise ValueError("read-only observation evidence")
         payload = observation.model_dump_json()
         with sqlite3.connect(self.path) as db:
             old = db.execute("SELECT payload FROM observations WHERE id=?", (observation.observation_id,)).fetchone()
@@ -125,7 +130,7 @@ class ObservationStore:
         return True
 
     def read(self) -> list[Observation]:
-        with sqlite3.connect(self.path) as db:
+        with sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True) if self.read_only else sqlite3.connect(self.path) as db:
             return [Observation.model_validate_json(r[0]) for r in
                     db.execute("SELECT payload FROM observations ORDER BY rowid")]
 

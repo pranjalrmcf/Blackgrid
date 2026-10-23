@@ -1,0 +1,21 @@
+{
+  "image": "blackgrid:phase5",
+  "image_id": "sha256:9768cb44329f1608cff3fab7554e2b93b803230026ec2736f2b97af742e5c3fb",
+  "uid": 10001,
+  "source_files": 77,
+  "source_exact": true,
+  "read_only_root": true,
+  "memory_bytes": 2147483648,
+  "nano_cpus": 1000000000,
+  "pids_limit": 128,
+  "log_rotation": {
+    "Type": "json-file",
+    "Config": {
+      "max-file": "3",
+      "max-size": "10m"
+    }
+  },
+  "persistent_volume": "blackgrid_blackgrid-state",
+  "all_input_and_secret_binds_read_only": true,
+  "localhost_only": true
+}

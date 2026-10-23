@@ -1,0 +1,15 @@
+{
+  "version": "production-phase6-v1",
+  "attempt": "20261023T072948Z-24554c",
+  "mode": "mock",
+  "origin": "synthetic",
+  "protocol_sha256": "a27212b0c8b2430e4c6dc3428b696fd57b4e21b30a1e31a1a8c19c854228dc09",
+  "state": "failed",
+  "vllm": "out_of_scope",
+  "stages": [],
+  "actual_usd": 0,
+  "real_provider_calls": 0,
+  "volume": "blackgrid-phase6-20261023t072948z-24554c",
+  "stop_reason": "orchestration_failure",
+  "elapsed_s": 1.8589999999967404
+}

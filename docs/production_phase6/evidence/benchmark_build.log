@@ -1,0 +1,124 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 3.15kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 583B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 8.22kB 0.0s done
+#5 DONE 0.0s
+
+#6 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c
+#6 resolve ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c 0.0s done
+#6 DONE 0.0s
+
+#7 [dependencies 1/5] FROM docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf
+#7 resolve docker.io/library/python:3.11.17-slim-bookworm@sha256:f06d01d4ba3f8ad5af45a3ec87df19c1d317d8e8961edc0fabda61811af6f7cf 0.0s done
+#7 DONE 0.0s
+
+#8 [dependencies 2/5] COPY --from=uv /uv /usr/local/bin/uv
+#8 CACHED
+
+#9 [dependencies 4/5] COPY pyproject.toml uv.lock README.md ./
+#9 CACHED
+
+#10 [dependencies 3/5] WORKDIR /build
+#10 CACHED
+
+#11 [dependencies 5/5] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --all-extras --no-install-project
+#11 CACHED
+
+#12 [benchmark-dependencies 1/1] RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --group benchmark --all-extras --no-install-project
+#12 0.693 Downloading gevent (2.1MiB)
+#12 0.694 Downloading locust (1.4MiB)
+#12 1.651  Downloaded locust
+#12 1.763 Downloading brotli (1.4MiB)
+#12 1.783  Downloaded gevent
+#12 2.072  Downloaded brotli
+#12 3.207 Prepared 25 packages in 2.85s
+#12 3.423 Installed 29 packages in 215ms
+#12 3.423  + bidict==0.24.1
+#12 3.423  + blinker==1.9.0
+#12 3.423  + brotli==1.2.0
+#12 3.423  + configargparse==1.8.0
+#12 3.423  + flask==3.1.3
+#12 3.423  + flask-cors==6.0.5
+#12 3.423  + flask-login==0.6.3
+#12 3.423  + gevent==26.9.0
+#12 3.423  + geventhttpclient==2.5.1
+#12 3.423  + greenlet==3.5.6
+#12 3.423  + iniconfig==2.3.0
+#12 3.423  + itsdangerous==2.2.0
+#12 3.423  + jinja2==3.1.6
+#12 3.423  + locust==2.46.6
+#12 3.423  + markupsafe==3.0.4
+#12 3.423  + msgpack==1.2.3
+#12 3.423  + pluggy==1.6.0
+#12 3.423  + psutil==7.2.2
+#12 3.423  + pygments==2.21.0
+#12 3.423  + pytest==9.1.1
+#12 3.423  + python-engineio==4.14.0
+#12 3.423  + python-socketio==5.17.0
+#12 3.423  + pyzmq==27.2.0
+#12 3.423  + simple-websocket==1.1.0
+#12 3.423  + websocket-client==1.9.2
+#12 3.423  + werkzeug==3.1.9
+#12 3.423  + wsproto==1.3.2
+#12 3.423  + zope-event==6.2
+#12 3.423  + zope-interface==8.6
+#12 DONE 3.5s
+
+#13 [runtime 8/9] COPY docs/sprint04_review_rubric.md ./docs/sprint04_review_rubric.md
+#13 CACHED
+
+#14 [runtime 2/9] WORKDIR /app
+#14 CACHED
+
+#15 [runtime 3/9] RUN groupadd --gid 10001 blackgrid && useradd --uid 10001 --gid 10001 --no-create-home blackgrid     && mkdir /app/runs /app/data /app/results && chown 10001:10001 /app/runs     && printf '#!/bin/sh\nexec python -m blackgrid "$@"\n' > /usr/local/bin/blackgrid     && chmod 0555 /usr/local/bin/blackgrid
+#15 CACHED
+
+#16 [runtime 5/9] COPY src/ ./src/
+#16 CACHED
+
+#17 [runtime 6/9] COPY configs/ ./configs/
+#17 CACHED
+
+#18 [runtime 7/9] COPY protocols/ ./protocols/
+#18 CACHED
+
+#19 [runtime 4/9] COPY --from=dependencies /opt/venv /opt/venv
+#19 CACHED
+
+#20 [runtime 9/9] COPY pyproject.toml uv.lock README.md LICENSE ./
+#20 CACHED
+
+#21 [benchmark 1/3] COPY --from=benchmark-dependencies /opt/venv /opt/venv
+#21 DONE 1.0s
+
+#22 [benchmark 2/3] COPY benchmarks/production/ ./benchmarks/production/
+#22 DONE 0.1s
+
+#23 [benchmark 3/3] COPY scripts/generate_phase6.py ./scripts/generate_phase6.py
+#23 DONE 0.0s
+
+#24 exporting to image
+#24 exporting layers
+#24 exporting layers 7.7s done
+#24 exporting manifest sha256:61cf84a8a4ffc3cdb7a7a4448d497470de9c19a65f8a86f079627dd8fe4b7b26 0.0s done
+#24 exporting config sha256:08abeb3eeb5823e7759b72fd648c9425023cc8c86c486bff3c73c34aa888421a done
+#24 exporting attestation manifest sha256:7ba93c8645cbef1e954199c7f3a5135d8b30602ba3915518cd10610ae8d2f648 0.0s done
+#24 exporting manifest list sha256:2b307dafc65239df1cc7d92325196b52b71dcffc88ca02e8d8b1fc8e7e689c2c 0.0s done
+#24 naming to docker.io/library/blackgrid:phase6-benchmark done
+#24 unpacking to docker.io/library/blackgrid:phase6-benchmark
+#24 unpacking to docker.io/library/blackgrid:phase6-benchmark 1.7s done
+#24 DONE 9.4s

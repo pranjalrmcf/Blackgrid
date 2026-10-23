@@ -1,0 +1,104 @@
+{
+  "status": "passed",
+  "checks": {
+    "runtime": {
+      "same_state_volume": "blackgrid_blackgrid-state",
+      "non_root": true,
+      "read_only": true,
+      "localhost_only_port": true,
+      "worker_network_denied": true,
+      "read_only_secrets": true
+    },
+    "https_auth_readiness": true,
+    "queued_cancel_without_dispatch": true,
+    "lifecycle_and_tool_progress": {
+      "attempts": 1,
+      "timestamps": true,
+      "tools": [
+        "profile_graph",
+        "community_test",
+        "edge_removal_sensitivity"
+      ]
+    },
+    "offline_job": {
+      "job_id": "bbb8ae61148b45b7899f718702034f05",
+      "state": "completed",
+      "summary": {
+        "status": "completed",
+        "verdict": "not_supported",
+        "flags": [
+          "degree_confound",
+          "disconnected"
+        ],
+        "observed_q": 0.5865256540039427,
+        "null_mean": 0.5932968286191437,
+        "p_value": 0.718,
+        "exceedances": 358,
+        "sensitivity_agreement": 20,
+        "llm_calls": 1,
+        "tokens_in": 1822,
+        "tokens_out": 64,
+        "actual_usd": 0.0
+      }
+    },
+    "scientific_summary_matches_host_reference": true,
+    "restart_preserves_job_results_and_idempotency": true,
+    "all_18_tools_configured": true,
+    "automatic_centrality": {
+      "state": "completed",
+      "family": "centrality",
+      "tools": [
+        "node_centrality",
+        "ranking_sensitivity"
+      ],
+      "claim_type": "descriptive",
+      "scope": "configured observed graph; centrality is not causal influence"
+    },
+    "automatic_bridge": {
+      "state": "completed",
+      "family": "bridge",
+      "tools": [
+        "community_partition",
+        "community_bridge",
+        "ranking_sensitivity"
+      ],
+      "claim_type": "descriptive",
+      "scope": "configured observed graph; partition-dependent descriptive bridges"
+    },
+    "automatic_behavior": {
+      "state": "completed",
+      "family": "behavior",
+      "tools": [
+        "behavior_features",
+        "behavior_clustering",
+        "behavior_similarity",
+        "behavior_anomalies"
+      ],
+      "claim_type": "descriptive",
+      "scope": "recorded directed-event window; unusual profiles are not verified anomalies"
+    },
+    "automatic_research": {
+      "state": "completed",
+      "family": "research",
+      "tools": [
+        "reliability_audit",
+        "belief_update",
+        "experiment_decision",
+        "causal_identification_check"
+      ],
+      "claim_type": "descriptive",
+      "scope": "pinned saved synthetic demonstration only; not evidence about the selected real graph"
+    },
+    "automatic_forecast": {
+      "state": "completed",
+      "family": "forecast",
+      "tools": [
+        "link_prediction",
+        "prediction_compare"
+      ],
+      "claim_type": "predictive",
+      "scope": "full validated observed history; fixed horizon and known-node ranking scores, not calibrated probabilities"
+    }
+  },
+  "paid_usd": 0
+}

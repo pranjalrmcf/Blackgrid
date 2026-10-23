@@ -9,6 +9,40 @@ import ctypes
 import errno
 import os
 import platform
+import signal
+
+
+def execution_lease():
+    """Hold across CLI execution; recovery cannot steal a still-running checkpoint."""
+    path = os.environ.get("BLACKGRID_JOB_LOCK_FILE")
+    if not path:
+        return None
+    from pathlib import Path
+    if Path(path).is_symlink():
+        raise OSError("unsafe execution lock")
+    lease = open(path, "a+b")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            lease.write(b"0"); lease.flush(); lease.seek(0)
+            msvcrt.locking(lease.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lease.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        lease.close()
+        raise
+    return lease
+
+
+def bind_parent():
+    expected = os.environ.get("BLACKGRID_WORKER_PARENT")
+    if expected and platform.system() == "Linux":
+        libc = ctypes.CDLL(None, use_errno=True)
+        if libc.prctl(1, signal.SIGKILL, 0, 0, 0):  # PR_SET_PDEATHSIG
+            raise OSError(ctypes.get_errno(), "worker parent containment failed")
+        if os.getppid() != int(expected):
+            raise OSError("worker parent exited")
 
 
 def deny_network() -> str:
@@ -49,9 +83,18 @@ def deny_network() -> str:
 
 
 def main():
+    bind_parent()
+    try:
+        lease = execution_lease()
+    except OSError:
+        return 75
     deny_network()
     from blackgrid.cli import main as cli
-    return cli()
+    try:
+        return cli()
+    finally:
+        if lease:
+            lease.close()
 
 
 if __name__ == "__main__":

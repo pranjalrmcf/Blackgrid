@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import uuid
@@ -177,12 +178,15 @@ def _cmd_run(args: argparse.Namespace) -> int:
     print(f"running {config.condition} investigation in {config.mode.value} mode on the {scope}...",
           file=sys.stderr)
     try:
+        from blackgrid.workflow.evidence import read_binding
+        evidence_path = os.environ.get("BLACKGRID_TOOL_EVIDENCE_FILE")
         out = run_investigation(
             inp, config, provider, args.runs_dir, cache_dir=None if args.no_cache else args.cache_dir,
             input_ref={"kind": "collegemsg", "data_root": str(args.data_root.resolve())}, reproduce=reproduce,
             extra_artifacts={"input_profile.json": built.table.summary(),
                              built.scope_artifact: built.scope_summary()},
-            allow_paid=args.allow_paid, replay_from=args.replay_from, env_file=args.env_file, parent_run=args.parent)
+            allow_paid=args.allow_paid, replay_from=args.replay_from, env_file=args.env_file, parent_run=args.parent,
+            tool_evidence=read_binding(Path(evidence_path)) if evidence_path else None)
     except RunLocked as exc:
         print(f"not started: {exc}", file=sys.stderr)
         return EXIT_INVALID

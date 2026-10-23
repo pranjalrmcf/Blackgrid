@@ -61,6 +61,7 @@ from blackgrid.agent.tools import (
     tool_descriptions,
 )
 from blackgrid.workflow.store import Operation, OperationStore, RunLocked
+from blackgrid.operations.telemetry import observed, span
 
 WORKFLOW_VERSION = "wf-v3.1"
 TERMINAL = {"failed", "budget_exhausted", "cancelled", "denied"}
@@ -384,6 +385,7 @@ def _charge_reservation(rt: Runtime, op: Operation, state: str, category: str, e
                         prompt_tokens=op.reserved_tokens, completion_tokens=0, actual_usd=op.reserved_usd)
 
 
+@observed("llm_call")
 def llm(rt: Runtime, state: WFState, role: str, payload: dict, index: int) -> dict:
     """One logical LLM call with durable operations, retry policy, and reconciliation pauses."""
     base = _messages(role, payload)
@@ -408,7 +410,8 @@ def llm(rt: Runtime, state: WFState, role: str, payload: dict, index: int) -> di
             rt.fault("before_dispatch", role)
             rt.store.transition(op_id, "dispatched")
             try:
-                completion = rt.provider.complete(role, payload, messages, rt.max_tokens)
+                with span("provider_request"):
+                    completion = rt.provider.complete(role, payload, messages, rt.max_tokens)
             except ReplayMismatch as exc:
                 rt.store.transition(op_id, "failed_known", category="replay_mismatch", error=str(exc)[:300])
                 raise _LLMFailed(f"{role}_failed: ReplayMismatch: {exc}") from None
@@ -497,6 +500,13 @@ def forecast_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
     source = inp.record.source
     data_root = Path(state.get("input_ref", {}).get("data_root") or ".")
     evaluation = rt.run_dir.parent / FORECAST_EVALUATION
+    binding = None
+    if "tool_evidence" in state.get("input_ref", {}):
+        from blackgrid.workflow.evidence import ToolEvidence
+        binding = ToolEvidence.model_validate(state["input_ref"]["tool_evidence"])
+        if not binding.forecast_ready():
+            return None
+        evaluation = binding.file("selection").parent
     if source is None or not (evaluation / "selection.json").is_file():
         return None
     cache: dict = {}
@@ -508,9 +518,18 @@ def forecast_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
 
             table = load_events(data_root / source.path, source.sha256)  # checksum-verified
             results = Path(__file__).resolve().parents[3] / "results"
+            if binding:
+                for name in ("selection", "prediction_freeze", "validation", "test_evaluation", "predictions_manifest"):
+                    binding.file(name)
+                frozen = json.loads(binding.file("prediction_freeze").read_bytes())
+                if frozen.get("data_sha256") != source.sha256:
+                    raise ValueError("forecast selection belongs to a different event source")
+                rolling = binding.file("rolling")
+                if rolling and json.loads(rolling.read_bytes()).get("data_sha256") != source.sha256:
+                    raise ValueError("rolling evidence belongs to a different event source")
             cache["tools"] = PredictionTools(list(table.events), evaluation,
-                                             rolling=results / "sprint06-v2" / "summary.json",
-                                             confirmation=results / "sprint06-v3-bitcoin" / "summary.json",
+                                             rolling=binding.file("rolling") if binding else results / "sprint06-v2" / "summary.json",
+                                             confirmation=binding.file("confirmation") if binding else results / "sprint06-v3-bitcoin" / "summary.json",
                                              model_cache=rt.run_dir.parent / "forecast_models",
                                              data_sha256=source.sha256)
         return cache["tools"]
@@ -521,6 +540,14 @@ def behavior_factory(rt: Runtime, state: WFState, inp: InvestigationInput):
     """Bind only checksum-verified events and the exact recorded graph window."""
     source = inp.record.source
     start, end = inp.record.window_start_ts, inp.record.window_end_ts
+    if source is None and inp.record.origin.value == "synthetic" and state.get("input_ref", {}).get("kind") == "collegemsg":
+        # Explicit event-backed synthetic benchmark, never topology-inferred events.
+        from blackgrid.contracts import RunConfig
+        config = RunConfig.model_validate_json((rt.run_dir / "config.json").read_bytes())
+        marker = "blackgrid-synthetic-v1:"
+        if (config.dataset.source_url.startswith(marker)
+                and config.dataset.source_url == marker + (inp.record.generator_sha256 or "")):
+            source = config.dataset
     if source is None or start is None or end is None:
         return None
     data_root = Path(state.get("input_ref", {}).get("data_root") or ".")
@@ -546,7 +573,8 @@ def tool_context(rt: Runtime, state: WFState) -> ToolContext:
         from blackgrid.agent.research import ResearchTools
         bound = state.get("input_ref", {}).get("research_evidence")
         if bound:
-            ctx.research = ResearchTools(Path(bound["path"]), expected_manifest=bound["manifest_sha256"])
+            ctx.research = ResearchTools(Path(bound["path"]), expected_manifest=bound["manifest_sha256"],
+                                         verification_profile=bound.get("verification_profile"))
     if rt.sensitivity_null_replicates is not None:
         ctx.sensitivity_null_replicates = rt.sensitivity_null_replicates
     for op in rt.store.operations(rt.run_id, kind="tool"):
@@ -560,6 +588,7 @@ def tool_context(rt: Runtime, state: WFState) -> ToolContext:
     return ctx
 
 
+@observed("tool_call")
 def run_tool(rt: Runtime, state: WFState, ctx: ToolContext, index: int, call: dict) -> str | None:
     """Run one validated tool request as a durable operation. Returns the artifact name or None."""
     name = str(call.get("tool", "?"))[:64] if isinstance(call, dict) else "?"
@@ -688,6 +717,8 @@ def build(rt: Runtime):
         try:
             selected = resolve_plan_family(state["question"], state["request"], proposal)
         except ToolRejected as exc:
+            with span("tool_selection_failure"):
+                pass
             return {"plan_decision": {"allowed": False, "reasons": [str(exc)], "refusal_flag": None, "tool_calls": []},
                     "verdict": "rejected"}
         request = dict(state["request"]) | {"family": selected}
@@ -697,6 +728,8 @@ def build(rt: Runtime):
             decision = validate_plan(state["question"], request, proposal)
             update: dict = routing | {"plan_decision": decision.model_dump(mode="json")}
             if not decision.allowed:
+                with span("tool_selection_failure"):
+                    pass
                 return update | {"verdict": "rejected",
                                  "flags": [decision.refusal_flag] if decision.refusal_flag else []}
             if selected == "behavior":
@@ -1131,6 +1164,7 @@ def write_trace(rt: Runtime) -> None:
         atomic_write(rt.run_dir / "llm_trace.jsonl", ("\n".join(lines) + "\n").encode("utf-8"))
 
 
+@observed("artifact_persistence")
 def finalize_run(rt: Runtime, state: WFState) -> dict:
     try:
         write_trace(rt)

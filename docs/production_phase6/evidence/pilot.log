@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "C:\Blackgrid\scripts\run_phase6.py", line 152, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Blackgrid\scripts\run_phase6.py", line 79, in main
+    command(compose+["up","-d","--no-build"],env=env)
+  File "C:\Blackgrid\scripts\run_phase6.py", line 22, in command
+    return subprocess.run(args, cwd=ROOT, env=env, capture_output=True, text=True, timeout=timeout, check=check)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\pranj\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker-compose.benchmark.yml', 'up', '-d', '--no-build']' returned non-zero exit status 1.

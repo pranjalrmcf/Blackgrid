@@ -1,0 +1,36 @@
+{
+  "version": "production-phase7-v1",
+  "checks": 669,
+  "failures": 0,
+  "skipped": 0,
+  "fixture_pass_fraction": 1.0,
+  "not_production_reliability_estimate": true,
+  "image_id": "sha256:fe87bd726b8c1366db1dc27ff22cd73fe8f6f565706c27678fe9426306fcdd58",
+  "test_image_id": "sha256:3840ac276a1ed3f2f6b46a52586fe2b24a97274c8584009a9c1371c4858304b1",
+  "source_revision": "9c10ce62a58b80aca1cac8bc52a44e11da58eb35",
+  "source_dirty": true,
+  "critical_scanner_findings": 0,
+  "remaining_os_findings": {
+    "LOW": 61,
+    "HIGH": 44,
+    "MEDIUM": 58,
+    "UNKNOWN": 1
+  },
+  "paid_calls": 0,
+  "new_provider_usd": 0,
+  "original_job_rows_exact": 36,
+  "api_charged_usd": 0.015085346000000001,
+  "scientific_parity_exact": true,
+  "restored_files_exact": 24,
+  "duplicate_jobs_in_restore_drill": 0,
+  "lost_jobs_in_restore_drill": 0,
+  "limits": [
+    "single-host trusted-tool deployment",
+    "local exploratory engineering fixtures",
+    "unpatched OS advisories retained",
+    "no physical power-loss test",
+    "no real provider fault injection",
+    "no multi-host failover",
+    "vLLM out of scope"
+  ]
+}

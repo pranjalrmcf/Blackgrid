@@ -1,0 +1,11 @@
+{
+  "backup": "jobs-pre-phase5-20261023T063210Z.sqlite",
+  "original_jobs": 23,
+  "original_rows_exact_after_update": true,
+  "original_rows_sha256": "0165d151080e26bfb1526b314b0470bb942e87052a581e3dd67008aded40147b",
+  "api_charged_usd_before_update": 0.003936626,
+  "active_jobs_before_update": 0,
+  "private_registry_backup": ".secrets/clients.pre-phase5.json",
+  "operator_subject": "alice",
+  "credentials_rotated": false
+}

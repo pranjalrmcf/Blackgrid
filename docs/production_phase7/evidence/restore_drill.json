@@ -1,0 +1,37 @@
+{
+  "version": "production-phase7-v1",
+  "mode": "mock",
+  "origin": "synthetic",
+  "real_provider_calls": 0,
+  "actual_usd": 0,
+  "backup": {
+    "version": "blackgrid-state-v1",
+    "files": 24,
+    "bytes": 426087,
+    "seconds": 0.005064512002718402
+  },
+  "restore": {
+    "version": "blackgrid-state-v1",
+    "files": 24,
+    "bytes": 426087,
+    "seconds": 0.0032534139972995035
+  },
+  "restore_seconds": 0.003350848000991391,
+  "restored_api_check_seconds": 0.1698502559993358,
+  "files_exact": 24,
+  "all_job_columns_exact": true,
+  "scientific_api_result_exact": true,
+  "owner_denied": true,
+  "idempotent_replay_exact": true,
+  "duplicate_jobs": 0,
+  "lost_jobs": 0,
+  "corrupted_artifacts": 0,
+  "workflow_attempts": 1,
+  "production_state_touched": false,
+  "limitations": [
+    "single synthetic completed-job drill",
+    "same absolute state path retained",
+    "not a power-loss or physical-disk disaster simulation",
+    "no real-provider recovery claim"
+  ]
+}

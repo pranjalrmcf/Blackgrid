@@ -26,6 +26,9 @@ methods = [
 ]
 
 [dependency-groups]
+benchmark = [
+    "locust>=2.43,<3",
+]
 dev = ["pytest>=8"]
 
 [build-system]
@@ -42,6 +45,8 @@ exclude-newer = "2026-10-03T00:00:00Z"
 [tool.uv.exclude-newer-package]
 # GHSA-6q48-6c7w-9gw2: targeted certificate trust-store security update.
 certifi = "2026-10-22T00:00:00Z"
+# Phase 7: targeted CVE-2026-114603 patch; other historical cutoffs stay frozen.
+opentelemetry-api = "2026-10-23T00:00:00Z"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

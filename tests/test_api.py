@@ -72,7 +72,8 @@ def test_idempotency_replay_conflict_and_global_admission(api):
     replay = client.post("/api/v1/jobs", json={}, headers=headers())
     assert replay.status_code == 200 and first.json()["job_id"] == replay.json()["job_id"]
     assert client.post("/api/v1/jobs", json={"condition": "tool_only"}, headers=headers()).status_code == 409
-    assert client.post("/api/v1/jobs", json={}, headers=headers("bob")).status_code == 503
+    waiting = client.post("/api/v1/jobs", json={}, headers=headers("bob"))
+    assert waiting.status_code == 202 and waiting.json()["state"] == "queued"
 
 
 @pytest.mark.parametrize("body", [{"mode": "live"}, {"scope": "full_dataset"}, {"path": "../secret"},
@@ -142,6 +143,8 @@ def test_traversal_and_only_allowlisted_summary_artifact(api, settings):
     folder = app.state.jobs.folder("alice", job)
     assert folder.name == job and "alice" not in str(folder)
     try:
+        (folder / "tool-evidence.json").unlink(missing_ok=True)
+        (folder / "telemetry.jsonl").unlink(missing_ok=True)
         folder.rmdir()
         folder.symlink_to(settings.data_root, target_is_directory=True)
     except OSError:

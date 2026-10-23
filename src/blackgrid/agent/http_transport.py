@@ -46,7 +46,7 @@ def request(payload: dict) -> dict:
     except urllib.error.HTTPError as exc:
         return {'ok': False, 'category': 'permanent' if exc.code in (400,401,403,404) or
                 (payload.get('deny_redirects') is True and 300 <= exc.code < 400) else 'transient',
-                'error': f'OpenRouter HTTP {exc.code}'}
+                'error': f'OpenRouter HTTP {exc.code}', 'http_status': exc.code}
     except (TimeoutError, OSError) as exc:
         reason = getattr(exc, 'reason', exc)
         return {'ok': False, 'category': 'transient' if isinstance(reason, (socket.gaierror, ConnectionRefusedError)) else 'uncertain',

@@ -1,0 +1,21 @@
+{
+  "coverage": [
+    {
+      "findings": 282,
+      "type": "debian"
+    },
+    {
+      "findings": 10,
+      "type": "python-pkg"
+    }
+  ],
+  "image": "blackgrid:phase6",
+  "total": 292,
+  "severity_counts": {
+    "UNKNOWN": 1,
+    "LOW": 108,
+    "CRITICAL": 2,
+    "HIGH": 63,
+    "MEDIUM": 118
+  }
+}

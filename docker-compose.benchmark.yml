@@ -1,0 +1,64 @@
+name: blackgrid-benchmark
+services:
+  target:
+    image: blackgrid:phase6
+    container_name: blackgrid-benchmark-target
+    command: [api]
+    init: true
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    cpus: 1.0
+    mem_limit: 2g
+    pids_limit: 128
+    restart: "no"
+    stop_grace_period: 40s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+    networks: [offline-bench]
+    environment:
+      BLACKGRID_ENV: test
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      BLACKGRID_CONFIG: /bench/public/stochastic_block-100.json
+      BLACKGRID_DATA_ROOT: /bench/public
+      BLACKGRID_RUNS_DIR: /app/runs
+      BLACKGRID_PORT: "8765"
+      BLACKGRID_BENCHMARK_MOCK_PROFILE: latency
+      BLACKGRID_API_HOST: "0.0.0.0"
+      BLACKGRID_API_ALLOWED_HOSTS: "127.0.0.1,localhost"
+      BLACKGRID_API_CREDENTIALS_FILE: /run/secrets/clients.json
+      BLACKGRID_API_TLS_CERTFILE: /run/secrets/server-cert.pem
+      BLACKGRID_API_TLS_KEYFILE: /run/secrets/server-key.pem
+    volumes:
+      - type: bind
+        source: ${BLACKGRID_BENCHMARK_INPUTS:?set by run_phase6.py}
+        target: /bench/public
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${BLACKGRID_BENCHMARK_CREDENTIALS:?set by run_phase6.py}
+        target: /run/secrets/clients.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./.secrets/server-cert.pem
+        target: /run/secrets/server-cert.pem
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./.secrets/server-key.pem
+        target: /run/secrets/server-key.pem
+        read_only: true
+        bind: {create_host_path: false}
+      - benchmark-state:/app/runs
+    tmpfs: ["/tmp:size=64m,mode=1777"]
+networks:
+  offline-bench: {internal: true}
+volumes:
+  benchmark-state:
+    name: ${BLACKGRID_BENCHMARK_VOLUME:?set by run_phase6.py}
+    external: true

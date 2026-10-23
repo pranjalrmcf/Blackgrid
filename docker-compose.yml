@@ -5,7 +5,12 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: blackgrid:phase3
+    image: blackgrid:phase7
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     command: [api]
     init: true
     user: "10001:10001"
@@ -25,6 +30,8 @@ services:
       BLACKGRID_ENV: production
       BLACKGRID_CONFIG: /app/configs/collegemsg_sprint01.json
       BLACKGRID_DATA_ROOT: /app
+      BLACKGRID_EVIDENCE_ROOT: /app/evidence
+      BLACKGRID_BENCHMARK_RESULTS_DIR: /app/benchmark-results
       BLACKGRID_RUNS_DIR: /app/runs
       BLACKGRID_PORT: "8765"
       BLACKGRID_SHUTDOWN_GRACE_SECONDS: "30"
@@ -37,12 +44,67 @@ services:
       BLACKGRID_API_LIVE_POLICY_FILE: /run/secrets/live-policy.json
     volumes:
       - type: bind
+        source: ./results/production_phase6
+        target: /app/benchmark-results
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
         source: ./data
         target: /app/data
         read_only: true
         bind:
           create_host_path: false
       - blackgrid-state:/app/runs
+      # Frozen aggregate evidence only: no prediction arrays, labels or raw data.
+      - type: bind
+        source: ./runs/sprint6-v1/selection.json
+        target: /app/evidence/prediction/selection.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./runs/sprint6-v1/freeze.json
+        target: /app/evidence/prediction/freeze.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./runs/sprint6-v1/validation.json
+        target: /app/evidence/prediction/validation.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./runs/sprint6-v1/test_evaluation.json
+        target: /app/evidence/prediction/test_evaluation.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./runs/sprint6-v1/predictions_manifest.json
+        target: /app/evidence/prediction/predictions_manifest.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./results/sprint06-v2/summary.json
+        target: /app/evidence/rolling/summary.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./results/sprint06-v3-bitcoin/summary.json
+        target: /app/evidence/confirmation/summary.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./runs/sprint7-final
+        target: /app/evidence/research
+        read_only: true
+        bind:
+          create_host_path: false
       - type: bind
         source: ./.secrets/clients.json
         target: /run/secrets/clients.json

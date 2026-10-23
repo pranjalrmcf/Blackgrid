@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "9c10ce62a58b80aca1cac8bc52a44e11da58eb35",
+  "working_tree_changes": true,
+  "recorded_utc": "2026-10-22T15:33:53.0349317Z",
+  "source_sha256": {
+    ".dockerignore": "f08f4feb0a1c4a8553db6eab731893073f87af009a873d4a37ec5474322b8af8",
+    "Dockerfile": "c2ea89f0aab76e2b9381963783566b4cccd1f00bc740044e46b3b384e00df89c",
+    "docker-compose.yml": "5146384269ba0668584d2f27b8509787df4d519b5125b905066b861d1e477748",
+    "src/blackgrid/operations/api.py": "6cf927e88b926e1844b58eb761de752faf618f05841f4220ca8505391af4b44c",
+    "src/blackgrid/operations/api_jobs.py": "f812446aea07dcbbea2ee684eba1ce2128a73994421a3f24ed2444182d8bb238",
+    "src/blackgrid/operations/worker.py": "130a094433ca8a3e574fd02234a46a7235786abebc97f6c13b45733db00c2f24",
+    "scripts/ask_api.py": "595b2dc0cbc848f2fe1f7e6b4a2a7294e03ac6e8d1256b18cffe63bd7e93e3da",
+    "scripts/verify_compose_api.py": "139b5df8982d4f7714e0e1d3f3a5d52272cc587f11afa4c405aaa5840d5aa4e7",
+    "tests/test_api.py": "f6cfd0853dacc79e1a41bc2fb4cca15b13636662012caa49f0aad17f31c7529e",
+    "tests/test_job_reliability.py": "afdafdb017cce0ea429a049f210b0731a37f1b88a3db9b13eaf98faf36e4ea8f"
+  }
+}

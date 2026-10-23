@@ -17,6 +17,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--subject", default="alice")
     parser.add_argument("--reference-run", type=Path)
+    parser.add_argument("--check-queue", action="store_true", help="Verify Phase 4 waiting cancellation and tool progress")
+    parser.add_argument("--check-tools", action="store_true", help="Verify automatic routing across all analysis families")
     parser.add_argument("--output", type=Path, default=Path("docs/production_phase3/service_integration/verification.json"))
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.subject):
@@ -112,6 +114,16 @@ else:
         job_id = job["job_id"]
         assert request("POST", "/api/v1/jobs", {})[0] == 200
         assert request("POST", "/api/v1/jobs", {"condition": "tool_only"})[0] == 409
+        if args.check_queue:
+            original_key = key
+            key = "waiting-check-" + uuid.uuid4().hex
+            status, waiting, _ = request("POST", "/api/v1/jobs", {})
+            assert status == 202 and waiting["state"] == "queued"
+            status, cancelled, _ = request("POST", f"/api/v1/jobs/{waiting['job_id']}/cancel", {})
+            assert status == 200 and cancelled["state"] == "cancelled" and cancelled["attempts"] == 0
+            assert cancelled["completed_utc"] and cancelled["progress"]["reserved_usd"] == 0
+            key = original_key
+            check("queued_cancel_without_dispatch", True)
         deadline = time.monotonic() + 300
         while time.monotonic() < deadline:
             status, job, _ = request("GET", "/api/v1/jobs/" + job_id)
@@ -120,6 +132,14 @@ else:
                 break
             time.sleep(2)
         assert job["state"] == "completed", "offline job did not complete"
+        if args.check_queue:
+            assert job["started_utc"] and job["completed_utc"] and job["attempts"] == 1
+            assert job["result_ref"] == f"/api/v1/jobs/{job_id}/results"
+            tools = job["progress"]["tools"]
+            assert {item["tool"] for item in tools} >= {"profile_graph", "community_test", "edge_removal_sensitivity"}
+            assert all(item["state"] == "succeeded" and item["analysis"] for item in tools)
+            check("lifecycle_and_tool_progress", {"attempts": 1, "timestamps": True,
+                                                  "tools": [item["tool"] for item in tools]})
         status, result, _ = request("GET", f"/api/v1/jobs/{job_id}/results")
         assert status == 200 and result["summary"]["actual_usd"] == 0
         assert request("GET", f"/api/v1/jobs/{job_id}/artifacts/summary.json")[0] == 200
@@ -128,14 +148,49 @@ else:
         if args.reference_run:
             from blackgrid.analysis.parity import fingerprint
             reference = fingerprint(args.reference_run)
-            assert result["summary"] == {k: reference[k] for k in result["summary"]}
-            check("summary_matches_host_reference", True)
+            # Auto routing changes the planner request's family token. Compare
+            # scientific outputs/call count/cost, rather than that token count.
+            keys = set(result["summary"]) - {"tokens_in", "tokens_out"}
+            assert {k: result["summary"][k] for k in keys} == {k: reference[k] for k in keys}
+            check("scientific_summary_matches_host_reference", True)
         docker("compose", "restart", "--timeout", "40", "blackgrid")
         ready()
         status, replay, _ = request("POST", "/api/v1/jobs", {})
         assert status == 200 and replay["job_id"] == job_id and replay["state"] == "completed"
         assert request("GET", f"/api/v1/jobs/{job_id}/results")[1] == result
         check("restart_preserves_job_results_and_idempotency", True)
+        if args.check_tools:
+            from blackgrid.operations.api_tools import CATALOG
+            status, catalog, _ = request("GET", "/api/v1/capabilities")
+            assert status == 200 and {t["name"] for t in catalog["tools"]} == set(CATALOG)
+            assert all(t["available"] for t in catalog["tools"])
+            check("all_18_tools_configured", True)
+            questions = {
+                "centrality": "Which nodes have highest degree and betweenness?",
+                "bridge": "Which nodes bridge separate communities?",
+                "behavior": "Cluster behavioral profiles and find similar users and unusual activity candidates.",
+                "research": "Review Sprint 7 uncertainty, posterior beliefs, next experiment and causal identification.",
+                "forecast": "Which pairs who have never messaged will message next month, and how reliable is the ranking?",
+            }
+            for family, question in questions.items():
+                key = "tool-check-" + uuid.uuid4().hex
+                status, job, _ = request("POST", "/api/v1/jobs", {"question": question})
+                assert status == 202
+                job_id = job["job_id"]
+                deadline = time.monotonic() + 950
+                while time.monotonic() < deadline:
+                    _, job, _ = request("GET", f"/api/v1/jobs/{job_id}")
+                    if job["state"] not in ("queued", "running"):
+                        break
+                    time.sleep(2)
+                assert job["state"] == "completed", f"{family} did not complete: {job['state']}"
+                status, result, _ = request("GET", f"/api/v1/jobs/{job_id}/results")
+                assert status == 200 and result["family"] == family and result["summary"]["actual_usd"] == 0
+                if family == "research":
+                    assert result["research_verification_profile"] == "api-beliefs-portability-v1"
+                assert result["analyses"] and "1000001" not in json.dumps(result)
+                check("automatic_" + family, {"state": job["state"], "family": result["family"],
+                    "tools": list(result["analyses"]), "claim_type": result["claim_type"], "scope": result["scope"]})
         evidence["status"] = "passed"
     except Exception as exc:
         evidence.update(status="failed", failure=type(exc).__name__)

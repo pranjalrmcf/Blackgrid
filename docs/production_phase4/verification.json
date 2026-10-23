@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "date": "2026-10-22",
+  "scope": "bounded single-host API",
+  "agent_paid_usd": 0,
+  "agent_real_provider_requests": 0,
+  "checks": {
+    "full_linux_regression": {
+      "passed": 601,
+      "skipped": 2,
+      "elapsed_seconds": 287.28,
+      "skip_reason": "Two existing tests require the local CollegeMsg file, not mounted in this isolated suite. Both passed in the separate read-only data run.",
+      "network": "none",
+      "memory_bytes": 2147483648,
+      "cpus": 1,
+      "pids_limit": 128
+    },
+    "current_source_reliability_and_data": {"passed": 35, "elapsed_seconds": 65.77},
+    "final_current_source_api_live_fixtures_and_recovery": {"passed": 55, "elapsed_seconds": 82.81},
+    "queued_live_configuration_change": {"passed": 1, "elapsed_seconds": 0.66},
+    "real_mock_worker_sigkill_after_receipt": "same run resumed, one logical LLM call, exact clean scientific fingerprint parity",
+    "pre_migration_private_ledger_backup": {"integrity": "ok", "jobs": 2, "active": 0},
+    "post_migration_original_job_records": {"unchanged": 2, "ledger_integrity": "ok"},
+    "service_acceptance": "service_acceptance.json",
+    "final_cmd_smoke": "cmd_progress.log",
+    "final_cmd_mock_cost_usd": 0,
+    "final_runtime_source_matches_manifest": true,
+    "final_readiness": "ready",
+    "final_job_states": {"cancelled": 1, "completed": 4, "active": 0},
+    "production_image": "blackgrid:phase4",
+    "production_image_id": "sha256:05b6ff0852451aa6117574d7c87299a530deb37990270d4fe13aee9e84f6b288",
+    "test_image": "blackgrid:phase4-test",
+    "test_image_id": "sha256:155b1d2fad13f916fa531d4a55a863adb082f1d403870d2f6ecce9ef4b346822"
+  },
+  "notes": [
+    "Runs overlap; the test counts are not additive counts of distinct tests.",
+    "The full suite preceded the last request-integrity and dispatch guards; current-source focused checks covered those final changes.",
+    "Final test and production targets were rebuilt with the recorded source; hashes are in source_manifest.json.",
+    "Service acceptance preceded the final integrity guards; the final deployed-source hash/readiness and command-line mock smoke checked the final image.",
+    "Uncertain paid work is held for review, not replayed automatically.",
+    "Independent paid legacy host CLI ledgers remain outside shared API accounting."
+  ]
+}

@@ -1,0 +1,394 @@
+[
+  {
+    "elapsed_s": 0.07544613400023081,
+    "method": "GET",
+    "milliseconds": 61.86122900180635,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.07555025400142767,
+    "method": "GET",
+    "milliseconds": 63.015464998898096,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.07695503099967027,
+    "method": "GET",
+    "milliseconds": 65.44889900033013,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08726237000155379,
+    "method": "GET",
+    "milliseconds": 76.95202399918344,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08734521899896208,
+    "method": "GET",
+    "milliseconds": 80.55024600253091,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.0876653580016864,
+    "method": "GET",
+    "milliseconds": 84.64780999929644,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08772380099981092,
+    "method": "GET",
+    "milliseconds": 78.4468019992346,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08790160900025512,
+    "method": "GET",
+    "milliseconds": 83.56222299698857,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08806508999987273,
+    "method": "GET",
+    "milliseconds": 82.53855799921439,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 0.08822781500202836,
+    "method": "GET",
+    "milliseconds": 80.1500399975339,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.2037153960009164,
+    "method": "GET",
+    "milliseconds": 5.1540729982662015,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.2503389789999346,
+    "method": "GET",
+    "milliseconds": 6.086118999519385,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.596698961002403,
+    "method": "GET",
+    "milliseconds": 5.677453998941928,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 2.6403182220019517,
+    "method": "GET",
+    "milliseconds": 6.3247340003727,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.253722363999259,
+    "method": "GET",
+    "milliseconds": 5.534059000638081,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.269364456002222,
+    "method": "GET",
+    "milliseconds": 4.454358000657521,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.4613780510007928,
+    "method": "GET",
+    "milliseconds": 6.709998000587802,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.4617271200004325,
+    "method": "GET",
+    "milliseconds": 9.18068299870356,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 3.7917248619996826,
+    "method": "GET",
+    "milliseconds": 5.429779001133284,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 4.05419975499899,
+    "method": "GET",
+    "milliseconds": 29.012931998295244,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 4.69610153100075,
+    "method": "GET",
+    "milliseconds": 5.214973996771732,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 4.863438845000928,
+    "method": "GET",
+    "milliseconds": 6.818383997597266,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 5.654607075000968,
+    "method": "GET",
+    "milliseconds": 7.020832003036048,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 5.832891058002133,
+    "method": "GET",
+    "milliseconds": 4.798834001121577,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 5.9850577380020695,
+    "method": "GET",
+    "milliseconds": 4.698388001997955,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.605807829000696,
+    "method": "GET",
+    "milliseconds": 6.277771000895882,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.694779960998858,
+    "method": "GET",
+    "milliseconds": 5.581325000093784,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.730385393999313,
+    "method": "GET",
+    "milliseconds": 5.355994999263203,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 7.066198664000694,
+    "method": "GET",
+    "milliseconds": 8.251417999417754,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 7.066466889002186,
+    "method": "GET",
+    "milliseconds": 6.458924999606097,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.680191637999087,
+    "method": "GET",
+    "milliseconds": 5.2080200002819765,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.839192989998992,
+    "method": "GET",
+    "milliseconds": 6.5826419995573815,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.886695375000272,
+    "method": "GET",
+    "milliseconds": 5.151437002496095,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.895975326999178,
+    "method": "GET",
+    "milliseconds": 4.969098998117261,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 8.924736242999643,
+    "method": "GET",
+    "milliseconds": 5.381109000154538,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 9.189011885002401,
+    "method": "GET",
+    "milliseconds": 4.724824000732042,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 9.584690007999598,
+    "method": "GET",
+    "milliseconds": 4.991492998669855,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 9.850837448000675,
+    "method": "GET",
+    "milliseconds": 26.661446998332394,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 10.411003958000947,
+    "method": "GET",
+    "milliseconds": 6.527973997435765,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 10.509277680001105,
+    "method": "GET",
+    "milliseconds": 4.923619999317452,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 10.978101846001664,
+    "method": "GET",
+    "milliseconds": 6.081251001887722,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.601400438001292,
+    "method": "GET",
+    "milliseconds": 4.451735996553907,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 11.813365933001478,
+    "method": "GET",
+    "milliseconds": 5.513858999620425,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 12.220067447000474,
+    "method": "GET",
+    "milliseconds": 5.137847001606133,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 12.302650862002338,
+    "method": "GET",
+    "milliseconds": 8.196542999939993,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 12.53035480499966,
+    "method": "GET",
+    "milliseconds": 7.160418001149083,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 12.530579779002437,
+    "method": "GET",
+    "milliseconds": 5.113486000482226,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 12.673676090002118,
+    "method": "GET",
+    "milliseconds": 5.739539999922272,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 13.295246985999256,
+    "method": "GET",
+    "milliseconds": 4.656909000914311,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 13.836643835998984,
+    "method": "GET",
+    "milliseconds": 5.605307000223547,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 13.98102423599994,
+    "method": "GET",
+    "milliseconds": 4.985155999747803,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.314521435000643,
+    "method": "GET",
+    "milliseconds": 7.421125999826472,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.367687222998939,
+    "method": "GET",
+    "milliseconds": 10.401234998425934,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.577830353002355,
+    "method": "GET",
+    "milliseconds": 4.717060997791123,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.859333528998832,
+    "method": "GET",
+    "milliseconds": 5.975779000436887,
+    "route": "capabilities",
+    "status": 200
+  },
+  {
+    "elapsed_s": 14.874635902000591,
+    "method": "GET",
+    "milliseconds": 5.090319998998893,
+    "route": "capabilities",
+    "status": 200
+  }
+]

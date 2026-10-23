@@ -1,0 +1,35 @@
+Mode: mock
+Idempotency key: a1612a1276664dd084174b92fea09f01
+Job: 8c7848ef42684b7a8eb2ce6b865727af
+{"mode": "mock", "state": "running", "error_code": null, "stage": "running", "llm_calls": 0, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": null, "analysis": null}
+[2026-10-22T15:32:14.326438+00:00] Tool: profile_graph | succeeded | Analysis: Graph size, components and degree summary
+[2026-10-22T15:32:14.347336+00:00] Tool: community_test | dispatched | Analysis: Community structure versus a degree-preserving null model
+{"mode": "mock", "state": "running", "error_code": null, "stage": "execute", "llm_calls": 1, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": "community_test", "analysis": "Community structure versus a degree-preserving null model"}
+[2026-10-22T15:32:31.108627+00:00] Tool: community_test | succeeded | Analysis: Community structure versus a degree-preserving null model
+[2026-10-22T15:32:31.115184+00:00] Tool: edge_removal_sensitivity | dispatched | Analysis: Community verdict sensitivity to edge removal
+{"mode": "mock", "state": "running", "error_code": null, "stage": "execute", "llm_calls": 1, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": "edge_removal_sensitivity", "analysis": "Community verdict sensitivity to edge removal"}
+[2026-10-22T15:33:32.985848+00:00] Tool: edge_removal_sensitivity | succeeded | Analysis: Community verdict sensitivity to edge removal
+{"mode": "mock", "state": "running", "error_code": null, "stage": "finalize", "llm_calls": 1, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": null, "analysis": null}
+{"mode": "mock", "state": "completed", "error_code": null, "stage": "finalize", "llm_calls": 1, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": null, "analysis": null}
+{
+  "job_id": "8c7848ef42684b7a8eb2ce6b865727af",
+  "claim_type": "descriptive",
+  "scope": "configured observed graph only",
+  "summary": {
+    "status": "completed",
+    "verdict": "not_supported",
+    "flags": [
+      "degree_confound",
+      "disconnected"
+    ],
+    "observed_q": 0.5865256540039427,
+    "null_mean": 0.5932968286191437,
+    "p_value": 0.718,
+    "exceedances": 358,
+    "sensitivity_agreement": 20,
+    "llm_calls": 1,
+    "tokens_in": 1805,
+    "tokens_out": 64,
+    "actual_usd": 0.0
+  }
+}

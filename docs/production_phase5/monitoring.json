@@ -1,0 +1,387 @@
+{
+  "observed_utc": "2026-10-23T06:46:48.445185+00:00",
+  "scheduler_available": true,
+  "database_available": true,
+  "jobs": {
+    "abstained": 0,
+    "cancelled": 3,
+    "completed": 21,
+    "failed": 0,
+    "interrupted": 0,
+    "partial": 1,
+    "paused": 0,
+    "queued": 0,
+    "running": 0,
+    "timed_out": 0
+  },
+  "recoveries": 0,
+  "charged_usd": 0.003936626,
+  "settled_usd": 0.003936626,
+  "reserved_or_held_usd": 0.0,
+  "budget_used_usd": 1.3908693144999997,
+  "budget_ceiling_usd": 3.0,
+  "queue_oldest_seconds": 0.0,
+  "queue_wait_seconds": [
+    0.007581,
+    0.007396,
+    0.007401,
+    0.006251,
+    0.00547,
+    0.005351,
+    0.006677,
+    0.004698,
+    0.00483,
+    0.007156,
+    0.00538,
+    0.006681,
+    0.005872,
+    0.004985,
+    0.007305,
+    0.005312,
+    0.006331,
+    0.006365,
+    0.004952,
+    0.005058
+  ],
+  "completion_seconds": [
+    88.057156,
+    85.406138,
+    89.26832,
+    14.815118,
+    5.463685,
+    115.996958,
+    5.894563,
+    6.726468,
+    5.083245,
+    4.950863,
+    2.056149,
+    85.180055,
+    5.238836,
+    7.033838,
+    5.101775,
+    5.076027,
+    2.048561,
+    85.504678,
+    89.83163,
+    81.459105,
+    83.718792,
+    2.04808,
+    84.140054
+  ],
+  "tool": {
+    "profile_graph": {
+      "succeeded": 9,
+      "failed": 0,
+      "seconds": [
+        0.001196,
+        0.000978,
+        0.000869,
+        0.000914,
+        0.001928,
+        0.000746,
+        0.000906,
+        0.00098,
+        0.001102
+      ]
+    },
+    "community_test": {
+      "succeeded": 11,
+      "failed": 0,
+      "seconds": [
+        16.988185,
+        16.915797,
+        17.017169,
+        16.460351,
+        16.155248,
+        15.887444,
+        15.795212,
+        16.752613,
+        16.537344,
+        15.566483,
+        17.278806
+      ]
+    },
+    "edge_removal_sensitivity": {
+      "succeeded": 11,
+      "failed": 0,
+      "seconds": [
+        65.524176,
+        63.356032,
+        66.273399,
+        63.79634,
+        63.929953,
+        61.297062,
+        60.876699,
+        61.862121,
+        62.057828,
+        59.452366,
+        66.708413
+      ]
+    },
+    "node_centrality": {
+      "succeeded": 3,
+      "failed": 0,
+      "seconds": [
+        0.008282,
+        0.007822,
+        0.007771
+      ]
+    },
+    "community_partition": {
+      "succeeded": 3,
+      "failed": 0,
+      "seconds": [
+        0.012833,
+        0.013587,
+        0.012731
+      ]
+    },
+    "community_bridge": {
+      "succeeded": 3,
+      "failed": 0,
+      "seconds": [
+        0.001785,
+        0.001354,
+        0.001412
+      ]
+    },
+    "ranking_sensitivity": {
+      "succeeded": 5,
+      "failed": 0,
+      "seconds": [
+        0.042809,
+        0.043652,
+        0.032143,
+        0.043552,
+        0.031191
+      ]
+    },
+    "reliability_audit": {
+      "succeeded": 2,
+      "failed": 1,
+      "seconds": [
+        0.09499,
+        0.093884,
+        0.164643
+      ]
+    },
+    "belief_update": {
+      "succeeded": 2,
+      "failed": 1,
+      "seconds": [
+        0.068699,
+        0.073907,
+        0.059136
+      ]
+    },
+    "experiment_decision": {
+      "succeeded": 2,
+      "failed": 1,
+      "seconds": [
+        0.065348,
+        0.064552,
+        0.057663
+      ]
+    },
+    "causal_identification_check": {
+      "succeeded": 2,
+      "failed": 1,
+      "seconds": [
+        0.063309,
+        0.061973,
+        0.062174
+      ]
+    },
+    "link_prediction": {
+      "succeeded": 1,
+      "failed": 0,
+      "seconds": [
+        110.693082
+      ]
+    },
+    "prediction_compare": {
+      "succeeded": 1,
+      "failed": 0,
+      "seconds": [
+        0.000153
+      ]
+    },
+    "behavior_features": {
+      "succeeded": 2,
+      "failed": 0,
+      "seconds": [
+        0.431419,
+        0.437369
+      ]
+    },
+    "behavior_clustering": {
+      "succeeded": 2,
+      "failed": 0,
+      "seconds": [
+        0.425971,
+        0.39258
+      ]
+    },
+    "behavior_similarity": {
+      "succeeded": 2,
+      "failed": 0,
+      "seconds": [
+        0.419399,
+        0.374256
+      ]
+    },
+    "behavior_anomalies": {
+      "succeeded": 2,
+      "failed": 0,
+      "seconds": [
+        0.450892,
+        0.380514
+      ]
+    }
+  },
+  "llm": {
+    "calls": 29,
+    "input_tokens": 48817,
+    "output_tokens": 4864,
+    "actual_or_assumed_usd": 0.003936626,
+    "reservation_estimate_usd": 0.2195724256,
+    "retries": 0,
+    "errors": {},
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-flash-0731",
+    "ttft_seconds": null,
+    "generation_tokens_per_second": null,
+    "rate_limits": 0
+  },
+  "sample_jobs": 25,
+  "sample_limit": 100,
+  "workflow_read_failures": 0,
+  "traces_missing": 23,
+  "worker_peak_rss_bytes": 216154112,
+  "graph_nodes": [
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104,
+    104
+  ],
+  "graph_edges": [
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137,
+    137
+  ],
+  "llm_seconds": [
+    0.023617,
+    0.020012
+  ],
+  "provider_seconds": [
+    0.000221,
+    0.000136
+  ],
+  "tool_selection_rejections": 4,
+  "workflow_tool_failures": 4,
+  "agent_completion_fraction": 0.84,
+  "cost_per_successful_live_analysis_usd": 0.0013122086666666668,
+  "api": {
+    "active_requests": 1,
+    "window_seconds": 300,
+    "window_samples": 63,
+    "window_capacity": 2048,
+    "request_rate_per_second": 0.21,
+    "error_fraction": 0.0,
+    "p50_seconds": 0.013323823997779982,
+    "p95_seconds": 0.02379669799847761,
+    "p99_seconds": 0.9263896520023991
+  },
+  "telemetry_write_failures_process": 0,
+  "resources": {
+    "memory_current_bytes": 169545728,
+    "memory_limit_bytes": 2147483648,
+    "pids_current": 45,
+    "pids_limit": 128,
+    "disk_free_bytes": 1012325109760
+  },
+  "alerts": [
+    {
+      "name": "storage_unavailable",
+      "firing": false,
+      "action": "Check volume and free disk; preserve ledgers."
+    },
+    {
+      "name": "scheduler_unavailable",
+      "firing": false,
+      "action": "Inspect worker and restart only after reviewing active live jobs."
+    },
+    {
+      "name": "queue_pressure",
+      "firing": false,
+      "action": "Review workload; do not raise limits without measurements."
+    },
+    {
+      "name": "api_errors",
+      "firing": false,
+      "action": "Inspect sanitized request categories and readiness."
+    },
+    {
+      "name": "provider_failures",
+      "firing": false,
+      "action": "Review provider and billing holds; never resend uncertain calls."
+    },
+    {
+      "name": "budget_pressure",
+      "firing": false,
+      "action": "Review retained project budget before another paid job."
+    },
+    {
+      "name": "worker_memory_pressure",
+      "firing": false,
+      "action": "Review graph size and algorithm timings."
+    },
+    {
+      "name": "storage_pressure",
+      "firing": false,
+      "action": "Free unrelated disk space; preserve authoritative scientific and billing records."
+    },
+    {
+      "name": "telemetry_degraded",
+      "firing": false,
+      "action": "Inspect storage; monitoring failures do not authorize scientific retries."
+    }
+  ]
+}

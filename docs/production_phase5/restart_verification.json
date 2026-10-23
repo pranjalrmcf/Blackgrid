@@ -1,0 +1,12 @@
+{
+  "post_restart_ready": true,
+  "completed_result_exact": true,
+  "original_trace_prefix_exact": true,
+  "service_log_records": 480,
+  "known_secrets_absent": true,
+  "tool_analysis_logged": true,
+  "request_job_correlation_logged": true,
+  "registered_tools_available": 18,
+  "new_jobs_submitted": 0,
+  "paid_calls": 0
+}

@@ -1,0 +1,54 @@
+{
+  "actual_usd": 0,
+  "category": "offline_mock_execution",
+  "latency": {
+    "p50": 0.07550036099928548,
+    "p95": 0.1505692140017345,
+    "p99": 0.1505692140017345,
+    "samples": 3
+  },
+  "limitations": "Scripted latency/errors; does not measure real inference, quality, streaming TTFT or production provider reliability.",
+  "malformed_fixture_detected": true,
+  "real_provider_calls": 0,
+  "rows": [
+    {
+      "input_tokens": 32,
+      "output_tokens": 33,
+      "prompt_bytes": 126,
+      "scenario": "latency",
+      "seconds": 0.029760452001937665,
+      "valid_json": true
+    },
+    {
+      "input_tokens": 253,
+      "output_tokens": 33,
+      "prompt_bytes": 1008,
+      "scenario": "latency",
+      "seconds": 0.07550036099928548,
+      "valid_json": true
+    },
+    {
+      "input_tokens": 1022,
+      "output_tokens": 33,
+      "prompt_bytes": 4086,
+      "scenario": "latency",
+      "seconds": 0.1505692140017345,
+      "valid_json": true
+    },
+    {
+      "category": "transient",
+      "scenario": "error_fixture",
+      "seconds": 9.586001397110522e-06
+    },
+    {
+      "category": "permanent",
+      "scenario": "error_fixture",
+      "seconds": 1.2460004654712975e-06
+    },
+    {
+      "category": "uncertain",
+      "scenario": "error_fixture",
+      "seconds": 7.169983291532844e-07
+    }
+  ]
+}

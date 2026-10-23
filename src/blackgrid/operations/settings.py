@@ -17,6 +17,9 @@ class Settings(Contract):
     config: Path = ROOT / "configs" / "collegemsg_sprint01.json"
     data_root: Path = ROOT
     runs_dir: Path = ROOT / "runs"
+    evidence_root: Path | None = None
+    benchmark_results_dir: Path | None = None
+    benchmark_mock_profile: Literal["none", "latency"] = "none"
     port: int = Field(default=8765, ge=1, le=65535)
     shutdown_grace_seconds: float = Field(default=30, gt=0, le=300, allow_inf_nan=False)
     capabilities: tuple[Literal["community", "forecast", "research"], ...] = ("community",)
@@ -29,7 +32,8 @@ class Settings(Contract):
 def load_settings(env: Mapping[str, str] | None = None) -> Settings:
     env = os.environ if env is None else env
     names = {"environment": "ENV", "config": "CONFIG", "data_root": "DATA_ROOT",
-             "runs_dir": "RUNS_DIR", "port": "PORT", "shutdown_grace_seconds": "SHUTDOWN_GRACE_SECONDS"}
+             "runs_dir": "RUNS_DIR", "evidence_root": "EVIDENCE_ROOT", "benchmark_results_dir": "BENCHMARK_RESULTS_DIR",
+             "benchmark_mock_profile": "BENCHMARK_MOCK_PROFILE", "port": "PORT", "shutdown_grace_seconds": "SHUTDOWN_GRACE_SECONDS"}
     values = {field: env["BLACKGRID_" + suffix] for field, suffix in names.items()
               if "BLACKGRID_" + suffix in env}
     if "BLACKGRID_CAPABILITIES" in env:

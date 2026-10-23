@@ -1,0 +1,40 @@
+{
+  "phase": 5,
+  "status": "complete_single_host_local_scope",
+  "verified_utc": "2026-10-23T06:51:45.4370844Z",
+  "tests": {
+    "passed": 638,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 357.222
+  },
+  "image": "blackgrid:phase5",
+  "image_id": "sha256:9768cb44329f1608cff3fab7554e2b93b803230026ec2736f2b97af742e5c3fb",
+  "source_files_exact": 77,
+  "exact_api_result_parity": true,
+  "restart": {
+    "post_restart_ready": true,
+    "completed_result_exact": true,
+    "original_trace_prefix_exact": true,
+    "service_log_records": 480,
+    "known_secrets_absent": true,
+    "tool_analysis_logged": true,
+    "request_job_correlation_logged": true,
+    "registered_tools_available": 18,
+    "new_jobs_submitted": 0,
+    "paid_calls": 0
+  },
+  "original_jobs_preserved": 23,
+  "current_job_states": {
+    "cancelled": 3,
+    "completed": 21,
+    "partial": 1
+  },
+  "new_paid_calls": 0,
+  "new_real_pricing_calls": 0,
+  "new_external_exporters": 0,
+  "offline_acceptance_jobs": 3,
+  "phase6_started": false,
+  "source_manifest_sha256": "145e2872d5ab9658b9eef59139c5bab656dad526097f0538448c89d8e7f6eb5b"
+}

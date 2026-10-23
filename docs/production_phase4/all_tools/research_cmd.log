@@ -1,0 +1,184 @@
+Mode: mock
+Idempotency key: 388bdacf443c4d8b8ffd33001c3041e2
+Job: cd82860a60c4424d897ed86c46f64acc
+{"mode": "mock", "state": "running", "error_code": null, "stage": "running", "llm_calls": 0, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": null, "analysis": null}
+[2026-10-22T16:28:03.121397+00:00] Tool: reliability_audit | succeeded | Analysis: Saved synthetic calibration and bootstrap evidence
+[2026-10-22T16:28:03.209335+00:00] Tool: belief_update | succeeded | Analysis: Saved synthetic Bayesian beliefs
+[2026-10-22T16:28:03.289145+00:00] Tool: experiment_decision | succeeded | Analysis: Saved synthetic experiment-or-stop decision
+[2026-10-22T16:28:03.365313+00:00] Tool: causal_identification_check | succeeded | Analysis: Saved synthetic causal assumptions and real-data non-identification
+{"mode": "mock", "state": "completed", "error_code": null, "stage": "finalize", "llm_calls": 2, "actual_usd": 0.0, "reserved_usd": 0, "current_tool": null, "analysis": null}
+{
+  "job_id": "cd82860a60c4424d897ed86c46f64acc",
+  "family": "research",
+  "claim_type": "descriptive",
+  "scope": "pinned saved synthetic demonstration only; not evidence about the selected real graph",
+  "analyses": {
+    "reliability_audit": {
+      "artifact": "reliability_audit.json",
+      "analysis": "Saved synthetic calibration and bootstrap evidence",
+      "summary": {
+        "graphs": 30,
+        "probability_display": false,
+        "bootstrap_confidence_lower": -0.0002674585265745269,
+        "bootstrap_confidence_upper": 0.0008294950204205177,
+        "scope": "saved synthetic temporal-graph demonstration; not real-data calibration"
+      }
+    },
+    "belief_update": {
+      "artifact": "belief_update.json",
+      "analysis": "Saved synthetic Bayesian beliefs",
+      "summary": {
+        "target": "success rate across independent simulated tasks",
+        "methods": {
+          "A": {
+            "alpha": 2,
+            "beta": 1,
+            "credible_lower": 0.15811388300841897,
+            "credible_upper": 0.9874208829065749,
+            "mean": 0.6666666666666666
+          },
+          "B": {
+            "alpha": 1,
+            "beta": 1,
+            "credible_lower": 0.025,
+            "credible_upper": 0.975,
+            "mean": 0.5
+          }
+        }
+      }
+    },
+    "experiment_decision": {
+      "artifact": "experiment_decision.json",
+      "analysis": "Saved synthetic experiment-or-stop decision",
+      "summary": {
+        "abstention": null,
+        "real_forecast_voi": "unavailable: no experiment-outcome model",
+        "action": "stop"
+      }
+    },
+    "causal_identification_check": {
+      "artifact": "causal_identification_check.json",
+      "analysis": "Saved synthetic causal assumptions and real-data non-identification",
+      "summary": {
+        "synthetic_verdict": "simulated intervention only",
+        "real_verdict": "not identified"
+      }
+    }
+  },
+  "conclusions": [
+    {
+      "text": "The saved synthetic calibration study used 30 independent graphs; it does not validate probability display for real forecasts.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "reliability_audit.json#/graphs",
+        "reliability_audit.json#/probability_display",
+        "reliability_audit.json#/scope"
+      ]
+    },
+    {
+      "text": "The synthetic paired Brier bootstrap confidence interval is [-0.000267, 0.000829].",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "reliability_audit.json#/bootstrap_confidence_lower",
+        "reliability_audit.json#/bootstrap_confidence_upper",
+        "reliability_audit.json#/paired_brier/interval_type"
+      ]
+    },
+    {
+      "text": "Under the registered synthetic Beta model, method A has posterior mean 0.6667 and a credible interval [0.1581, 0.9874].",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "belief_update.json#/methods/A/mean",
+        "belief_update.json#/methods/A/credible_lower",
+        "belief_update.json#/methods/A/credible_upper",
+        "belief_update.json#/target"
+      ]
+    },
+    {
+      "text": "The saved synthetic loop's next action is 'stop' under its registered utility; value of information for real forecasts is unavailable.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "experiment_decision.json#/decision/action",
+        "experiment_decision.json#/real_forecast_voi"
+      ]
+    },
+    {
+      "text": "The saved synthetic objective charges 0.0200 utility units per experiment; the decision rationale is 'no feasible positive net value'.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "experiment_decision.json#/decision/objective/cost",
+        "experiment_decision.json#/decision/reason"
+      ]
+    },
+    {
+      "text": "Saved synthetic action A has expected value of sample information 0.0000 and net value -0.0200 in registered utility units.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "experiment_decision.json#/candidates/A/action",
+        "experiment_decision.json#/candidates/A/evsi",
+        "experiment_decision.json#/candidates/A/net_value"
+      ]
+    },
+    {
+      "text": "Saved synthetic action B has expected value of sample information 0.0000 and net value -0.0200 in registered utility units.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "experiment_decision.json#/candidates/B/action",
+        "experiment_decision.json#/candidates/B/evsi",
+        "experiment_decision.json#/candidates/B/net_value"
+      ]
+    },
+    {
+      "text": "The registered causal example supports simulated intervention only; CollegeMsg causal effects are not identified.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "causal_identification_check.json#/synthetic/verdict",
+        "causal_identification_check.json#/real/verdict",
+        "causal_identification_check.json#/synthetic/limitation"
+      ]
+    },
+    {
+      "text": "The saved synthetic estimand is ATE: treatment T on outcome Y, with unit 'independent synthetic graph'.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "causal_identification_check.json#/synthetic/review/estimand",
+        "causal_identification_check.json#/synthetic/review/treatment",
+        "causal_identification_check.json#/synthetic/review/outcome",
+        "causal_identification_check.json#/synthetic/review/unit"
+      ]
+    },
+    {
+      "text": "The synthetic review records consistency=True; positivity=True; no_hidden_confounding=True; no_interference=True; no_selection_bias=True; measurement_valid=True; time_order=True. These are supplied assumptions, not empirically verified facts.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "causal_identification_check.json#/synthetic/review/consistency",
+        "causal_identification_check.json#/synthetic/review/positivity",
+        "causal_identification_check.json#/synthetic/review/no_hidden_confounding",
+        "causal_identification_check.json#/synthetic/review/no_interference",
+        "causal_identification_check.json#/synthetic/review/no_selection_bias",
+        "causal_identification_check.json#/synthetic/review/measurement_valid",
+        "causal_identification_check.json#/synthetic/review/time_order",
+        "causal_identification_check.json#/synthetic/limitation"
+      ]
+    },
+    {
+      "text": "The saved synthetic adjustment set is X; the checker validates DAG syntax and the supported backdoor criterion only.",
+      "evidence_level": "descriptive",
+      "evidence": [
+        "causal_identification_check.json#/synthetic/review/adjustment/0",
+        "causal_identification_check.json#/synthetic/limitation"
+      ]
+    }
+  ],
+  "missing_analyses": [],
+  "research_verification_profile": "api-beliefs-portability-v1",
+  "summary": {
+    "status": "completed",
+    "verdict": "supported",
+    "flags": [],
+    "llm_calls": 2,
+    "tokens_in": 4630,
+    "tokens_out": 1104,
+    "actual_usd": 0.0
+  }
+}

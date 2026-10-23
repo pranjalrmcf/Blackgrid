@@ -1,0 +1,107 @@
+[
+  {
+    "elapsed_s": 0.03492898000331479,
+    "method": "POST",
+    "milliseconds": 31.85341100106598,
+    "route": "job_submit",
+    "status": 202
+  },
+  {
+    "elapsed_s": 3.534574204000819,
+    "method": "GET",
+    "milliseconds": 45.0289079999493,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 6.840391329002159,
+    "method": "GET",
+    "milliseconds": 6.320862001302885,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 7.731738693000807,
+    "method": "GET",
+    "milliseconds": 891.2172310010646,
+    "route": "job_results",
+    "status": 200
+  },
+  {
+    "elapsed_s": 10.806328304002818,
+    "method": "POST",
+    "milliseconds": 20.979394001187757,
+    "route": "job_submit",
+    "status": 202
+  },
+  {
+    "elapsed_s": 14.296689682003489,
+    "method": "GET",
+    "milliseconds": 4.6305089999805205,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 16.981506182000885,
+    "method": "GET",
+    "milliseconds": 6.29416399897309,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 19.795771324003,
+    "method": "POST",
+    "milliseconds": 14.328876000945456,
+    "route": "job_submit",
+    "status": 202
+  },
+  {
+    "elapsed_s": 23.317661657001736,
+    "method": "GET",
+    "milliseconds": 5.230872000538511,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 26.198981302000902,
+    "method": "GET",
+    "milliseconds": 8.954897999501554,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 26.208791332002875,
+    "method": "GET",
+    "milliseconds": 9.68415500028641,
+    "route": "job_results",
+    "status": 200
+  },
+  {
+    "elapsed_s": 29.396663360003004,
+    "method": "POST",
+    "milliseconds": 20.059229002072243,
+    "route": "job_submit",
+    "status": 202
+  },
+  {
+    "elapsed_s": 31.91386165700169,
+    "method": "GET",
+    "milliseconds": 6.363371998304501,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 34.49573915300061,
+    "method": "GET",
+    "milliseconds": 9.99474199852557,
+    "route": "job_status",
+    "status": 200
+  },
+  {
+    "elapsed_s": 34.5023588710028,
+    "method": "GET",
+    "milliseconds": 6.504330998723162,
+    "route": "job_results",
+    "status": 200
+  }
+]

@@ -12,6 +12,17 @@ from urllib.error import HTTPError, URLError
 from urllib.request import HTTPSHandler, ProxyHandler, Request, build_opener
 
 
+def tool_messages(progress, seen):
+    """Include completed tools missed between polls; print only server-approved labels."""
+    messages = []
+    for item in progress.get("tools", []):
+        key = item["sequence"]
+        if seen.get(key) != item["state"]:
+            messages.append(f"[{item['updated_utc']}] Tool: {item['tool']} | {item['state']} | Analysis: {item['analysis']}")
+            seen[key] = item["state"]
+    return messages
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--question")
@@ -65,20 +76,27 @@ def main() -> int:
             job_id = request("/api/v1/jobs", body)["job_id"]
         print("Job:", job_id, flush=True)
         previous = None
+        seen_tools = {}
         deadline = time.monotonic() + 1000
         while time.monotonic() < deadline:
             row = request("/api/v1/jobs/" + job_id)
             progress = {"mode": row.get("mode"), "state": row["state"], "error_code": row.get("error_code"),
                         **row.get("progress", {})}
+            for message in tool_messages(progress, seen_tools):
+                print(message, flush=True)
+            progress.pop("tools", None)
             if progress != previous:
                 print(json.dumps(progress), flush=True)
                 previous = progress
             if row["state"] not in ("queued", "running"):
                 break
             time.sleep(2)
-        if row["state"] == "completed":
+        if row["state"] in ("completed", "abstained", "partial"):
             print(json.dumps(request(f"/api/v1/jobs/{job_id}/results"), indent=2))
-            return 0
+            return 0 if row["state"] == "completed" else 1
+        if row["state"] in ("queued", "running"):
+            print(f"Job is still {row['state']}. Continue watching with --job-id {job_id}; do not submit a replacement.")
+            return 1
         print("Retain this job ID. Paused/interrupted/uncertain work requires inspection; no automatic replay.")
         return 1
     except (OSError, URLError, RuntimeError) as exc:

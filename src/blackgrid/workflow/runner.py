@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import subprocess
 import uuid
@@ -85,6 +86,12 @@ def apply_env_model(config: RunConfig, env_file: Path) -> RunConfig:
 def make_provider(config: RunConfig, *, allow_paid: bool, replay_from: Path | None, env_file: Path) -> Provider:
     """Provider for a run. Live needs the config flag; per-run authorization is checked by the workflow."""
     if config.mode is ExecutionMode.MOCK:
+        if os.environ.get("BLACKGRID_BENCHMARK_MOCK_PROFILE"):
+            if (os.environ["BLACKGRID_BENCHMARK_MOCK_PROFILE"] != "latency"
+                    or not config.dataset.source_url.startswith("blackgrid-synthetic-v1:")):
+                raise ValueError("invalid synthetic benchmark mock profile")
+            from blackgrid.operations.benchmark_mock import LatencyMockProvider
+            return LatencyMockProvider()
         return MockProvider()
     if config.mode is ExecutionMode.REPLAY:
         if replay_from is None:
@@ -289,7 +296,8 @@ def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Prov
                       cache_dir: Path | None, input_ref: dict, run_prefix: str = "", reproduce: str = "",
                       extra_artifacts: dict[str, object] | None = None, allow_paid: bool = False,
                       replay_from: Path | None = None, env_file: Path | None = None,
-                      faults: set[str] | None = None, parent_run: str | None = None) -> RunOutput:
+                      faults: set[str] | None = None, parent_run: str | None = None,
+                      tool_evidence: dict | None = None) -> RunOutput:
     """Start a durable workflow run. Live runs without --allow-paid pause before the first paid call."""
     started = datetime.now(UTC)
     run_id = f"{run_prefix}{started:%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:6]}"
@@ -297,6 +305,10 @@ def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Prov
     run_dir.mkdir(parents=True, exist_ok=False)
     from blackgrid.agent.inquiry import family
     input_ref = input_ref | {"inquiry": {"question": inp.question, "request": dict(inp.request)}}
+    if tool_evidence is not None:
+        from blackgrid.workflow.evidence import ToolEvidence
+        binding = ToolEvidence.model_validate(tool_evidence)
+        input_ref = input_ref | {"tool_evidence": binding.model_dump(mode="json")}
     config = config.model_copy(update={"question": inp.question})
     if inp.request.get("family") == "auto" or family(inp.question, inp.request) == "research":
         # Trusted system choice, never taken from question/model arguments. Pin identity before planning.
@@ -305,6 +317,12 @@ def run_investigation(inp: InvestigationInput, config: RunConfig, provider: Prov
         input_ref = input_ref | {"research_evidence": {
             "path": str(reference), "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest()
             if manifest.is_file() else "unavailable"}}
+        if tool_evidence is not None:
+            research = binding.file("research")
+            input_ref["research_evidence"] = ({"path": str(research.parent),
+                "manifest_sha256": binding.files["research"].sha256,
+                "verification_profile": binding.research_profile} if research else
+                {"path": str(run_dir / "unavailable-research"), "manifest_sha256": "unavailable"})
     write_json(run_dir / "config.json", config.model_dump(mode="json"))
     write_json(run_dir / "graph_record.json", inp.record.model_dump(mode="json"))
     for name, payload in (extra_artifacts or {}).items():

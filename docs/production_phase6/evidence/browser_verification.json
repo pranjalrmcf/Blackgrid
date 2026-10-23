@@ -1,0 +1,14 @@
+{
+  "browser": "Edge headless",
+  "certificate_key_pinned": true,
+  "launcher_pin_independently_verified": true,
+  "independent_tls_verified": true,
+  "login": true,
+  "live_updates": true,
+  "desktop": true,
+  "mobile_no_overflow": true,
+  "logout_revoked": true,
+  "page_errors": 0,
+  "external_page_requests": 0,
+  "credentials_exported": false
+}

@@ -1,0 +1,220 @@
+{
+  "actual_usd": 0,
+  "agent_worker_seconds": {
+    "p50": 4.840389,
+    "p95": 7.045582,
+    "p99": 7.045582,
+    "samples": 9
+  },
+  "api_latency_ms": {
+    "p50": 6.325695001578424,
+    "p95": 61.48376499913866,
+    "p99": 87.01538699824596,
+    "samples": 76
+  },
+  "category": "mixed",
+  "completed_analyses_per_minute": 10.685477826559433,
+  "configured_users": 5,
+  "counts": {
+    "accepted": 9,
+    "censored": 0,
+    "completed": 9,
+    "failed": 0,
+    "rate_limited": 0,
+    "rejected": 0,
+    "requests": 76,
+    "unexpected_errors": 0
+  },
+  "creation_to_terminal_seconds": {
+    "p50": 20.562541,
+    "p95": 26.872476,
+    "p99": 26.872476,
+    "samples": 9
+  },
+  "elapsed_s": 50.535877643000276,
+  "generator_cpu_seconds": 1.245692,
+  "generator_peak_rss_bytes": 57266176,
+  "identity": {
+    "config_sha256": "8d28856a3d55ee5ac7cbf30c839f920b4e89232da815c071131aa034e1e21aef",
+    "data_sha256": "e18b711ef5e06912ed464d683657c6a4231d40382c8548ce075ada29cfa09299",
+    "live_enabled": false,
+    "mock_profile": "latency",
+    "mode": "mock",
+    "origin": "synthetic",
+    "queue_slots": 8,
+    "version": "production-phase6-v1",
+    "worker_slots": 1
+  },
+  "jobs": {
+    "382ea7fb2fcc45799d305144cbd6fb24": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:51:21.321420+00:00",
+      "created_utc": "2026-10-23T07:51:00.758879+00:00",
+      "owner_ordinal": 1,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:51:16.286887+00:00",
+      "state": "completed",
+      "submitted_s": 25.58632004699757,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "4e9affe48a924a1d92dbc98acfb78d4f": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:50:50.196169+00:00",
+      "created_utc": "2026-10-23T07:50:35.249140+00:00",
+      "owner_ordinal": 3,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:50:45.159187+00:00",
+      "state": "completed",
+      "submitted_s": 0.0758915389997128,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "52eeb15729d140edb388e88f33c17981": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:50:57.297964+00:00",
+      "created_utc": "2026-10-23T07:50:35.259269+00:00",
+      "owner_ordinal": 1,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:50:50.252382+00:00",
+      "state": "completed",
+      "submitted_s": 0.08729857800062746,
+      "tokens_in": 1801,
+      "tokens_out": 64
+    },
+    "7a12db7e4ffb45c2a73b55933fa13cb7": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:50:45.154507+00:00",
+      "created_utc": "2026-10-23T07:50:35.234583+00:00",
+      "owner_ordinal": 2,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:50:40.318266+00:00",
+      "state": "completed",
+      "submitted_s": 0.06616011000005528,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "8772c53e07f049179531bbf6b7a8514d": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:51:06.604113+00:00",
+      "created_utc": "2026-10-23T07:50:43.646478+00:00",
+      "owner_ordinal": 4,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:51:02.165932+00:00",
+      "state": "completed",
+      "submitted_s": 8.479544639998494,
+      "tokens_in": 1801,
+      "tokens_out": 56
+    },
+    "9ca95127b3414ac983ebe4ca0c938479": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:51:16.283867+00:00",
+      "created_utc": "2026-10-23T07:50:56.789338+00:00",
+      "owner_ordinal": 3,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:51:11.450448+00:00",
+      "state": "completed",
+      "submitted_s": 21.632327177998377,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "9ce1e8e0b9de4c67be55fc2e6a918459": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:50:40.312684+00:00",
+      "created_utc": "2026-10-23T07:50:35.220886+00:00",
+      "owner_ordinal": 4,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:50:35.276508+00:00",
+      "state": "completed",
+      "submitted_s": 0.050397333998262184,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    },
+    "be03a5d8a89c471cb6d0530f336ec51d": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:51:02.143038+00:00",
+      "created_utc": "2026-10-23T07:50:35.270562+00:00",
+      "owner_ordinal": 5,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:50:57.302649+00:00",
+      "state": "completed",
+      "submitted_s": 0.0973177060004673,
+      "tokens_in": 2530,
+      "tokens_out": 84
+    },
+    "c2db9fa6c91c4f31989692e9e5f26a99": {
+      "actual_usd": 0.0,
+      "attempts": 1,
+      "completed_utc": "2026-10-23T07:51:11.445544+00:00",
+      "created_utc": "2026-10-23T07:50:48.964584+00:00",
+      "owner_ordinal": 2,
+      "result_verified": true,
+      "started_utc": "2026-10-23T07:51:06.609132+00:00",
+      "state": "completed",
+      "submitted_s": 13.791436240000621,
+      "tokens_in": 2352,
+      "tokens_out": 72
+    }
+  },
+  "limitations": [
+    "small exploratory engineering pilot",
+    "closed-loop users",
+    "synthetic only",
+    "scripted mock latency",
+    "one target worker",
+    "no real provider speed or quality claim"
+  ],
+  "mode": "mock",
+  "observed_peak_users": 5,
+  "offered_seconds": 30,
+  "offered_submissions": 9,
+  "origin": "synthetic",
+  "protocol_sha256": "9d5c7e538797f95b0faa21026b9224f8ed28144553b3f7d2bbb44bf39779e4de",
+  "queue_wait_seconds": {
+    "p50": 14.993113,
+    "p95": 22.032087,
+    "p99": 22.032087,
+    "samples": 9
+  },
+  "requests_per_second": 1.503882064478735,
+  "route_latency_ms": {
+    "job_results": {
+      "p50": 5.827171000419185,
+      "p95": 22.410583002056228,
+      "p99": 22.410583002056228,
+      "samples": 9
+    },
+    "job_status": {
+      "p50": 6.001087996992283,
+      "p95": 12.259070001164218,
+      "p99": 51.00918300013291,
+      "samples": 58
+    },
+    "job_submit": {
+      "p50": 41.88474500188022,
+      "p95": 87.01538699824596,
+      "p99": 87.01538699824596,
+      "samples": 9
+    }
+  },
+  "run_id": "20261023T074841Z-3b55c5-mixed-u5",
+  "state": "completed",
+  "stop_reason": null,
+  "tokens_in": 20956,
+  "tokens_out": 684,
+  "version": "production-phase6-v2",
+  "versions": {
+    "locust": "2.46.6",
+    "networkx": "3.6.1",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+  }
+}

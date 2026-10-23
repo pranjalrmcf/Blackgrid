@@ -19,9 +19,10 @@ class ResearchRequest(Contract):
 
 
 class ResearchTools:
-    def __init__(self, output: Path, expected_manifest: str | None = None):
+    def __init__(self, output: Path, expected_manifest: str | None = None, verification_profile: str | None = None):
         self.output = output
         self.expected_manifest = expected_manifest
+        self.verification_profile = verification_profile
 
     def call(self, raw: dict) -> dict:
         request = ResearchRequest.model_validate(raw)
@@ -30,7 +31,7 @@ class ResearchTools:
             if not manifest.is_file() or hashlib.sha256(manifest.read_bytes()).hexdigest() != self.expected_manifest:
                 raise ValueError("bound research evidence changed or is unavailable")
         from blackgrid.evaluation.sprint7 import verify
-        verify(self.output)
+        verify(self.output, numerical_profile=self.verification_profile)
         def read(name):
             return json.loads((self.output / name).read_text(encoding="utf-8"))
         if request.tool == "reliability_audit":

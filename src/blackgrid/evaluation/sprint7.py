@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
+import math
 import platform
 import subprocess
 import time
@@ -199,7 +200,40 @@ def causal_comparison(guard: Guard) -> dict:
             "limitation": "randomized toy example; no evidence of real-world causal influence"}
 
 
-def verify(output: Path) -> dict:
+def beliefs_match(actual: dict, recorded: dict, profile: str | None = None) -> bool:
+    if profile is None:
+        return actual == recorded
+    if profile != "api-beliefs-portability-v1":
+        raise ValueError("unknown belief verification profile")
+    # Compare on a copy only. Source artifacts and all non-derived fields stay exact.
+    comparison = json.loads(json.dumps(actual))
+    try:
+        for method in ("A", "B"):
+            for field, size in (("mean", 1), ("credible_interval_95", 2), ("predictive_block_10", 11)):
+                left, right = actual["methods"][method][field], recorded["methods"][method][field]
+                lefts, rights = ([left], [right]) if size == 1 else (left, right)
+                if not isinstance(lefts, list) or not isinstance(rights, list) or len(lefts) != size or len(rights) != size:
+                    return False
+                for a, b in zip(lefts, rights):
+                    if (type(a) is not float or type(b) is not float or not math.isfinite(a) or not math.isfinite(b)
+                            or not 0 <= a <= 1 or not 0 <= b <= 1
+                            or abs(a-b) > 1e-12 + 1e-12 * max(abs(a), abs(b))):
+                        return False
+                comparison["methods"][method][field] = right
+    except (KeyError, TypeError):
+        return False
+    def exact(left, right):
+        if type(left) is not type(right):
+            return False
+        if isinstance(left, dict):
+            return left.keys() == right.keys() and all(exact(left[key], right[key]) for key in left)
+        if isinstance(left, list):
+            return len(left) == len(right) and all(exact(a, b) for a, b in zip(left, right))
+        return left == right
+    return exact(comparison, recorded)
+
+
+def verify(output: Path, *, numerical_profile: str | None = None) -> dict:
     manifest = json.loads((output / "sprint7_manifest.json").read_text(encoding="utf-8"))
     required = {"freeze.json", "belief.sqlite", "beliefs.json", "decisions.json", "predictive_check.json",
                 "policy_comparison.json", "bayesian_checks.json", "reliability.json", "causal.json", "summary.json"}
@@ -210,13 +244,14 @@ def verify(output: Path) -> dict:
         if not path.is_relative_to(output.resolve()) or digest(path) != expected:
             raise ValueError("artifact integrity failure")
     spec = BeliefSpec()
-    store = ObservationStore(output / "belief.sqlite")
+    store = ObservationStore(output / "belief.sqlite", read_only=True)
     actual = summarize(spec, store.read())
     recorded = json.loads((output / "beliefs.json").read_text(encoding="utf-8"))
-    if actual != recorded:
+    if not beliefs_match(actual, recorded, numerical_profile):
         raise ValueError("belief evidence mismatch")
     return {"status": "verified", "artifacts": len(manifest["artifacts"]), "usd": 0,
-            "observations": len(store.read()), "replay": "read-only verification; no new outcomes"}
+            "observations": len(store.read()), "replay": "read-only verification; no new outcomes",
+            "numerical_profile": numerical_profile or "exact"}
 
 
 def run(output: Path) -> dict:

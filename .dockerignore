@@ -14,9 +14,15 @@
 !protocols/*.json
 !tests/
 !tests/**
+!scripts/
+!scripts/ask_api.py
+!scripts/generate_phase6.py
+!scripts/verify_phase7.py
 !benchmarks/
 !benchmarks/dev/
 !benchmarks/dev/registry.json
+!benchmarks/production/
+!benchmarks/production/*.py
 !docs/
 !docs/sprint04_review_rubric.md
 **/__pycache__/**
